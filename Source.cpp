@@ -259,6 +259,7 @@ int main() {
 	printRecord("20", file);
 	printRecord("28", file);
 	//deleteRecord("28", file);
+	///testing
 	//printRecord("28", file);
 	addRecord(device{ "20", "lap", "del", 15 }, file);
 	setAvailList(file);

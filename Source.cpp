@@ -1,8 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include <string>
 #include <cstring>
+#include <vector>
 using namespace std;
 
 struct device
@@ -24,12 +24,14 @@ const int FIRST_BYTE_IN_FILE = 4;
 
 // Writes availList in the first 4 byte of the file
 void setAvailList(fstream &file) {
+	file.clear();
 	file.seekp(0);
 	file.write((char*)&availList, sizeof(availList));
 }
 
 // Sets availList to the value written in the file
 void getAvailList(fstream &file) {
+	file.clear();
 	file.seekg(0);
 	file.read((char*)&availList, sizeof(availList));
 }
@@ -74,6 +76,7 @@ void writeRecord(device rec, int startByte, fstream &file) {
 }
 
 void addRecord(device rec, fstream &file) {
+	file.clear();
 	// If the availList is empty add record at the end of the file
 	if (availList == -1) {
 		writeRecord(rec, -1, file);
@@ -160,8 +163,10 @@ int search(char* id, fstream &file) {
 		return (int)file.tellg() - strlen(curId) - 1;
 
 	// Record not found
-	else
+	else {
+		file.clear();
 		return -1;
+	}
 }
 
 device readRecord(int startByte, fstream &file) {
@@ -176,6 +181,8 @@ device readRecord(int startByte, fstream &file) {
 	file.getline(rec.name, 30, '#');
 	file.getline(rec.brand, 30, '#');
 	file.read((char*)&rec.price, sizeof(rec.price));
+	// Skip the last '#'
+	file.seekg(1, ios::cur);
 	return rec;
 }
 
@@ -209,6 +216,7 @@ void deleteRecord(char* id, fstream &file) {
 
 	// If record was found
 	if (startByte != -1) {
+		file.clear();
 		file.seekp(startByte);
 		// The star to show that it's deleted and will be ignored when searching
 		file << '*';
@@ -241,27 +249,77 @@ void updateRecord(char* id, fstream&file) {
 	}
 }
 
-void compactFile() {
-	// TODO
+void compactFile(fstream &file) {
+	// Read all non-deleted records from the file in a vector
+	vector<device> records;
+	file.clear();
+	file.seekg(FIRST_BYTE_IN_FILE);
+	char recordLength;
+	device curRecord;
+
+	// file.eof() wasn't working
+	// Instead, it tries to read a single char
+	char c;
+	while (file.get(c)) {
+		// If it was read successfully, go back to where you where
+		file.seekg(-1, ios::cur);
+
+		file.get(recordLength);
+		
+		// Check that it's not deleted
+		file.get(c);
+		if (c == '*') {
+			// Jump to the first char of the next record
+			// -2 because we already read the '*'
+			file.seekg(recordLength - 1, ios::cur);
+			continue;
+		}
+
+		// Read record and push it to the vector
+		// -1 to go back the byte we just read
+		curRecord = readRecord((int)file.tellg() - 1, file);
+		records.push_back(curRecord);
+
+		// Skip all the '#'s after the record
+		while (file.get(c) && c == '#');
+		file.seekg(-1, ios::cur);
+	}
+
+	// Close then open the file in ios::out
+	// mode only to clear it on opening
+	file.close();
+	file.open("data.txt", ios::out);
+
+	// Clear availList and write it to the new file
+	availList = -1;
+	setAvailList(file);
+
+	// Write all records in the vector to the new file
+	for (int i = 0; i < records.size(); i++)
+		addRecord(records[i], file);
+
+	// Return the file back to in | out mode
+	file.close();
+	file.open("data.txt", ios::in | ios::out);
 }
 
 int main() {
 	fstream file("data.txt", ios::in | ios::out);
-	//setAvailList(file);
+	setAvailList(file);
 	device dev[] = {
 		{ "12", "cable", "acer", 15.5 },
 		{ "28", "laptop", "dell", 15000 },
 		{ "19", "cellphone", "samsung", 15000 }
 	};
-	//for (int i = 0; i < 3; i++)
-	//addRecord(dev[i], file);
+	for (int i = 0; i < 3; i++)
+		addRecord(dev[i], file);
 	getAvailList(file);
 	printRecord("20", file);
 	printRecord("28", file);
-	//deleteRecord("28", file);
-	///testing
-	//printRecord("28", file);
+	deleteRecord("28", file);
+	printRecord("28", file);
 	addRecord(device{ "20", "lap", "del", 15 }, file);
+	compactFile(file);
 	setAvailList(file);
 	//cin.ignore(), cin.get();
 }

@@ -57,7 +57,7 @@ void removeFromAvailList(int cur, int prev, int next, fstream &file) {
 		// Skip 1 byte for its length and 1 for the '*'
 		file.seekp(prev + 2);
 		// Make your prev point to your next
-		file << next;
+		file.write((char*)&next,sizeof(next));
 	}
 }
 
@@ -68,7 +68,6 @@ void writeRecord(device rec, int startByte, fstream &file) {
 		file.seekp(0, ios::end);
 	else
 		file.seekp(startByte);
-
 	file << rec.length();
 	file << rec.id << '#';
 	file << rec.name << '#';
@@ -213,7 +212,7 @@ void printRecord(char* id, fstream &file) {
 
 // Deleted records are like that:
 // [length(1 byte)]['*'(1 byte)][next element in the list(4 bytes)]
-void deleteRecord(char* id, fstream &file) {
+bool deleteRecord(char* id, fstream &file) {
 	int startByte = search(id, file);
 
 	// If record was found
@@ -225,13 +224,14 @@ void deleteRecord(char* id, fstream &file) {
 
 		// To make availList point at the length, not the first char of the id
 		addToAvailList(startByte - 1, file);
-		cout << "Record with ID " << id << " deleted" << endl;
 
 		// The availList has been changed, so write it the file
 		setAvailList(file);
+
+		return 1;  //return true that the recored has been deleted
 	}
 	else
-		cout << "Record not found!" << endl;
+		return 0;
 
 }
 
@@ -245,18 +245,25 @@ void updateRecord(char* id, fstream&file) {
 	//entering the data of the new device
 	device d1;
 	cout << "Enter the new data of the record " << endl;
-	cout << "ID: "; cin >> d1.id;
-	cout << "Name: "; cin >> d1.name;
-	cout << "Brand: "; cin >> d1.brand;
+	cout << "ID: ";cin>>d1.id;
+	cout << "Name: ";cin>>d1.name;
+	cout << "Brand: ";cin>>d1.brand;
 	cout << "Price: "; cin >> d1.price;
 
 
-	int length;
-	file.seekp(startByte);
+	char length;
+	file.seekp(startByte-1);
 	file >> length;  // get the length of the record that ought to be updated
 	 // check if the length of the updated record can be fitted in the old one
 	if (length >= d1.length()) {   //if yes
-		writeRecord(d1, startByte, file);   //write the record in that place
+		//writeRecord(d1, startByte, file);   //write the record in that place
+		file.seekp(startByte-1);
+		file << d1.length();
+        file << d1.id << '#';
+        file << d1.name << '#';
+        file << d1.brand << '#';
+        file.write((char*)&d1.price, sizeof(d1.price));
+        file << '#';
 		file.seekp(startByte + d1.length());
 		for (int i = 0; i < length - d1.length(); i++)  //filling the rest by hashes
 			file << '#';
@@ -321,6 +328,44 @@ void compactFile(fstream &file) {
 	file.open("data.txt", ios::in | ios::out);
 }
 
+bool printall(fstream &file)
+{
+    file.clear();
+	file.seekg(FIRST_BYTE_IN_FILE);
+	bool foundrecords=0;
+	char recordLength, curId[20],curName[30],curBrand[30];
+	double curprice;
+	while (file.get(curId[0]))
+    {
+        file.seekg(-1, ios::cur);
+		file >> recordLength;
+		char c;
+		file.get(c);
+		if (c != '*')
+        {
+            foundrecords=1;
+			file.seekg(-1, ios::cur);
+			file.getline(curId, 20, '#');
+			file.getline(curName,30,'#');
+			file.getline(curBrand,30,'#');
+			file.read((char*)&curprice,sizeof(curprice));
+			file.seekg(recordLength - strlen(curId) -strlen(curName)-strlen(curBrand)-sizeof(curprice)-3, ios::cur);
+			cout << "ID: " << curId << endl;
+            cout << "Name: " << curName << endl;
+            cout << "Brand: " << curBrand << endl;
+            cout << "Price: " << curprice << endl;
+            cout<<"---------------------------"<<endl;
+        }
+        else
+            file.seekg(recordLength - 1, ios::cur);
+
+	}
+	if(foundrecords==0)
+        file.clear();
+	return foundrecords;
+
+}
+
 int main() {
 	fstream file("data.txt", ios::in | ios::out);
 	//setAvailList(file);    //set the avilList by -1
@@ -332,8 +377,9 @@ int main() {
 		cout << "2) Update device" << endl;
 		cout << "3) Delete device" << endl;
 		cout << "4) Search for a device by ID" << endl;
-		cout << "5) Compact file" << endl;
-		cout << "6) Exit" << endl;
+		cout << "5) Print all records "<<endl;
+		cout << "6) Compact file" << endl;
+		cout << "7) Exit" << endl;
 		cout << "Enter your choice : ";
 		int choice;
 		cin >> choice;
@@ -369,7 +415,11 @@ int main() {
 			char id[30];
 			cout << "Enter the ID of the record you want to delete : ";
 			cin >> id;
-			deleteRecord(id, file);
+			bool check=deleteRecord(id, file);
+			if(check)
+                cout << "Record with ID " << id << " deleted" << endl;
+            else
+                cout << "Record not found!" << endl;
 			cout << "Press any key to continue " << endl;
 			char c;
 			cin.ignore();
@@ -388,8 +438,23 @@ int main() {
 			cin.get(c);
 			system("ClS");
 		}
-		else if (choice == 5) {
+		else if (choice==5)
+        {
+            system("CLS");
+            if(printall(file)==0)
+               cout<<"No records to be printed "<<endl;
+            cout << "Press any key to continue " << endl;
+			char c;
+			cin.ignore();
+			cin.get(c);
+			system("ClS");
+		}
+		else if (choice == 6) {
+		    file.seekg(0,ios::end);
+            int prev=file.tellg()-4;
 			compactFile(file);
+			file.seekg(0,ios::end);
+			int next=file.tellg()-4;
 			///..........just visual effects.......///
 			string x = "Compacting";
 			for (int k = 0; k < 8; k++) {
@@ -401,6 +466,8 @@ int main() {
 				}
 			}
 			cout << "Compacting file done " << endl;
+			cout<<"Bytes before Compacting: "<<prev<<endl;
+			cout<<"Bytes after  Compacting: "<<next<<endl;
 			cout << "Press any key to continue " << endl;
 			char c;
 			cin.ignore();
@@ -408,7 +475,7 @@ int main() {
 			system("CLS");
 			///....................................///
 		}
-		else if (choice == 6) {
+		else if (choice == 7) {
 			cout << endl;
 			cout << "EXIT" << endl;
 			break;

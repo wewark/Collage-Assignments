@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <string>
 #include <cstring>
 #include <vector>
 #include <stdlib.h>
@@ -224,24 +225,26 @@ void deleteRecord(char* id, fstream &file) {
 
 		// To make availList point at the length, not the first char of the id
 		addToAvailList(startByte - 1, file);
-		cout<<"Record with ID "<<id<<" deleted "<<endl;
+		cout << "Record with ID " << id << " deleted" << endl;
+
+		// The availList has been changed, so write it the file
+		setAvailList(file);
 	}
 	else
-        cout<<"Cannot delete un-existed record "<<endl;
-
+		cout << "Record not found!" << endl;
 
 }
 
 void updateRecord(char* id, fstream&file) {
-    int startByte = search(id, file);
-    // check if the record is not exist
-    if(startByte==-1){
-        cout<<"Cannot update un-existed record "<<endl;
-        return;
-    }
-    //entering the data of the new device
+	int startByte = search(id, file);
+	// check if the record is not exist
+	if (startByte == -1) {
+		cout << "Cannot update un-existed record " << endl;
+		return;
+	}
+	//entering the data of the new device
 	device d1;
-	cout<<"Enter the new data of the record "<<endl;
+	cout << "Enter the new data of the record " << endl;
 	cout << "ID: "; cin >> d1.id;
 	cout << "Name: "; cin >> d1.name;
 	cout << "Brand: "; cin >> d1.brand;
@@ -320,106 +323,106 @@ void compactFile(fstream &file) {
 
 int main() {
 	fstream file("data.txt", ios::in | ios::out);
-	setAvailList(file);    //set the avilList by -1
+	//setAvailList(file);    //set the avilList by -1
 	getAvailList(file);    //get the avilList value
-	cout<<"                Welcome to store management system"<<endl<<endl;
-	while(true){
+	cout << "                Welcome to store management system" << endl << endl;
+	while (true) {
 
-        cout<<"1) Add new device"<<endl;
-        cout<<"2) Update device"<<endl;
-        cout<<"3) Delete device"<<endl;
-        cout<<"4) Search for a device by ID"<<endl;
-        cout<<"5) Compact file"<<endl;
-        cout<<"6) Exit"<<endl;
-        cout<<"Enter your choice : ";
-        int choice;
-        cin>>choice;
-        if(choice==1){
-            device d1;
-            system("CLS");
-            //Entering the data of the new device
-            cout << "ID: "; cin >> d1.id;
-	        cout << "Name: "; cin >> d1.name;
-	        cout << "Brand: "; cin >> d1.brand;
-	        cout << "Price: "; cin >> d1.price;
-	        addRecord(d1,file);
-            cout<<"Press any key to continue "<<endl;
-            char c;
-            cin.ignore();
-            cin.get(c);  // to get all characters including '\n'
-	        system("CLS");
-        }
-        else if(choice==2){
-            system("CLS");
-            char id[30];
-            cout<<"Enter the ID of the record you want to update : ";
-            cin>>id;
-            updateRecord(id,file);
-            cout<<"Press any key to continue "<<endl;
-            char c;
-            cin.ignore();
-            cin.get(c);
-            system("ClS");
-        }
-        else if(choice==3){
-            system("CLS");
-            char id[30];
-            cout<<"Enter the ID of the record you want to delete : ";
-            cin>>id;
-            deleteRecord(id,file);
-            cout<<"Press any key to continue "<<endl;
-            char c;
-            cin.ignore();
-            cin.get(c);
-            system("CLS");
-        }
-        else if(choice==4){
-            system("CLS");
-            char id[30];
-            cout<<"Enter the ID of the record you want to Search : ";
-            cin>>id;
-            printRecord(id,file);
-            cout<<"Press any key to continue "<<endl;
-            char c;
-            cin.ignore();
-            cin.get(c);
-            system("ClS");
-        }
-        else if(choice==5){
-            compactFile(file);
-            ///..........just visual effects.......///
-            string x="Compacting";
-            for(int k=0;k<8;k++){
-            for(int i=0;i<5;i++){
-                cout<<x;
-                for(int j=0;j<i;j++)
-                    cout<<".";
-                system("CLS");
-            }
-            }
-            cout<<"Compacting file done "<<endl;
-            cout<<"Press any key to continue "<<endl;
-            char c;
-            cin.ignore();
-            cin.get(c);
-            system("CLS");
-            ///....................................///
-        }
-        else if(choice==6){
-            cout<<endl;
-            cout<<"EXIT"<<endl;
-            break;
-        }
-        else {
-            cout<<"un-supported choice please choose from the list "<<endl;
-            cout<<"Press any key to continue "<<endl;
-            char c;
-            cin.ignore();
-            cin.get(c);
-            system("CLS");
-        }
+		cout << "1) Add new device" << endl;
+		cout << "2) Update device" << endl;
+		cout << "3) Delete device" << endl;
+		cout << "4) Search for a device by ID" << endl;
+		cout << "5) Compact file" << endl;
+		cout << "6) Exit" << endl;
+		cout << "Enter your choice : ";
+		int choice;
+		cin >> choice;
+		if (choice == 1) {
+			device d1;
+			system("CLS");
+			//Entering the data of the new device
+			cout << "ID: "; cin >> d1.id;
+			cout << "Name: "; cin >> d1.name;
+			cout << "Brand: "; cin >> d1.brand;
+			cout << "Price: "; cin >> d1.price;
+			addRecord(d1, file);
+			cout << "Press any key to continue " << endl;
+			char c;
+			cin.ignore();
+			cin.get(c);  // to get all characters including '\n'
+			system("CLS");
+		}
+		else if (choice == 2) {
+			system("CLS");
+			char id[30];
+			cout << "Enter the ID of the record you want to update : ";
+			cin >> id;
+			updateRecord(id, file);
+			cout << "Press any key to continue " << endl;
+			char c;
+			cin.ignore();
+			cin.get(c);
+			system("ClS");
+		}
+		else if (choice == 3) {
+			system("CLS");
+			char id[30];
+			cout << "Enter the ID of the record you want to delete : ";
+			cin >> id;
+			deleteRecord(id, file);
+			cout << "Press any key to continue " << endl;
+			char c;
+			cin.ignore();
+			cin.get(c);
+			system("CLS");
+		}
+		else if (choice == 4) {
+			system("CLS");
+			char id[30];
+			cout << "Enter the ID of the record you want to Search : ";
+			cin >> id;
+			printRecord(id, file);
+			cout << "Press any key to continue " << endl;
+			char c;
+			cin.ignore();
+			cin.get(c);
+			system("ClS");
+		}
+		else if (choice == 5) {
+			compactFile(file);
+			///..........just visual effects.......///
+			string x = "Compacting";
+			for (int k = 0; k < 8; k++) {
+				for (int i = 0; i < 5; i++) {
+					cout << x;
+					for (int j = 0; j < i; j++)
+						cout << ".";
+					system("CLS");
+				}
+			}
+			cout << "Compacting file done " << endl;
+			cout << "Press any key to continue " << endl;
+			char c;
+			cin.ignore();
+			cin.get(c);
+			system("CLS");
+			///....................................///
+		}
+		else if (choice == 6) {
+			cout << endl;
+			cout << "EXIT" << endl;
+			break;
+		}
+		else {
+			cout << "un-supported choice please choose from the list " << endl;
+			cout << "Press any key to continue " << endl;
+			char c;
+			cin.ignore();
+			cin.get(c);
+			system("CLS");
+		}
 
 	}
 
-	//cin.ignore(), cin.get();
+	cin.ignore(), cin.get();
 }

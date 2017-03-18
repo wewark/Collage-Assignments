@@ -57,8 +57,16 @@ void removeFromAvailList(int cur, int prev, int next, fstream &file) {
 		// Skip 1 byte for its length and 1 for the '*'
 		file.seekp(prev + 2);
 		// Make your prev point to your next
-		file.write((char*)&next,sizeof(next));
+		file.write((char*)&next, sizeof(next));
 	}
+}
+
+// Keeps reading '#'s from the file until another
+// char found or EOF reached
+inline void skipHashes(fstream &file) {
+	char c;
+	while (file.get(c) && c == '#');
+	file.seekg(-1, ios::cur);
 }
 
 // Writes record starting at a certain byte
@@ -156,6 +164,9 @@ int search(char* id, fstream &file) {
 			// Jump to the first char of the next record
 			file.seekg(recordLength - 1, ios::cur);
 		}
+
+		// Whether deleted or not, skip all the '#'s after the record
+		skipHashes(file);
 	}
 
 	if (recordFound)

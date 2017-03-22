@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <time.h>
 #include <algorithm>
-#include <chrono>
+#include <iostream>
+#include <fstream>
+using namespace std;
 
 Testbed::Testbed()
 {
@@ -34,7 +36,7 @@ int Testbed::runOnce(Sorter* sorter, vector<int>& arr)
 {
 	clock_t begin = clock();
 
-	sorter->sort(arr, 0, arr.size() - 1);
+	sorter->sort(arr, 0, max(0, (int)arr.size() - 1));
 
 	clock_t end = clock();
 	int elapsed_ms = end - begin;
@@ -60,8 +62,21 @@ double Testbed::runAndAverage(Sorter * sorter, int type, int minNum, int maxNum,
 	return sum / (double)setsNum;
 }
 
+void Testbed::runExperiment(Sorter* sorter, int type, int minNum, int maxNum, int min_val, int max_val, int sets_num, int step)
+{
+	vector<int> set;
+	vector<double> average_time;
+	double cur_average;
+	cout << "Size\t\t<<Average(ms)" << endl;
+	for (int set_size = min_val; set_size <= max_val; set_size += step) {
+		set.push_back(set_size);
+		cur_average = runAndAverage(sorter, type, minNum, maxNum, set_size, sets_num);
+		average_time.push_back(cur_average);
+		cout << set_size << "\t\t" << cur_average << endl;
+	}
+}
+
 inline int Testbed::randBetween(int minNum, int maxNum)
 {
-	srand(time(NULL));
 	return rand() % (maxNum - minNum + 1) + minNum;
 }

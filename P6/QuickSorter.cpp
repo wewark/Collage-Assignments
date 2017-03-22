@@ -15,27 +15,32 @@ QuickSorter::~QuickSorter()
 
 void QuickSorter::sort(vector<int> &arr, int low, int high)
 {
-	if (low < high) {
-		int pivot = partition(arr, low, high);
+	if (high == 0) return;
 
-		sort(arr, low, pivot - 1);
-		sort(arr, pivot + 1, high);
-	}
+	int part = partition(arr, low, high);
+
+	if (low < part - 1)
+		sort(arr, low, part - 1);
+	if (part + 1 < high)
+		sort(arr, part + 1, high);
 }
 
-int QuickSorter::partition(vector<int> &arr, int low, int high)
+int QuickSorter::partition(vector<int>& arr, int low, int high)
 {
-	int pivot = arr[high];
-	int i = low;
+	int mid = (low + high) / 2;
+	int pivot = arr[mid];
+	swap(arr[mid], arr[low]);
+	int i = low + 1, j = high;
 
-	for (int j = low; j <= high - 1; j++)
-		if (arr[j] <= pivot)
-		{
-			swap(arr[i], arr[j]);
+	while (i <= j) {
+		while (i <= j && arr[i] < pivot)
 			i++;
-		}
+		while (i <= j && arr[j] >= pivot)
+			j--;
 
-	// Put the pivot in the middle
-	swap(arr[i], arr[high]);
-	return i;
+		if (i < j)
+			swap(arr[i], arr[j]);
+	}
+	swap(arr[i - 1], arr[low]);
+	return i - 1;
 }

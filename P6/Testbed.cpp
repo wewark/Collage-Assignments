@@ -64,16 +64,23 @@ double Testbed::runAndAverage(Sorter * sorter, int type, int minNum, int maxNum,
 
 void Testbed::runExperiment(Sorter* sorter, int type, int minNum, int maxNum, int min_val, int max_val, int sets_num, int step)
 {
+	fstream file("graph_data.csv", ios::out);
+
 	vector<int> set;
 	vector<double> average_time;
 	double cur_average;
-	cout << "Size\t\t<<Average(ms)" << endl;
+	cout << "Size\t\tAverage(ms)" << endl;
+	file << "Size,Average(ms)" << endl;
+
 	for (int set_size = min_val; set_size <= max_val; set_size += step) {
 		set.push_back(set_size);
 		cur_average = runAndAverage(sorter, type, minNum, maxNum, set_size, sets_num);
 		average_time.push_back(cur_average);
 		cout << set_size << "\t\t" << cur_average << endl;
+		file << set_size << "," << cur_average << endl;
 	}
+
+	file.close();
 }
 
 inline int Testbed::randBetween(int minNum, int maxNum)

@@ -15,6 +15,6 @@ int main() {
 	Testbed z;
 	//cout << z.runAndAverage(&x, 1, 0, 1e9, 1000, 1000) << endl;
 	//cout << z.runAndAverage(&y, 1, 0, 1e9, 1000, 1000) << endl;
-	z.runExperiment(&x, 1, 0, 1e9, 0, 1000000, 100, 50000);
+	z.runExperiment(&x, 1, 0, 1e9, 0, 100000, 100, 5000);
 	cin.ignore(), cin.get();
 }

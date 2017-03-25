@@ -17,8 +17,6 @@ int main()
 {
     vector<student>students;
     vector<string>names;
-    double maxstudent=0;
-    int index=0;
     cout<<"Welcome to Students Info.. program "<<endl;
     while(true)
     {
@@ -40,10 +38,6 @@ int main()
           cout<<"Age  :"; cin>>s.age;
           cout<<"Grade:";cin>>s.grade;
           students.push_back(s);
-          if(s.grade>maxstudent){
-            maxstudent=s.grade;
-            index=students.size()-1;
-          }
           for (int i=0;i<s.name.size();i++)
             s.name[i]=tolower(s.name[i]);
           names.push_back(s.name);
@@ -89,10 +83,6 @@ int main()
                   double g;
                   cout<<"Enter the new grade : ";cin>>g;
                   students[i].grade=g;
-                  if(g>maxstudent){
-                    maxstudent=g;
-                    index=i;
-                  }
                   break;
               }
           }
@@ -101,6 +91,16 @@ int main()
       }
       else if (choice==5)
       {
+          double maxmium=0;
+          int index;
+          for(int i=0;i<students.size();i++)
+          {
+              if(students[i].grade>maxmium)
+              {
+                  maxmium=students[i].grade;
+                  index=i;
+              }
+          }
           cout<<"#1 ranked student "<<endl;
           cout<<"Name  :"<<students[index].name<<endl;
           cout<<"Age   :"<<students[index].age<<endl;

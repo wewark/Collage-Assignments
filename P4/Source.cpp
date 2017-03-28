@@ -65,7 +65,7 @@ int main() {
 	
 	cout << "Size\t\tNormal(ms)\tDouble(ms)" << endl;
 	file << "Size,Normal(ms),Double(ms)" << endl;
-	for (int arr_size = 50000; arr_size <= 1000000; arr_size += 50000) {
+	for (int arr_size = 5000; arr_size <= 100000; arr_size += 5000) {
 		vector<int> arr = randVector(arr_size);
 		int normal_result = normalInsertionSort(arr);
 		int double_res = doubleInsertionSort(arr);

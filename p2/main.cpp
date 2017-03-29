@@ -2,9 +2,11 @@
 using namespace std;
 bool cmp(string x,string y)
 {
-    if(x<y||x=="Untitled")
+    if(x=="Untitled")
         return true;
-    else return false;
+    else if(y=="Untitled")
+        return false;
+    else return x<y;
 }
 void BaisedSort(vector<string>&x){
   sort(x.begin(),x.end(),cmp);

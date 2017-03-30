@@ -12,7 +12,7 @@ public:
 	vector<int> generateReverseOrderedList(int minNum, int maxNum, int arrSize);
 	int runOnce(Sorter* sorter, vector<int> &arr);
 	double runAndAverage(Sorter* sorter, int type, int minNum, int maxNum, int arrSize, int setsNum);
-	void runExperiment(Sorter* sorter, int type, int minNum, int maxNum, int min_val, int max_val, int sets_num, int step);
+	vector<double> runExperiment(Sorter* sorter, int type, int minNum, int maxNum, int min_size, int max_size, int sets_num, int step);
 private:
 	inline int randBetween(int minNum, int maxNum);
 };

@@ -26,21 +26,46 @@ public:
 		~iterator() {}
 
 		iterator operator ++ (int) {
-			// TODO
+			if (ptr->next) {
+				iterator temp(ptr);
+				ptr = ptr->next;
+				return temp;
+			}
+			throw "ptr->next is NULL";
 		}
 		iterator operator ++ () {
-			// TODO
+			if (ptr->next) {
+				ptr = ptr->next;
+				return *this;
+			}
+			throw "ptr->next is NULL";
 		}
 
 		iterator operator -- (int) {
-			// TODO
+			if (ptr->prev) {
+				iterator temp(ptr);
+				ptr = ptr->prev;
+				return temp;
+			}
+			throw "ptr->prev is NULL";
 		}
 		iterator operator -- () {
-			// TODO
+			if (ptr->prev) {
+				ptr = ptr->prev;
+				return *this;
+			}
+			throw "ptr->prev is NULL";
 		}
 
 		bool operator == (const iterator& other) {
-			// TODO
+			return &*ptr == &*other.ptr;
+		}
+		bool operator != (const iterator& other) {
+			return &*ptr != &*other.ptr;
+		}
+
+		T& operator * () {
+			return ptr->value;
 		}
 	};
 
@@ -60,6 +85,7 @@ public:
 	~LList() {
 		while (!empty())
 			pop_back();
+		delete tail;
 	}
 
 	void push_front(const T& val) {
@@ -107,26 +133,20 @@ public:
 	}
 
 	void print() {
-		node<T>* cur_node = head;
-		while (cur_node->next) {
-			cout << cur_node->value << " ";
-			cur_node = cur_node->next;
-		}
+		for (LList<T>::iterator itr = begin(); itr != end(); itr++)
+			cout << *itr << " ";
 		cout << endl;
 	}
 
 	int size() {
 		int cur_size = 0;
-		node<T>* cur_node = head;
-		while (cur_node->next) {
+		for (LList<T>::iterator itr = begin(); itr != end(); itr++)
 			cur_size++;
-			cur_node = cur_node->next;
-		}
 		return cur_size;
 	}
 
 	bool empty() {
-		return size() == 0;
+		return begin() == end();
 	}
 
 	void insert(const T& val, iterator positon) {
@@ -138,27 +158,33 @@ public:
 	}
 
 	LList<T>& operator = (LList<T> other) {
-		// TODO
+		while (!empty())
+			pop_back();
+		for (LList<T>::iterator itr = other.begin(); itr != other.end(); itr++)
+			push_back(*itr);
+		return *this;
 	}
 
 	iterator begin() {
-		// TODO
+		return iterator(head);
 	}
 
 	iterator end() {
-		// TODO
+		return iterator(tail);
 	}
 };
 
 int main() {
 	LList<int> list;
 	//list.pop_front();
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < 10; i++)
 		list.push_front(i);
-	}
 	list.print();
-	list.pop_front();
-	list.pop_front();
-	list.print();
+	LList<int>::iterator itr = list.end();
+	cout << *--itr << endl;
+	LList<int> list2;
+	list2.push_back(15);
+	list2 = list;
+	list2.print();
 	cin.get();
 }

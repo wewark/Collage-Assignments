@@ -18,18 +18,22 @@ public:
 	}
 
 	T& top() const {
-		return *list.begin();
+		if (!empty())
+			return *list.begin();
+		else throw "Trying to get top of empty stack";
 	}
 	void push(const T& val) {
 		list.push_front(val);
 	}
 	void pop() {
-		list.pop_front();
+		if (!empty())
+			list.pop_front();
+		else throw "Trying to pop empty queue";
 	}
 	int size() {
 		return list.size();
 	}
-	bool empty() {
+	bool empty() const {
 		return list.empty();
 	}
 };

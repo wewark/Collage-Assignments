@@ -148,20 +148,20 @@ public:
 		else throw "Poping from empty list";
 	}
 
-	void print() {
+	void print() const {
 		for (iterator itr = begin(); itr != end(); itr++)
 			cout << *itr << " ";
 		cout << endl;
 	}
 
-	int size() {
+	int size() const {
 		int cur_size = 0;
 		for (iterator itr = begin(); itr != end(); itr++)
 			cur_size++;
 		return cur_size;
 	}
 
-	bool empty() {
+	bool empty() const {
 		return begin() == end();
 	}
 

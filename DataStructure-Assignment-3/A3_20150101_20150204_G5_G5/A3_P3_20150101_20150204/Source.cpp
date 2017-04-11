@@ -20,7 +20,7 @@ public:
 	T& front() const {
 		if (!empty())
 			return *list.begin();
-		else throw "Trying to get top of empty queue";
+		else throw "Trying to get front of empty queue";
 	}
 	void push(const T& val) {
 		list.push_back(val);
@@ -28,7 +28,7 @@ public:
 	void pop() {
 		if (!empty())
 			list.pop_front();
-		else throw "Trying to get top of empty queue";
+		else throw "Trying to pop empty queue";
 	}
 	int size() const {
 		return list.size();

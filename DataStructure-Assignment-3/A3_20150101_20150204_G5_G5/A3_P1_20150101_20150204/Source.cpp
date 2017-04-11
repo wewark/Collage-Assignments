@@ -2,20 +2,23 @@
 using namespace std;
 
 template<class T>
-struct node {
-	T value;
-	node<T>* next = NULL;
-	node<T>* prev = NULL;
-	node(const T& val) { value = val; }
-};
-
-template<class T>
 class LList {
+private:
+	template<class T>
+	struct node {
+		T value;
+		node<T>* next = NULL;
+		node<T>* prev = NULL;
+		node() {}
+		node(const T& val) { value = val; }
+	};
+
 public:
 	class iterator
 	{
 	private:
 		node<T>* ptr;
+
 	public:
 		iterator() {
 			ptr = NULL;
@@ -67,6 +70,19 @@ public:
 		T& operator * () {
 			return ptr->value;
 		}
+
+		iterator operator + (const int distance) {
+			iterator temp = *this;
+			for (int i = 0; i < distance; i++)
+				temp++;
+			return temp;
+		}
+
+		T* operator -> () {
+			return &ptr->value;
+		}
+
+		friend class LList;
 	};
 
 private:
@@ -75,7 +91,7 @@ private:
 
 public:
 	LList() {
-		node<T>* dummy = new node<T>(-1);
+		node<T>* dummy = new node<T>();
 		head = tail = dummy;
 	}
 	LList(const T& val, int initial_size) {
@@ -140,7 +156,7 @@ public:
 
 	int size() {
 		int cur_size = 0;
-		for (LList<T>::iterator itr = begin(); itr != end(); itr++)
+		for (iterator itr = begin(); itr != end(); itr++)
 			cur_size++;
 		return cur_size;
 	}
@@ -149,42 +165,64 @@ public:
 		return begin() == end();
 	}
 
-	void insert(const T& val, iterator positon) {
-		// TODO
+	void insert(const T& val, iterator& positon) {
+		node<T>* new_node = new node<T>(val);
+		new_node->next = positon.ptr;
+		new_node->prev = positon.ptr->prev;
+		if (new_node->prev)
+			new_node->prev->next = new_node;
+		positon.ptr->prev = new_node;
+		//--position;
 	}
 
-	iterator erase(iterator position) {
-		// TODO
+	iterator erase(iterator& position) {
+		if (position != end()) {
+			position.ptr->next->prev = position.ptr->prev;
+			if (position.ptr->prev)
+				position.ptr->prev->next = position.ptr->next;
+			delete position.ptr;
+		}
+		else throw "Trying to delete list end iterator";
 	}
 
-	LList<T>& operator = (LList<T> other) {
+	LList<T>& operator = (const LList<T>& other) {
 		while (!empty())
 			pop_back();
-		for (LList<T>::iterator itr = other.begin(); itr != other.end(); itr++)
+		for (iterator itr = other.begin(); itr != other.end(); itr++)
 			push_back(*itr);
 		return *this;
 	}
 
-	iterator begin() {
+	iterator begin() const {
 		return iterator(head);
 	}
 
-	iterator end() {
+	iterator end() const {
 		return iterator(tail);
 	}
 };
 
 int main() {
 	LList<int> list;
-	//list.pop_front();
 	for (int i = 0; i < 10; i++)
 		list.push_front(i);
 	list.print();
+	cout << list.size() << endl;
 	LList<int>::iterator itr = list.end();
 	cout << *--itr << endl;
-	LList<int> list2;
-	list2.push_back(15);
-	list2 = list;
-	list2.print();
+	list.erase(list.begin() + 3);
+	list.erase(itr);
+	list.print();
+
+	cout << endl << "List of lists:" << endl;
+	LList<LList<int>> list2d;
+	for (int i = 0; i < 10; i++)
+		list2d.push_front(list);
+	for (LList<LList<int>>::iterator i = list2d.begin(); i != list2d.end(); i++) {
+		for (LList<int>::iterator j = i->begin(); j != i->end(); j++)
+			cout << *j << " ";
+		cout << endl;
+	}
+
 	cin.get();
 }

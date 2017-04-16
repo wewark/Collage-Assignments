@@ -3,7 +3,19 @@
 #include <vector>
 #include <sstream>
 #include <algorithm>
+#include <bits/stdc++.h>
 using namespace std;
+
+struct printer
+	{
+		char id[30];
+		char model[30];
+		char description[50];
+		double price;
+		short length() {
+			return strlen(id) + strlen(model) + strlen(description) + sizeof(price) + 4;
+		}
+	};
 
 class Index
 {
@@ -11,20 +23,11 @@ private:
 	fstream data_file;
 	fstream PIndex_file;
 	fstream SIndex_file;
-	char data_path[20] = "data.txt";
-	char PIndex_path[20] = "primary.txt";
-	char SIndex_path[20] = "secondary.txt";
+	string data_path = "data.txt";
+	string PIndex_path = "primary.txt";
+	string SIndex_path = "secondary.txt";
 
-	struct printer
-	{
-		char id[30];
-		char model[30];
-		char description[50];
-		double price;
-		char length() {
-			return strlen(id) + strlen(model) + strlen(description) + sizeof(price) + 4;
-		}
-	};
+
 	struct PIndexRecord
 	{
 		char PK[30]; // id
@@ -40,12 +43,14 @@ private:
 public:
 	Index() {
 		data_file.open(data_path, ios::in | ios::out);
+		PIndex_file.open(PIndex_path , ios::in | ios::out);
 	}
 	~Index() {
 		data_file.close();
+		PIndex_file.close();
 	}
 
-	static const int MAX_BUFFER_SIZE = 50 + 30 + 30 + sizeof(double) + 4;
+	static const int MAX_BUFFER_SIZE = 50 + 30 + 30 + sizeof(double) + 4 + 1 ; //for null char :)
 	// Writes a record at file current position
 	int writePrinter(printer& p) {
 		char buffer[MAX_BUFFER_SIZE];
@@ -94,7 +99,34 @@ public:
 	void updatePrinter(char id[]) {
 		int i = PIndexBinarySearch(id);
 		if (i != -1) {
-			// TODO: Get data from user and update
+			printer p;
+			cout<<"ID :"; cin>>p.id;
+			cout<<"Model :"; cin>>p.model;
+			cout<<"Description :"; cin>>p.description;
+			cout<<"Price :"; cin>>p.price;
+			short length;
+			data_file.seekg(PIndex[i].offset);
+			data_file.read((char*)&length,sizeof(length));
+			if(length>=p.length())
+            {
+                data_file.seekp(PIndex[i].offset+sizeof(length));
+                data_file<<p.id<<'|'<<p.model<<'|'<<p.description<<'|';
+                data_file.write((char*)&p.price,sizeof(p.price));
+                data_file<<'|';
+                strcpy(PIndex[i].PK,p.id);
+                //sort the indexes or deal with indexes stuff
+            }
+            else
+            {
+                data_file.seekp(PIndex[i].offset+sizeof(length));
+                data_file<<'*';
+                PIndex.erase(PIndex.begin()+i);
+                addPrinter(p);
+                //deal with the indexes stuff
+            }
+
+
+
 		}
 		else cout << "Not found!" << endl;
 	}
@@ -104,11 +136,11 @@ public:
 		if (i != -1) {
 			data_file.seekp(PIndex[i].offset + 2);
 			data_file.write("*", 1);
-
+            PIndex.erase(PIndex.begin()+i);
 			// Point it to null
 			// Don't erase it as the secondary key points here
 			// it will point to next one instead
-			PIndex[i].offset = -1;
+			//PIndex[i].offset = -1;  // WHY THIS WHEN I CAN SIMPLY ERASE IT
 		}
 		else cout << "Not found!" << endl;
 	}
@@ -190,7 +222,7 @@ public:
 		PIndex_file.close();
 	}
 
-	bool exists(char path[20]) {
+	bool exists(string path) {
 		ifstream f(path);
 		if (f.good()) {
 			f.close();
@@ -206,18 +238,19 @@ public:
 		if (!exists(PIndex_path)) {
 			ofstream fout;
 			fout.open(PIndex_path, ios::app | ios::out | ios::binary);
-			fout << 0;
 			fout.close();
 			ReconstructIndex();
 		}
 		else {
 			ifstream fin(PIndex_path);
 			PIndex.clear();
-			while (true)
+			while (fin.good())
 			{
+			    char c;
+	            if(fin.get(c))fin.seekg(-1,ios::cur);
+	            else break;
 				PIndexRecord temp;
 				fin.read((char*)&temp, sizeof(temp));
-				if (fin.eof()) break;
 				PIndex.push_back(temp);
 			}
 			fin.close();
@@ -243,7 +276,7 @@ public:
 			if (buffer[0] == '*') continue;
 
 			istringstream strbuf(buffer);
-			strbuf.getline(temp.PK, 6, '|');
+			strbuf.getline(temp.PK,30, '|');   ///copy paste eh ... allah yanwar
 			temp.offset = offset;
 			PIndex.push_back(temp);
 		}
@@ -275,5 +308,14 @@ public:
 };
 
 int main() {
+    Index ind1;
+    ind1.loadPIndex();
+    printer p,p2;
+    //cin>>p.id>>p.model>>p.description>>p.price;
+    //cin>>p2.id>>p2.model>>p2.description>>p2.price;
+  //  ind1.addPrinter(p);
+   // ind1.addPrinter(p2);
+   ind1.visualizeFile();
+    ind1.savePIndex();
 
 }

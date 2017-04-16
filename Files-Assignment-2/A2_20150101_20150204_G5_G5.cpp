@@ -2,17 +2,18 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
+#include <algorithm>
 using namespace std;
 
 class Index
 {
 private:
 	fstream data_file;
-	fstream primary_file;
-	fstream secondary_file;
-	char data_file_path[20] = "data.txt";
-	char primary_file_path[20] = "primary.txt";
-	char secondary_file_path[20] = "secondary.txt";
+	fstream PIndex_file;
+	fstream SIndex_file;
+	char data_path[20] = "data.txt";
+	char PIndex_path[20] = "primary.txt";
+	char SIndex_path[20] = "secondary.txt";
 
 	struct printer
 	{
@@ -26,17 +27,23 @@ private:
 	};
 	struct PIndexRecord
 	{
-		char PK[30];
+		char PK[30]; // id
 		int offset;
 	};
-	static const int INDEX_SIZE = 100;
-	PIndexRecord primary_index[INDEX_SIZE];
+	struct SIndexRecord
+	{
+		char SK[30]; // model
+		int index; // index of record in PIndex vector
+	};
+	vector<PIndexRecord> PIndex;
 
 public:
 	Index() {
-		data_file.open(data_file_path, ios::in | ios::out);
+		data_file.open(data_path, ios::in | ios::out);
 	}
-	~Index() {}
+	~Index() {
+		data_file.close();
+	}
 
 	static const int MAX_BUFFER_SIZE = 50 + 30 + 30 + sizeof(double) + 4;
 	// Writes a record at file current position
@@ -74,18 +81,36 @@ public:
 	void addPrinter(printer& p) {
 		data_file.clear();
 		data_file.seekp(0, ios::end);
+
+		// Updating primary index
+		PIndexRecord temp;
+		strcpy(temp.PK, p.id);
+		temp.offset = data_file.tellp();
+		PIndex.push_back(temp);
+
 		writePrinter(p);
 	}
 
-	void updatePrinter() {
-		// TODO
+	void updatePrinter(char id[]) {
+		int i = PIndexBinarySearch(id);
+		if (i != -1) {
+			// TODO: Get data from user and update
+		}
+		else cout << "Not found!" << endl;
 	}
 
-	void deletePrinter() {
-		// TODO
-		//int offset = search()
-		//file.seekp(offset + 2);
-		//file.write("*", 1);
+	void deletePrinter(char id[]) {
+		int i = PIndexBinarySearch(id);
+		if (i != -1) {
+			data_file.seekp(PIndex[i].offset + 2);
+			data_file.write("*", 1);
+
+			// Point it to null
+			// Don't erase it as the secondary key points here
+			// it will point to next one instead
+			PIndex[i].offset = -1;
+		}
+		else cout << "Not found!" << endl;
 	}
 
 	void compactFile() {
@@ -156,6 +181,96 @@ public:
 			// -1 because we already read the '*'
 			data_file.seekg(recordLength - 1, ios::cur);
 		}
+	}
+
+	void savePIndex() {
+		fstream PIndex_file(PIndex_path, ios::out);
+		for (int i = 0; i < PIndex.size(); i++)
+			PIndex_file.write((char*)&PIndex[i], sizeof(PIndex[i]));
+		PIndex_file.close();
+	}
+
+	bool exists(char path[20]) {
+		ifstream f(path);
+		if (f.good()) {
+			f.close();
+			return true;
+		}
+		else {
+			f.close();
+			return false;
+		}
+	}
+
+	void loadPIndex() {
+		if (!exists(PIndex_path)) {
+			ofstream fout;
+			fout.open(PIndex_path, ios::app | ios::out | ios::binary);
+			fout << 0;
+			fout.close();
+			ReconstructIndex();
+		}
+		else {
+			ifstream fin(PIndex_path);
+			PIndex.clear();
+			while (true)
+			{
+				PIndexRecord temp;
+				fin.read((char*)&temp, sizeof(temp));
+				if (fin.eof()) break;
+				PIndex.push_back(temp);
+			}
+			fin.close();
+		}
+	}
+
+	void ReconstructIndex() {
+		data_file.clear();
+		data_file.seekg(0);
+		PIndex.clear();
+
+		while (true)
+		{
+			PIndexRecord temp;
+			int offset = data_file.tellg();
+
+			short len;
+			data_file.read((char*)&len, sizeof(len));
+			if (data_file.eof()) break;
+
+			char *buffer = new char[len];
+			data_file.read(buffer, len);
+			if (buffer[0] == '*') continue;
+
+			istringstream strbuf(buffer);
+			strbuf.getline(temp.PK, 6, '|');
+			temp.offset = offset;
+			PIndex.push_back(temp);
+		}
+
+		sort(PIndex.begin(), PIndex.end(), PIndexComp);
+		savePIndex();
+	}
+
+	// Primary index compare function
+	static bool PIndexComp(PIndexRecord& a, PIndexRecord& b) {
+		return atoi(a.PK) < atoi(b.PK);
+	}
+
+	// Returns index of record in PIndex vector
+	int PIndexBinarySearch(char key[]) {
+		int low = 0, high = PIndex.size() - 1, middle;
+		while (low <= high)
+		{
+			middle = (low + high) / 2;
+			if (strcmp(PIndex[middle].PK, key) == 0)
+				return middle;
+			else if (atoi(PIndex[middle].PK) < atoi(key))
+				low = middle + 1;
+			else
+				high = middle - 1;
+		}
+		return -1;
 	}
 };
 

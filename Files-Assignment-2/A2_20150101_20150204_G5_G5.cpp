@@ -7,23 +7,23 @@
 using namespace std;
 
 struct printer
-	{
-		char id[30];
-		char model[30];
-		char description[50];
-		double price;
-		short length() {
-			return strlen(id) + strlen(model) + strlen(description) + sizeof(price) + 4;
-		}
-	};
+{
+	char id[30];
+	char model[30];
+	char description[50];
+	double price;
+	short length() {
+		return strlen(id) + strlen(model) + strlen(description) + sizeof(price) + 4;
+	}
+};
 
-fstream data_file("data.txt",ios::in|ios::out);
-fstream PIndex_file("primary.txt",ios::in|ios::out);
+fstream data_file("data.txt", ios::in | ios::out);
+fstream PIndex_file;
 class Index
 {
 private:
-//	fstream data_file;
-//	fstream PIndex_file;
+	//fstream data_file;
+	//fstream PIndex_file;
 	fstream SIndex_file;
 	string data_path = "data.txt";
 	string PIndex_path = "primary.txt";
@@ -44,22 +44,22 @@ private:
 
 public:
 	Index() {
-	//	data_file.open(data_path, ios::in | ios::out);
-	//	PIndex_file.open(PIndex_path , ios::in | ios::out);
+		//data_file.open(data_path, ios::in | ios::out);
+		//PIndex_file.open(PIndex_path, ios::in | ios::out);
 	}
 	~Index() {
-		data_file.close();
-		PIndex_file.close();
+		//data_file.close();
+		//PIndex_file.close();
 	}
 
-	static const int MAX_BUFFER_SIZE = 50 + 30 + 30 + sizeof(double) + 4 + 1 ; //for null char :)
+	static const int MAX_BUFFER_SIZE = 50 + 30 + 30 + sizeof(double) + 4 + 1; //for null char :)
 	// Writes a record at file current position
 	short writePrinter(printer& p) {
-		short s=p.length();
-        data_file.write((char*)&(s),sizeof(s));
-        data_file<<p.id<<'|'<<p.model<<'|'<<p.description<<'|';
-        data_file.write((char*)&p.price,sizeof(p.price));
-        data_file<<'|';
+		short s = p.length();
+		data_file.write((char*)&(s), sizeof(s));
+		data_file << p.id << '|' << p.model << '|' << p.description << '|';
+		data_file.write((char*)&p.price, sizeof(p.price));
+		data_file << '|';
 		return s;
 	}
 
@@ -90,39 +90,39 @@ public:
 		PIndex.push_back(temp);
 
 		writePrinter(p);
-		sort(PIndex.begin(),PIndex.end(),PIndexComp);
+		sort(PIndex.begin(), PIndex.end(), PIndexComp);
 	}
 
 	void updatePrinter(char id[]) {
 		int i = PIndexBinarySearch(id);
 		if (i != -1) {
 			printer p;
-			cout<<"ID :"; cin>>p.id;
-			cout<<"Model :"; cin>>p.model;
-			cout<<"Description :"; cin>>p.description;
-			cout<<"Price :"; cin>>p.price;
+			cout << "ID :"; cin >> p.id;
+			cout << "Model :"; cin >> p.model;
+			cout << "Description :"; cin >> p.description;
+			cout << "Price :"; cin >> p.price;
 			short length;
 			data_file.seekg(PIndex[i].offset);
-			data_file.read((char*)&length,sizeof(length));
-			cout<<"length "<<length<<endl;
-			if(length>=p.length())
-            {
-                cout<<"fff";
-                data_file.seekp(PIndex[i].offset+sizeof(length));
-                data_file<<p.id<<'|'<<p.model<<'|'<<p.description<<'|';
-                data_file.write((char*)&p.price,sizeof(p.price));
-                data_file<<'|';
-                strcpy(PIndex[i].PK,p.id);
-                sort(PIndex.begin(),PIndex.end(),PIndexComp);
-            }
-            else
-            {
-                data_file.seekp(PIndex[i].offset+sizeof(length));
-                data_file<<'*';
-                PIndex.erase(PIndex.begin()+i);
-                addPrinter(p);
-                //deal with the indexes stuff
-            }
+			data_file.read((char*)&length, sizeof(length));
+			cout << "length " << length << endl;
+			if (length >= p.length())
+			{
+				cout << "fff";
+				data_file.seekp(PIndex[i].offset + sizeof(length));
+				data_file << p.id << '|' << p.model << '|' << p.description << '|';
+				data_file.write((char*)&p.price, sizeof(p.price));
+				data_file << '|';
+				strcpy(PIndex[i].PK, p.id);
+				sort(PIndex.begin(), PIndex.end(), PIndexComp);
+			}
+			else
+			{
+				data_file.seekp(PIndex[i].offset + sizeof(length));
+				data_file << '*';
+				PIndex.erase(PIndex.begin() + i);
+				addPrinter(p);
+				//deal with the indexes stuff
+			}
 
 
 
@@ -133,9 +133,11 @@ public:
 	void deletePrinter(char id[]) {
 		int i = PIndexBinarySearch(id);
 		if (i != -1) {
+			data_file.clear();
 			data_file.seekp(PIndex[i].offset + 2);
-			data_file.write("*", 1);
-            PIndex.erase(PIndex.begin()+i);
+			data_file << "*";
+			//char c; data_file.seekg(PIndex[i].offset + 2); data_file.get(c);
+			PIndex.erase(PIndex.begin() + i);
 			// Point it to null
 			// Don't erase it as the secondary key points here
 			// it will point to next one instead
@@ -170,8 +172,8 @@ public:
 			}
 			else {
 				// Read record and push it to the vector
-				// -1 to go back the byte we just read
-				data_file.seekg(-1, ios::cur);
+				// go to the beginning (readPrinter() reads length)
+				data_file.seekg(-3, ios::cur);
 				curRecord = readPrinter();
 				records.push_back(curRecord);
 			}
@@ -182,6 +184,7 @@ public:
 		data_file.close();
 		data_file.open("data.txt", ios::out);
 
+		PIndex.clear();
 		// Write all records in the vector to the new file
 		for (int i = 0; i < records.size(); i++)
 			addPrinter(records[i]);
@@ -192,28 +195,31 @@ public:
 	}
 
 	void visualizeFile() {
-    data_file.clear();
-	data_file.seekg(0);
-	char c;
-	while(data_file.good())
-	{
-		short len;
-		data_file.read((char*)&len,sizeof(len));
-		if(data_file.get(c))
+		data_file.clear();
+			data_file.seekg(0);
+		char c;
+		while (data_file.good())
 		{
-			if(c == '*') cout << "*";
-			else cout <<"-";
-			data_file.seekg(len-1,ios::cur);
+			short len;
+			data_file.read((char*)&len, sizeof(len));
+			if (data_file.get(c))
+			{
+				if (c == '*') cout << "*";
+				else cout << "-";
+				data_file.seekg(len - 1, ios::cur);
+			}
+			else {
+				data_file.clear();
+				break;
+			}
 		}
-		else break;
+		cout << endl;
 	}
-	cout << endl;
-}
 
 	void savePIndex() {
 		fstream PIndex_file(PIndex_path, ios::out);
 		PIndex_file.seekp(0);
-		sort(PIndex.begin(),PIndex.end(),PIndexComp);
+		sort(PIndex.begin(), PIndex.end(), PIndexComp);
 		for (int i = 0; i < PIndex.size(); i++)
 			PIndex_file.write((char*)&PIndex[i], sizeof(PIndex[i]));
 		PIndex_file.close();
@@ -243,17 +249,21 @@ public:
 			PIndex.clear();
 			while (fin.good())
 			{
-			    char c;
-	            if(fin.get(c))fin.seekg(-1,ios::cur);
-	            else break;
+				char c;
+				if (fin.get(c))fin.seekg(-1, ios::cur);
+				else break;
 				PIndexRecord temp;
 				fin.read((char*)&temp, sizeof(temp));
-				cout<<temp.PK<<endl;
+				//cout << temp.PK << endl;
 				PIndex.push_back(temp);
 			}
-            sort(PIndex.begin(),PIndex.end(),PIndexComp);
+			sort(PIndex.begin(), PIndex.end(), PIndexComp);
 			fin.close();
 		}
+
+		// In case it exists but empty
+		if (PIndex.empty())
+			ReconstructIndex();
 	}
 
 	void ReconstructIndex() {
@@ -275,7 +285,7 @@ public:
 			if (buffer[0] == '*') continue;
 
 			istringstream strbuf(buffer);
-			strbuf.getline(temp.PK,30, '|');   ///copy paste eh ... allah yanwar
+			strbuf.getline(temp.PK, 30, '|');   ///copy paste eh ... allah yanwar
 			temp.offset = offset;
 			PIndex.push_back(temp);
 		}
@@ -307,30 +317,29 @@ public:
 };
 
 int main() {
-    Index ind1;
-    ind1.loadPIndex();
-   printer p,p2;
-    cin>>p.id>>p.model>>p.description>>p.price;
-//    cin>>p2.id>>p2.model>>p2.description>>p2.price;
-////    short s=p.length();
-//    f.write((char*)&(s),sizeof(s));
-//    f<<p.id<<'|'<<p.model<<'|'<<p.description<<'|';
-//    f.write((char*)&p.price,sizeof(p.price));
-//    f<<'|';
-//    s=p2.length();
-//     f.write((char*)&s,sizeof(s));
-//    f<<p2.id<<'|'<<p2.model<<'|'<<p2.description<<'|';
-//    f.write((char*)&p2.price,sizeof(p2.price));
-//    f<<'|';
-//
-    ind1.addPrinter(p);
-//    ind1.addPrinter(p2);
-    //  ind1.deletePrinter("20150204");
-   // ind1.deletePrinter("60");
-   //ind1.updatePrinter("70");
- // ind1.compactFile();
+	Index ind1;
+	printer p[] = {
+		printer{"123","123","123",123},
+		printer{"999","ahh","tmm",500},
+		printer{"670","kmn","mra",800}
+	};
+	ind1.loadPIndex();
 
-   ind1.visualizeFile();
-    ind1.savePIndex();
+	//ind1.addPrinter(p[0]);
+	//ind1.addPrinter(p[1]);
+	//ind1.deletePrinter(p[1].id);
+	//ind1.addPrinter(p[2]);
+	//ind1.deletePrinter(p[2].id);
+	//ind1.addPrinter(p[2]);
 
+	ind1.visualizeFile();
+	cout << "compacting..." << endl;
+	ind1.compactFile();
+	ind1.visualizeFile();
+	//ind1.deletePrinter("60");
+	//ind1.updatePrinter("70");
+	//ind1.compactFile();
+
+	ind1.savePIndex();
+	cin.get();
 }

@@ -17,42 +17,22 @@ struct printer
 	}
 };
 
-fstream data_file("data.txt", ios::in | ios::out);
-fstream PIndex_file;
+//fstream data_file("data.txt", ios::in | ios::out);
+//fstream PIndex_file;
 class Index
 {
 private:
-	//fstream data_file;
-	//fstream PIndex_file;
-	fstream SIndex_file;
-	string data_path = "data.txt";
-	string PIndex_path = "primary.txt";
-	string SIndex_path = "secondary.txt";
-
-
-	struct PIndexRecord
-	{
-		char PK[30]; // id
-		int offset;
-	};
-	struct SIndexRecord
-	{
-		char SK[30]; // model
-		int index; // index of record in PIndex vector
-	};
-	vector<PIndexRecord> PIndex;
+	fstream data_file;
+	const string data_path = "data.txt";
 
 public:
 	Index() {
-		//data_file.open(data_path, ios::in | ios::out);
-		//PIndex_file.open(PIndex_path, ios::in | ios::out);
+		data_file.open(data_path, ios::in | ios::out);
 	}
 	~Index() {
-		//data_file.close();
-		//PIndex_file.close();
+		data_file.close();
 	}
 
-	static const int MAX_BUFFER_SIZE = 50 + 30 + 30 + sizeof(double) + 4 + 1; //for null char :)
 	// Writes a record at file current position
 	short writePrinter(printer& p) {
 		short s = p.length();
@@ -84,17 +64,17 @@ public:
 		data_file.seekp(0, ios::end);
 
 		// Updating primary index
-		PIndexRecord temp;
+		PIRecord temp;
 		strcpy(temp.PK, p.id);
 		temp.offset = data_file.tellp();
 		PIndex.push_back(temp);
 
 		writePrinter(p);
-		sort(PIndex.begin(), PIndex.end(), PIndexComp);
+		sort(PIndex.begin(), PIndex.end(), PIComp);
 	}
 
 	void updatePrinter(char id[]) {
-		int i = PIndexBinarySearch(id);
+		int i = PIBinarySearch(id);
 		if (i != -1) {
 			printer p;
 			cout << "ID :"; cin >> p.id;
@@ -113,7 +93,7 @@ public:
 				data_file.write((char*)&p.price, sizeof(p.price));
 				data_file << '|';
 				strcpy(PIndex[i].PK, p.id);
-				sort(PIndex.begin(), PIndex.end(), PIndexComp);
+				sort(PIndex.begin(), PIndex.end(), PIComp);
 			}
 			else
 			{
@@ -131,7 +111,7 @@ public:
 	}
 
 	void deletePrinter(char id[]) {
-		int i = PIndexBinarySearch(id);
+		int i = PIBinarySearch(id);
 		if (i != -1) {
 			data_file.clear();
 			data_file.seekp(PIndex[i].offset + 2);
@@ -182,7 +162,7 @@ public:
 		// Close then open the file in ios::out
 		// mode only to clear it on opening
 		data_file.close();
-		data_file.open("data.txt", ios::out);
+		data_file.open(data_path, ios::out);
 
 		PIndex.clear();
 		// Write all records in the vector to the new file
@@ -191,7 +171,7 @@ public:
 
 		// Return the file back to in | out mode
 		data_file.close();
-		data_file.open("data.txt", ios::in | ios::out);
+		data_file.open(data_path, ios::in | ios::out);
 	}
 
 	void visualizeFile() {
@@ -216,15 +196,6 @@ public:
 		cout << endl;
 	}
 
-	void savePIndex() {
-		fstream PIndex_file(PIndex_path, ios::out);
-		PIndex_file.seekp(0);
-		sort(PIndex.begin(), PIndex.end(), PIndexComp);
-		for (int i = 0; i < PIndex.size(); i++)
-			PIndex_file.write((char*)&PIndex[i], sizeof(PIndex[i]));
-		PIndex_file.close();
-	}
-
 	bool exists(string path) {
 		ifstream f(path);
 		if (f.good()) {
@@ -237,12 +208,23 @@ public:
 		}
 	}
 
-	void loadPIndex() {
+	// ************* Primary Index (PI) ************* //
+
+	const string PIndex_path = "primary.txt";
+
+	struct PIRecord
+	{
+		char PK[30]; // id
+		int offset;
+	};
+	vector<PIRecord> PIndex;
+
+	void loadPI() {
 		if (!exists(PIndex_path)) {
 			ofstream fout;
 			fout.open(PIndex_path, ios::app | ios::out | ios::binary);
 			fout.close();
-			ReconstructIndex();
+			ReconstructPI();
 		}
 		else {
 			ifstream fin(PIndex_path);
@@ -252,28 +234,37 @@ public:
 				char c;
 				if (fin.get(c))fin.seekg(-1, ios::cur);
 				else break;
-				PIndexRecord temp;
+				PIRecord temp;
 				fin.read((char*)&temp, sizeof(temp));
 				//cout << temp.PK << endl;
 				PIndex.push_back(temp);
 			}
-			sort(PIndex.begin(), PIndex.end(), PIndexComp);
+			sort(PIndex.begin(), PIndex.end(), PIComp);
 			fin.close();
 		}
 
 		// In case it exists but empty
 		if (PIndex.empty())
-			ReconstructIndex();
+			ReconstructPI();
 	}
 
-	void ReconstructIndex() {
+	void savePI() {
+		fstream PIndex_file(PIndex_path, ios::out);
+		PIndex_file.seekp(0);
+		sort(PIndex.begin(), PIndex.end(), PIComp);
+		for (int i = 0; i < PIndex.size(); i++)
+			PIndex_file.write((char*)&PIndex[i], sizeof(PIndex[i]));
+		PIndex_file.close();
+	}
+
+	void ReconstructPI() {
 		data_file.clear();
 		data_file.seekg(0);
 		PIndex.clear();
 
 		while (true)
 		{
-			PIndexRecord temp;
+			PIRecord temp;
 			int offset = data_file.tellg();
 
 			short len;
@@ -290,17 +281,17 @@ public:
 			PIndex.push_back(temp);
 		}
 
-		sort(PIndex.begin(), PIndex.end(), PIndexComp);
-		savePIndex();
+		sort(PIndex.begin(), PIndex.end(), PIComp);
+		savePI();
 	}
 
 	// Primary index compare function
-	static bool PIndexComp(PIndexRecord& a, PIndexRecord& b) {
+	static bool PIComp(PIRecord& a, PIRecord& b) {
 		return atoi(a.PK) < atoi(b.PK);
 	}
 
 	// Returns index of record in PIndex vector
-	int PIndexBinarySearch(char key[]) {
+	int PIBinarySearch(char key[]) {
 		int low = 0, high = PIndex.size() - 1, middle;
 		while (low <= high)
 		{
@@ -314,6 +305,187 @@ public:
 		}
 		return -1;
 	}
+
+	// ******* Secondary Index using Model (SIM) ******* //
+
+	const string SIM_path = "SIM.txt";
+	const string SIMLabel_path = "SIMLabel.txt";
+
+	struct SIMRecord
+	{
+		char SK[30]; // model
+		int labelIndex; // its index in Label ID list
+	};
+	struct LabelRecord
+	{
+		char PK[30]; // id
+		int next;
+	};
+	vector<SIMRecord> SIM;
+	vector<LabelRecord> SIMLabel;
+
+	void loadSIM() {
+		if (!exists(SIM_path)) {
+			ofstream fout;
+			fout.open(SIM_path, ios::app | ios::out | ios::binary);
+			fout.close();
+			ReconstructSIM();
+		}
+		else {
+			ifstream fin(SIM_path);
+			SIM.clear();
+			while (fin.good())
+			{
+				char c;
+				if (fin.get(c)) fin.seekg(-1, ios::cur);
+				else break;
+				
+				SIMRecord temp;
+				fin.read((char*)&temp, sizeof(temp));
+				SIM.push_back(temp);
+			}
+			sort(SIM.begin(), SIM.end(), SIMComp);
+			fin.close();
+		}
+
+		// In case it exists but empty
+		if (SIM.empty())
+			ReconstructSIM();
+
+		// Do the same with SIMLabel
+		if (!exists(SIMLabel_path)) {
+			ofstream fout;
+			fout.open(SIMLabel_path, ios::app | ios::out | ios::binary);
+			fout.close();
+			ReconstructSIM();
+		}
+		else {
+			ifstream fin(SIMLabel_path);
+			SIMLabel.clear();
+			while (fin.good())
+			{
+				char c;
+				if (fin.get(c)) fin.seekg(-1, ios::cur);
+				else break;
+
+				LabelRecord temp;
+				fin.read((char*)&temp, sizeof(temp));
+				SIMLabel.push_back(temp);
+			}
+			fin.close();
+		}
+
+		// In case it exists but empty
+		if (SIMLabel.empty())
+			ReconstructSIM();
+	}
+
+	void saveSIM() {
+		ofstream fout(SIM_path);
+		fout.seekp(0);
+		sort(SIM.begin(), SIM.end(), SIMComp);
+		for (int i = 0; i < SIM.size(); i++)
+			fout.write((char*)&SIM[i], sizeof(SIM[i]));
+		fout.close();
+
+		fout.open(SIMLabel_path);
+		fout.seekp(0);
+		for (int i = 0; i < SIMLabel.size(); i++)
+			fout.write((char*)&SIMLabel[i], sizeof(SIMLabel[i]));
+		fout.close();
+	}
+
+	void ReconstructSIM() {
+		data_file.clear();
+		data_file.seekg(0);
+		SIM.clear();
+		SIMLabel.clear();
+
+		while (true)
+		{
+			data_file.get();
+			if (data_file.eof()) break;
+			data_file.seekg(-1, ios::cur);
+
+			printer p = readPrinter();
+			bool found = false;
+			for (int i = 0; i < SIM.size(); i++)
+				if (SIM[i].SK == p.model) {
+					found = true;
+
+					LabelRecord temp;
+					strcpy(temp.PK, p.id);
+					temp.next = SIM[i].labelIndex;
+					SIM[i].labelIndex = SIMLabel.size();
+					SIMLabel.push_back(temp);
+				}
+
+			if (!found) {
+				SIMRecord simtemp;
+				strcpy(simtemp.SK, p.model);
+				simtemp.labelIndex = SIMLabel.size();
+
+				LabelRecord labeltemp;
+				strcpy(labeltemp.PK, p.id);
+				labeltemp.next = simtemp.labelIndex;
+				simtemp.labelIndex = SIMLabel.size();
+
+				SIM.push_back(simtemp);
+				SIMLabel.push_back(labeltemp);
+			}
+		}
+
+		data_file.clear();
+		sort(SIM.begin(), SIM.end(), SIMComp);
+		saveSIM();
+	}
+
+	// SIM compare function
+	static bool SIMComp(SIMRecord& a, SIMRecord& b) {
+		return strcmp(a.SK, b.SK) < 0;
+	}
+
+	// Returns index of a record in SIMLabel
+	int SIMBinarySearch(char key[]) {
+		int low = 0, high = SIM.size() - 1, middle;
+		while (low <= high)
+		{
+			middle = (low + high) / 2;
+			if (strcmp(SIM[middle].SK, key) == 0)
+				return middle;
+			else if (atoi(SIM[middle].SK) < atoi(key))
+				low = middle + 1;
+			else
+				high = middle - 1;
+		}
+		return -1;
+	}
+
+	// Returns vector of PKs of found printer
+	vector<string> searchByModel(char key[]) {
+		int i = SIMBinarySearch(key);
+		if (i != -1) {
+			i = SIM[i].labelIndex;
+		}
+
+		vector<string> found;
+		while (i != -1) {
+			found.push_back(SIMLabel[i].PK);
+			i = SIMLabel[i].next;
+		}
+		return found;
+	}
+
+	// ******* Secondary Index using Price (SIP) ******* //
+
+	const string SIP_path = "SIP.txt";
+	const string SIPLabel_path = "SIPLabel.txt";
+
+	struct SIPRecord
+	{
+		double SK; // price
+		int labelIndex; // its index in Label ID list
+	};
 };
 
 int main() {
@@ -323,7 +495,7 @@ int main() {
 		printer{"999","ahh","tmm",500},
 		printer{"670","kmn","mra",800}
 	};
-	ind1.loadPIndex();
+	ind1.loadPI();
 
 	//ind1.addPrinter(p[0]);
 	//ind1.addPrinter(p[1]);
@@ -340,6 +512,6 @@ int main() {
 	//ind1.updatePrinter("70");
 	//ind1.compactFile();
 
-	ind1.savePIndex();
+	ind1.savePI();
 	cin.get();
 }

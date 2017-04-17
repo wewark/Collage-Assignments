@@ -17,11 +17,13 @@ struct printer
 		}
 	};
 
+fstream data_file("data.txt",ios::in|ios::out);
+fstream PIndex_file("primary.txt",ios::in|ios::out);
 class Index
 {
 private:
-	fstream data_file;
-	fstream PIndex_file;
+//	fstream data_file;
+//	fstream PIndex_file;
 	fstream SIndex_file;
 	string data_path = "data.txt";
 	string PIndex_path = "primary.txt";
@@ -42,8 +44,8 @@ private:
 
 public:
 	Index() {
-		data_file.open(data_path, ios::in | ios::out);
-		PIndex_file.open(PIndex_path , ios::in | ios::out);
+	//	data_file.open(data_path, ios::in | ios::out);
+	//	PIndex_file.open(PIndex_path , ios::in | ios::out);
 	}
 	~Index() {
 		data_file.close();
@@ -52,19 +54,13 @@ public:
 
 	static const int MAX_BUFFER_SIZE = 50 + 30 + 30 + sizeof(double) + 4 + 1 ; //for null char :)
 	// Writes a record at file current position
-	int writePrinter(printer& p) {
-		char buffer[MAX_BUFFER_SIZE];
-		strcpy(buffer, p.id); strcat(buffer, "|");
-		strcpy(buffer, p.model); strcat(buffer, "|");
-		strcpy(buffer, p.description); strcat(buffer, "|");
-		strcpy(buffer, (char*)&p.price); strcat(buffer, "|");
-
-		short length = strlen(buffer);
-		data_file.write((char*)&length, sizeof(length));
-		data_file.write(buffer, length);
-
-		delete[] buffer;
-		return length;
+	short writePrinter(printer& p) {
+		short s=p.length();
+        data_file.write((char*)&(s),sizeof(s));
+        data_file<<p.id<<'|'<<p.model<<'|'<<p.description<<'|';
+        data_file.write((char*)&p.price,sizeof(p.price));
+        data_file<<'|';
+		return s;
 	}
 
 	printer readPrinter() {
@@ -94,6 +90,7 @@ public:
 		PIndex.push_back(temp);
 
 		writePrinter(p);
+		sort(PIndex.begin(),PIndex.end(),PIndexComp);
 	}
 
 	void updatePrinter(char id[]) {
@@ -107,14 +104,16 @@ public:
 			short length;
 			data_file.seekg(PIndex[i].offset);
 			data_file.read((char*)&length,sizeof(length));
+			cout<<"length "<<length<<endl;
 			if(length>=p.length())
             {
+                cout<<"fff";
                 data_file.seekp(PIndex[i].offset+sizeof(length));
                 data_file<<p.id<<'|'<<p.model<<'|'<<p.description<<'|';
                 data_file.write((char*)&p.price,sizeof(p.price));
                 data_file<<'|';
                 strcpy(PIndex[i].PK,p.id);
-                //sort the indexes or deal with indexes stuff
+                sort(PIndex.begin(),PIndex.end(),PIndexComp);
             }
             else
             {
@@ -193,30 +192,28 @@ public:
 	}
 
 	void visualizeFile() {
-		data_file.clear();
-		data_file.seekg(0);
-		short recordLength;
-
-		char c;
-		while (data_file.get(c)) {
-			// If it was read successfully, go back to where you where
-			data_file.seekg(-1, ios::cur);
-
-			data_file.read((char*)&recordLength, sizeof(recordLength));
-
-			// Check that it's not deleted
-			data_file.get(c);
-			if (c == '*') cout << "*";
-			else cout << "-";
-
-			// Jump to the first char of the next record
-			// -1 because we already read the '*'
-			data_file.seekg(recordLength - 1, ios::cur);
+    data_file.clear();
+	data_file.seekg(0);
+	char c;
+	while(data_file.good())
+	{
+		short len;
+		data_file.read((char*)&len,sizeof(len));
+		if(data_file.get(c))
+		{
+			if(c == '*') cout << "*";
+			else cout <<"-";
+			data_file.seekg(len-1,ios::cur);
 		}
+		else break;
 	}
+	cout << endl;
+}
 
 	void savePIndex() {
 		fstream PIndex_file(PIndex_path, ios::out);
+		PIndex_file.seekp(0);
+		sort(PIndex.begin(),PIndex.end(),PIndexComp);
 		for (int i = 0; i < PIndex.size(); i++)
 			PIndex_file.write((char*)&PIndex[i], sizeof(PIndex[i]));
 		PIndex_file.close();
@@ -251,8 +248,10 @@ public:
 	            else break;
 				PIndexRecord temp;
 				fin.read((char*)&temp, sizeof(temp));
+				cout<<temp.PK<<endl;
 				PIndex.push_back(temp);
 			}
+            sort(PIndex.begin(),PIndex.end(),PIndexComp);
 			fin.close();
 		}
 	}
@@ -310,11 +309,27 @@ public:
 int main() {
     Index ind1;
     ind1.loadPIndex();
-    printer p,p2;
-    //cin>>p.id>>p.model>>p.description>>p.price;
-    //cin>>p2.id>>p2.model>>p2.description>>p2.price;
-  //  ind1.addPrinter(p);
-   // ind1.addPrinter(p2);
+   printer p,p2;
+    cin>>p.id>>p.model>>p.description>>p.price;
+//    cin>>p2.id>>p2.model>>p2.description>>p2.price;
+////    short s=p.length();
+//    f.write((char*)&(s),sizeof(s));
+//    f<<p.id<<'|'<<p.model<<'|'<<p.description<<'|';
+//    f.write((char*)&p.price,sizeof(p.price));
+//    f<<'|';
+//    s=p2.length();
+//     f.write((char*)&s,sizeof(s));
+//    f<<p2.id<<'|'<<p2.model<<'|'<<p2.description<<'|';
+//    f.write((char*)&p2.price,sizeof(p2.price));
+//    f<<'|';
+//
+    ind1.addPrinter(p);
+//    ind1.addPrinter(p2);
+    //  ind1.deletePrinter("20150204");
+   // ind1.deletePrinter("60");
+   //ind1.updatePrinter("70");
+ // ind1.compactFile();
+
    ind1.visualizeFile();
     ind1.savePIndex();
 

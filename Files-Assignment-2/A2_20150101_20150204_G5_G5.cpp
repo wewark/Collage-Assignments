@@ -208,7 +208,7 @@ public:
 		}
 	}
 
-	// ************* Primary Index (PI) ************* //
+	// ********************** Primary Index (PI) ********************** //
 
 	const string PIndex_path = "primary.txt";
 
@@ -306,7 +306,7 @@ public:
 		return -1;
 	}
 
-	// ******* Secondary Index using Model (SIM) ******* //
+	// *************** Secondary Index using Model (SIM) *************** //
 
 	const string SIM_path = "SIM.txt";
 	const string SIMLabel_path = "SIMLabel.txt";
@@ -336,8 +336,7 @@ public:
 			SIM.clear();
 			while (fin.good())
 			{
-				char c;
-				if (fin.get(c)) fin.seekg(-1, ios::cur);
+				if (fin.get()) fin.seekg(-1, ios::cur);
 				else break;
 				
 				SIMRecord temp;
@@ -364,8 +363,7 @@ public:
 			SIMLabel.clear();
 			while (fin.good())
 			{
-				char c;
-				if (fin.get(c)) fin.seekg(-1, ios::cur);
+				if (fin.get()) fin.seekg(-1, ios::cur);
 				else break;
 
 				LabelRecord temp;
@@ -453,7 +451,7 @@ public:
 			middle = (low + high) / 2;
 			if (strcmp(SIM[middle].SK, key) == 0)
 				return middle;
-			else if (atoi(SIM[middle].SK) < atoi(key))
+			else if (strcmp(SIM[middle].SK, key) < 0)
 				low = middle + 1;
 			else
 				high = middle - 1;
@@ -461,12 +459,11 @@ public:
 		return -1;
 	}
 
-	// Returns vector of PKs of found printer
+	// Returns vector of PKs of found printers
 	vector<string> searchByModel(char key[]) {
 		int i = SIMBinarySearch(key);
-		if (i != -1) {
+		if (i != -1)
 			i = SIM[i].labelIndex;
-		}
 
 		vector<string> found;
 		while (i != -1) {
@@ -476,7 +473,7 @@ public:
 		return found;
 	}
 
-	// ******* Secondary Index using Price (SIP) ******* //
+	// *************** Secondary Index using Price (SIP) *************** //
 
 	const string SIP_path = "SIP.txt";
 	const string SIPLabel_path = "SIPLabel.txt";
@@ -486,6 +483,157 @@ public:
 		double SK; // price
 		int labelIndex; // its index in Label ID list
 	};
+	vector<SIPRecord> SIP;
+	vector<LabelRecord> SIPLabel;
+
+	void loadSIP() {
+		if (!exists(SIP_path)) {
+			ofstream fout;
+			fout.open(SIP_path, ios::app | ios::out | ios::binary);
+			fout.close();
+			ReconstructSIP();
+		}
+		else {
+			ifstream fin(SIP_path);
+			SIP.clear();
+			while (fin.good())
+			{
+				if (fin.get()) fin.seekg(-1, ios::cur);
+				else break;
+
+				SIPRecord temp;
+				fin.read((char*)&temp, sizeof(temp));
+				SIP.push_back(temp);
+			}
+			sort(SIP.begin(), SIP.end(), SIPComp);
+			fin.close();
+		}
+
+		// In case it exists but empty
+		if (SIP.empty())
+			ReconstructSIP();
+
+		// Do the same with SIPLabel
+		if (!exists(SIPLabel_path)) {
+			ofstream fout;
+			fout.open(SIPLabel_path, ios::app | ios::out | ios::binary);
+			fout.close();
+			ReconstructSIP();
+		}
+		else {
+			ifstream fin(SIPLabel_path);
+			SIPLabel.clear();
+			while (fin.good())
+			{
+				if (fin.get()) fin.seekg(-1, ios::cur);
+				else break;
+
+				LabelRecord temp;
+				fin.read((char*)&temp, sizeof(temp));
+				SIPLabel.push_back(temp);
+			}
+			fin.close();
+		}
+
+		// In case it exists but empty
+		if (SIPLabel.empty())
+			ReconstructSIP();
+	}
+
+	void saveSIP() {
+		ofstream fout(SIP_path);
+		fout.seekp(0);
+		sort(SIP.begin(), SIP.end(), SIPComp);
+		for (int i = 0; i < SIP.size(); i++)
+			fout.write((char*)&SIP[i], sizeof(SIP[i]));
+		fout.close();
+
+		fout.open(SIPLabel_path);
+		fout.seekp(0);
+		for (int i = 0; i < SIPLabel.size(); i++)
+			fout.write((char*)&SIPLabel[i], sizeof(SIPLabel[i]));
+		fout.close();
+	}
+
+	void ReconstructSIP() {
+		data_file.clear();
+		data_file.seekg(0);
+		SIP.clear();
+		SIPLabel.clear();
+
+		while (true)
+		{
+			data_file.get();
+			if (data_file.eof()) break;
+			data_file.seekg(-1, ios::cur);
+
+			printer p = readPrinter();
+			bool found = false;
+			for (int i = 0; i < SIP.size(); i++)
+				if (SIP[i].SK == p.price) {
+					found = true;
+
+					LabelRecord temp;
+					strcpy(temp.PK, p.id);
+					temp.next = SIP[i].labelIndex;
+					SIP[i].labelIndex = SIPLabel.size();
+					SIPLabel.push_back(temp);
+				}
+
+			if (!found) {
+				SIPRecord SIPtemp;
+				SIPtemp.SK = p.price;
+				SIPtemp.labelIndex = SIPLabel.size();
+
+				LabelRecord labeltemp;
+				strcpy(labeltemp.PK, p.id);
+				labeltemp.next = SIPtemp.labelIndex;
+				SIPtemp.labelIndex = SIPLabel.size();
+
+				SIP.push_back(SIPtemp);
+				SIPLabel.push_back(labeltemp);
+			}
+		}
+
+		data_file.clear();
+		sort(SIP.begin(), SIP.end(), SIPComp);
+		saveSIP();
+	}
+
+	// SIP compare function
+	static bool SIPComp(SIPRecord& a, SIPRecord& b) {
+		return a.SK < b.SK;
+	}
+
+	// Returns index of a record in SIPLabel
+	int SIPBinarySearch(double key) {
+		int low = 0, high = SIP.size() - 1, middle;
+		while (low <= high)
+		{
+			middle = (low + high) / 2;
+			if (SIP[middle].SK == key)
+				return middle;
+			else if (SIP[middle].SK < key)
+				low = middle + 1;
+			else
+				high = middle - 1;
+		}
+		return -1;
+	}
+
+	// Returns vector of PKs of found printers
+	vector<string> searchByPrice(double key) {
+		int i = SIPBinarySearch(key);
+		if (i != -1)
+			i = SIP[i].labelIndex;
+
+		vector<string> found;
+		while (i != -1) {
+			found.push_back(SIPLabel[i].PK);
+			i = SIPLabel[i].next;
+		}
+		return found;
+	}
 };
 
 int main() {
@@ -496,6 +644,8 @@ int main() {
 		printer{"670","kmn","mra",800}
 	};
 	ind1.loadPI();
+	ind1.loadSIM();
+	ind1.loadSIP();
 
 	//ind1.addPrinter(p[0]);
 	//ind1.addPrinter(p[1]);
@@ -513,5 +663,7 @@ int main() {
 	//ind1.compactFile();
 
 	ind1.savePI();
+	ind1.saveSIM();
+	ind1.saveSIP();
 	cin.get();
 }

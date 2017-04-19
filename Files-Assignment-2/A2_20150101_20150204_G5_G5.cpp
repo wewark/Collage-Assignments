@@ -13,7 +13,7 @@ struct printer
 	char description[50];
 	double price;
 	short length() {
-		return strlen(id) + strlen(model) + strlen(description) + sizeof(price) + 4 + 1;
+		return strlen(id) + strlen(model) + strlen(description) + sizeof(price) + 4;
 	}
 };
 
@@ -40,6 +40,11 @@ private:
 
 public:
 	Index() {
+		if (!exists(data_path)) {
+			ofstream fout;
+			fout.open(data_path, ios::app | ios::out | ios::binary);
+			fout.close();
+		}
 		data_file.open(data_path, ios::in | ios::out);
 		loadPI(), loadSIM(), loadSIP();
 	}
@@ -61,15 +66,11 @@ public:
 		printer p;
 		short length;
 		data_file.read((char*)&length, sizeof(length));
-
-		char *buffer = new char[length];
-		data_file.read(buffer, length);
-		istringstream stream(buffer);
-		stream.getline(p.id, 30, '|');
-		stream.getline(p.model, 30, '|');
-		stream.getline(p.description, 50, '|');
-		stream.getline((char*)&p.price, sizeof(p.price), '|');
-		delete[] buffer;
+		data_file.getline(p.id, 30, '|');
+		data_file.getline(p.model, 30, '|');
+		data_file.getline(p.description, 50, '|');
+		data_file.read((char*)&p.price, sizeof(p.price));
+		data_file.seekg(1, ios::cur);
 		return p;
 	}
 
@@ -215,6 +216,7 @@ public:
 			fout.open(SIM_path, ios::app | ios::out | ios::binary);
 			fout.close();
 			ReconstructSIM();
+			return;
 		}
 		else {
 			ifstream fin(SIM_path);
@@ -233,15 +235,17 @@ public:
 		}
 
 		// In case it exists but empty
-		if (SIM.empty())
+		if (SIM.empty()) {
 			ReconstructSIM();
-
+			return;
+		}
 		// Do the same with SIMLabel
 		if (!exists(SIMLabel_path)) {
 			ofstream fout;
 			fout.open(SIMLabel_path, ios::app | ios::out | ios::binary);
 			fout.close();
 			ReconstructSIM();
+			return;
 		}
 		else {
 			ifstream fin(SIMLabel_path);
@@ -291,7 +295,8 @@ public:
 			data_file.seekg(-1, ios::cur);
 
 			printer p = readPrinter();
-			addToSIM(p);
+			if (p.id[0] != '*')
+				addToSIM(p);
 		}
 
 		data_file.clear();
@@ -303,7 +308,7 @@ public:
 	void addToSIM(printer& p) {
 		bool found = false;
 		for (int i = 0; i < SIM.size(); i++)
-			if (SIM[i].SK == p.model) {
+			if (strcmp(SIM[i].SK, p.model) == 0) {
 				found = true;
 
 				LabelRecord temp;
@@ -321,7 +326,7 @@ public:
 
 			LabelRecord labeltemp;
 			strcpy(labeltemp.PK, p.id);
-			labeltemp.next = simtemp.labelIndex;
+			labeltemp.next = -1;
 			simtemp.labelIndex = SIMLabel.size();
 
 			SIM.push_back(simtemp);
@@ -331,11 +336,11 @@ public:
 
 	void removeFromSIM(printer& p) {
 		for (int i = 0; i < SIM.size(); i++)
-			if (SIM[i].SK == p.model) {
+			if (strcmp(SIM[i].SK, p.model) == 0) {
 				int cur = SIM[i].labelIndex, prv = -1;
 
 				// Follow linked list until you find our printer
-				while (SIMLabel[cur].PK != p.id) {
+				while (strcmp(SIMLabel[cur].PK, p.id)) {
 					prv = cur;
 					cur = SIMLabel[cur].next;
 				}
@@ -359,7 +364,7 @@ public:
 		return strcmp(a.SK, b.SK) < 0;
 	}
 
-	// Returns index of a record in SIMLabel
+	// Returns index of a record in SIM
 	int SIMBinarySearch(char key[]) {
 		int low = 0, high = SIM.size() - 1, middle;
 		while (low <= high)
@@ -408,6 +413,7 @@ public:
 			fout.open(SIP_path, ios::app | ios::out | ios::binary);
 			fout.close();
 			ReconstructSIP();
+			return;
 		}
 		else {
 			ifstream fin(SIP_path);
@@ -426,15 +432,17 @@ public:
 		}
 
 		// In case it exists but empty
-		if (SIP.empty())
+		if (SIP.empty()) {
 			ReconstructSIP();
-
+			return;
+		}
 		// Do the same with SIPLabel
 		if (!exists(SIPLabel_path)) {
 			ofstream fout;
 			fout.open(SIPLabel_path, ios::app | ios::out | ios::binary);
 			fout.close();
 			ReconstructSIP();
+			return;
 		}
 		else {
 			ifstream fin(SIPLabel_path);
@@ -484,7 +492,8 @@ public:
 			data_file.seekg(-1, ios::cur);
 
 			printer p = readPrinter();
-			addToSIP(p);
+			if (p.id[0] != '*')
+				addToSIP(p);
 		}
 
 		data_file.clear();
@@ -514,7 +523,7 @@ public:
 
 			LabelRecord labeltemp;
 			strcpy(labeltemp.PK, p.id);
-			labeltemp.next = SIPtemp.labelIndex;
+			labeltemp.next = -1;
 			SIPtemp.labelIndex = SIPLabel.size();
 
 			SIP.push_back(SIPtemp);
@@ -528,7 +537,7 @@ public:
 				int cur = SIP[i].labelIndex, prv = -1;
 
 				// Follow linked list until you find our printer
-				while (SIPLabel[cur].PK != p.id) {
+				while (strcmp(SIPLabel[cur].PK, p.id)) {
 					prv = cur;
 					cur = SIPLabel[cur].next;
 				}
@@ -552,7 +561,7 @@ public:
 		return a.SK < b.SK;
 	}
 
-	// Returns index of a record in SIPLabel
+	// Returns index of a record in SIP
 	int SIPBinarySearch(double key) {
 		int low = 0, high = SIP.size() - 1, middle;
 		while (low <= high)
@@ -599,7 +608,7 @@ public:
 
 	void updatePrinter(char id[]) {
 		int i = PIBinarySearch(id);
-		if (i != -1) {
+		if (i == -1) {
 			cout << "Not found!" << endl;
 			return;
 		}
@@ -610,12 +619,7 @@ public:
 		data_file.seekg(PI[i].offset);
 		p_old = readPrinter();
 
-		short length;
-		data_file.clear();
-		data_file.seekg(PI[i].offset);
-		data_file.read((char*)&length, sizeof(length));
-
-		if (length == p.length()) {
+		if (p_old.length() == p.length()) {
 			data_file.seekp(PI[i].offset);
 			writePrinter(p);
 
@@ -647,12 +651,12 @@ public:
 		data_file.seekg(PI[i].offset);
 		printer p = readPrinter();
 
-		PI.erase(PI.begin() + i);
-		removeFromSIM(p), removeFromSIP(p);
-
 		data_file.clear();
 		data_file.seekp(PI[i].offset + 2);
 		data_file << "*";
+
+		PI.erase(PI.begin() + i);
+		removeFromSIM(p), removeFromSIP(p);
 	}
 
 	void searchByID() {
@@ -678,7 +682,7 @@ public:
 		vector<string> PKs = searchSIM(model);
 		vector<int> offsets;
 		for (auto i : PKs)
-			offsets.push_back(PIBinarySearch(i.c_str()));
+			offsets.push_back(PI[PIBinarySearch(i.c_str())].offset);
 
 		// To reduce seeking
 		sort(offsets.begin(), offsets.end());
@@ -705,7 +709,7 @@ public:
 		for (auto i : modelPKs)
 			// If it is in the other one too
 			if (binary_search(pricePKs.begin(), pricePKs.end(), i))
-				offsets.push_back(PIBinarySearch(i.c_str()));
+				offsets.push_back(PI[PIBinarySearch(i.c_str())].offset);
 
 		// To reduce seeking
 		sort(offsets.begin(), offsets.end());
@@ -756,7 +760,6 @@ public:
 		data_file.close();
 		data_file.open(data_path, ios::out);
 
-		PI.clear();
 		// Write all records in the vector to the new file
 		for (int i = 0; i < records.size(); i++)
 			addPrinter(records[i]);
@@ -764,6 +767,8 @@ public:
 		// Return the file back to in | out mode
 		data_file.close();
 		data_file.open(data_path, ios::in | ios::out);
+
+		ReconstructPI(), ReconstructSIM(), ReconstructSIP();
 	}
 
 	void visualizeFile() {
@@ -794,13 +799,13 @@ int main() {
 		cout << "1) Add New printer" << endl;
 		cout << "2) Update printer" << endl;
 		cout << "3) Delete printer" << endl;
-		cout << "4) Search for a printer using ID(using primary Index)" << endl;
-		cout << "5) Search for a printer using model(using secondary Index)" << endl;
-		cout << "6) Search for a printer using certain model and certain price" << endl;
+		cout << "4) Search using ID" << endl;
+		cout << "5) Search using model" << endl;
+		cout << "6) Search using certain model and certain price" << endl;
 		cout << "7) Compact File" << endl;
 		cout << "8) Visualize File" << endl;
 		cout << "9) Exit" << endl << endl;
-		cout << "Please Enter Your Choice :" << endl;
+		cout << "Please Enter Your Choice:" << endl;
 		int res; cin >> res;
 
 		char id[30];

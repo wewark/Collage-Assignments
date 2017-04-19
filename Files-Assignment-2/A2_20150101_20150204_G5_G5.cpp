@@ -691,7 +691,8 @@ public:
 		cout << endl << offsets.size() << " printers found" << endl << endl;
 		for (auto i : offsets) {
 			data_file.seekg(i);
-			cout << readPrinter() << endl;
+			printer p=readPrinter();
+			cout << p << endl;
 		}
 	}
 
@@ -718,7 +719,8 @@ public:
 		cout << endl << offsets.size() << " printers found" << endl << endl;
 		for (auto i : offsets) {
 			data_file.seekg(i);
-			cout << readPrinter() << endl;
+			printer p=readPrinter();
+			cout << p << endl;
 		}
 	}
 

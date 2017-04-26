@@ -1,4 +1,6 @@
 #include <algorithm>
+#include <string>
+#include <vector>
 using namespace std;
 
 template<class T>
@@ -28,6 +30,16 @@ public:
 		if (right) right->print();
 	}
 };
+
+string tolowerStr(string s) {
+	for (int i = 0; i < s.length(); i++)
+		s[i] = tolower(s[i]);
+	return s;
+}
+bool cmpStr(string a, string b) {
+	a = tolowerStr(a), b = tolowerStr(b);
+	return lexicographical_compare(a.begin(), a.end(), b.begin(), b.end());
+}
 
 template<class T>
 class BSTFCI {
@@ -62,7 +74,8 @@ public:
 	BSTNode<T>* insert(const T& key, BSTNode<T>*& cur_node) {
 		if (!cur_node)
 			cur_node = new BSTNode<T>(key);
-		else if (key < cur_node->key)
+		else if (typeid(T) == typeid(string) && cmpStr(key, cur_node->key) ||
+			typeid(T) != typeid(string) && key < cur_node->key)
 			cur_node->left = insert(key, cur_node->left);
 		else
 			cur_node->right = insert(key, cur_node->right);
@@ -139,5 +152,18 @@ public:
 		// After range
 		else if (cur_node->key > high)
 			printRange(low, high, cur_node->left);
+	}
+
+	// Returns a vector containing all elements sorted
+	vector<T> getAll() {
+		vector<T> ret;
+		getAll(root, ret);
+		return ret;
+	}
+	void getAll(BSTNode<T>*& cur_node, vector<T>& ret) {
+		if (!cur_node) return;
+		getAll(cur_node->left, ret);
+		ret.push_back(cur_node->key);
+		getAll(cur_node->right, ret);
 	}
 };

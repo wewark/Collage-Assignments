@@ -31,16 +31,6 @@ public:
 	}
 };
 
-string tolowerStr(string s) {
-	for (int i = 0; i < s.length(); i++)
-		s[i] = tolower(s[i]);
-	return s;
-}
-bool cmpStr(string a, string b) {
-	a = tolowerStr(a), b = tolowerStr(b);
-	return lexicographical_compare(a.begin(), a.end(), b.begin(), b.end());
-}
-
 template<class T>
 class BSTFCI {
 protected:
@@ -74,6 +64,7 @@ public:
 	BSTNode<T>* insert(const T& key, BSTNode<T>*& cur_node) {
 		if (!cur_node)
 			cur_node = new BSTNode<T>(key);
+		// If it's a string use cpmStr, otherwise just compare
 		else if (typeid(T) == typeid(string) && cmpStr(key, cur_node->key) ||
 			typeid(T) != typeid(string) && key < cur_node->key)
 			cur_node->left = insert(key, cur_node->left);
@@ -86,6 +77,16 @@ public:
 		if (root) root->print();
 		else cout << "[EMPTY BST]";
 		cout << endl;
+	}
+
+	static string tolowerStr(string s) {
+		for (int i = 0; i < s.length(); i++)
+			s[i] = tolower(s[i]);
+		return s;
+	}
+	static bool cmpStr(string a, string b) {
+		a = tolowerStr(a), b = tolowerStr(b);
+		return lexicographical_compare(a.begin(), a.end(), b.begin(), b.end());
 	}
 
 	bool isBalanced() { return isBalanced(root) != -1; }

@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1493417780 source:c:\users\refaie\desktop\section2_p1\main.cpp
+	<iostream>
+	<cstdlib>
+	<cstdio>
+	<cstring>
+

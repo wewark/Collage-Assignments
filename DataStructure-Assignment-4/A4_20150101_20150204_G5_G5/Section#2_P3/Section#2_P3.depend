@@ -1,0 +1,12 @@
+# depslib dependency file v1.0
+1493590277 source:c:\users\refaie\desktop\section#2_p3\main.cpp
+	<iostream>
+	"BSTFCI.h"
+
+1493584303 c:\users\refaie\desktop\section#2_p3\bstfci.h
+	<algorithm>
+	<string>
+	<vector>
+	<typeinfo>
+	<bits/stdc++.h>
+

@@ -1,12 +1,7 @@
 #include <iostream>
-
 using namespace std;
-
 void printPostOrder(string in,string pre)
 {
-   // The first element in pre is always root, search it
-   // in in to find left and right subtrees
-  // cout<<in<<" "<<pre<<" "<<endl;
    int root;
    for(int i=0;i<in.size();i++)
    {
@@ -16,16 +11,12 @@ void printPostOrder(string in,string pre)
            break;
        }
    }
-   // If left subtree is not empty, print left subtree
    if (root != 0)
       printPostOrder(in.substr(0,root),pre.substr(1,pre.size()-1));
-   // If right subtree is not empty, print right subtree
    if (root != in.size()-1)
       printPostOrder(in.substr(root+1,in.size()-(root+1)),pre.substr(root+1,pre.size()-(root+1)));
-   // Print root
    cout << pre[0];
 }
-
 int main()
 {
     string preorder,inorder;
@@ -36,5 +27,15 @@ int main()
     cout<<"PostOrder: ";
     printPostOrder(inorder,preorder);
 
+    /*
+     InOrder | PreOrder | PostOrder
+     ------- | -------- | ---------
+     1)FBGAC |  ABFGC   |  FGBCA
+     2)A     |  A       |  A
+     3)BAC   |  ABC     |  BCA
+     4)FBI   |  IBF     |  FBI
+     5)FBGI  |  IBFG    |  FGBI
+
+    */
     return 0;
 }

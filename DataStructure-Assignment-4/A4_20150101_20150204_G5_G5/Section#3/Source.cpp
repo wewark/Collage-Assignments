@@ -48,10 +48,43 @@ public:
 		cur_node = NULL;
 	}
 
-	void printInOrder() {
-		if (root) root->print();
+	void printInorder() {
+		if (root) printInorder(root);
 		else cout << "[EMPTY BST]";
 		cout << endl;
+	}
+	void printInorder(BSTNode<T>* cur_node) {
+		if (cur_node->left)
+			printInorder(cur_node->left);
+		cout << cur_node->key << " ";
+		if (cur_node->right)
+			printInorder(cur_node->right);
+	}
+
+	void printPreorder() {
+		if (root) printPreorder(root);
+		else cout << "[EMPTY BST]";
+		cout << endl;
+	}
+	void printPreorder(BSTNode<T>* cur_node) {
+		cout << cur_node->key << " ";
+		if (cur_node->left)
+			printPreorder(cur_node->left);
+		if (cur_node->right)
+			printPreorder(cur_node->right);
+	}
+
+	void printPostorder() {
+		if (root) printPostorder(root);
+		else cout << "[EMPTY BST]";
+		cout << endl;
+	}
+	void printPostorder(BSTNode<T>* cur_node) {
+		if (cur_node->left)
+			printPostorder(cur_node->left);
+		if (cur_node->right)
+			printPostorder(cur_node->right);
+		cout << cur_node->key << " ";
 	}
 
 	BSTNode<T>* search(const T& key) { return search(key, root); }
@@ -383,9 +416,14 @@ int main() {
 	for (int i = 0; i < 7; i++)
 		x.insert(i);
 	x.insert(2.5);
-	x.printInOrder();
-	x.deleteValue(6);
-	x.deleteValue(4);
-	x.printInOrder();
+
+	cout << "Inorder: "; x.printInorder();
+	cout << "Preorder: "; x.printPreorder();
+	cout << "Postorder: "; x.printPostorder();
+	cout << endl;
+	x.printInorder();
+	x.deleteValue(6); cout << "Remove 6" << endl;
+	x.deleteValue(4); cout << "Remove 4" << endl;
+	x.printInorder();
 	cin.get();
 }

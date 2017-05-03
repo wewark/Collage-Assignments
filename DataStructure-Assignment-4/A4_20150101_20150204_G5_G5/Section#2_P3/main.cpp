@@ -8,10 +8,8 @@ void mirror(BSTNode<int>*node)
   else
   {
     BSTNode<int>* temp;
-    /// do the subtrees
     mirror(node->left);
     mirror(node->right);
-    /// swap the pointers in this node
     temp        = node->left;
     node->left  = node->right;
     node->right = temp;

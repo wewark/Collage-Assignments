@@ -1,0 +1,16 @@
+# depslib dependency file v1.0
+1493417780 source:c:\users\refaie\desktop\section2_p1\main.cpp
+	<iostream>
+	<cstdlib>
+	<cstdio>
+	<cstring>
+
+1493674259 source:c:\users\refaie\documents\github\collage-assignments\datastructure-assignment-4\a4_20150101_20150204_g5_g5\section#2_p1\main.cpp
+	<bits/stdc++.h>
+	"BSTFCI.h"
+
+1493672469 c:\users\refaie\documents\github\collage-assignments\datastructure-assignment-4\a4_20150101_20150204_g5_g5\section#2_p1\bstfci.h
+	<algorithm>
+	<string>
+	<vector>
+

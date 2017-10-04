@@ -1,9 +1,6 @@
 package com.example;
 
-import com.sun.org.apache.xpath.internal.res.XPATHErrorResources_ja;
-
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Scanner;
@@ -33,11 +30,21 @@ public class CLI {
 		return path;
 	}
 
-	public static void cd(String[] args) {
-		if (args.length != 2) {
+	public static boolean checkArgs(String[] args, int desiredSize) {
+		if (args.length > desiredSize) {
 			System.out.println("Too many arguments!");
-			return;
+			return false;
 		}
+		if (args.length < desiredSize) {
+			System.out.println("Too few arguments!");
+			return false;
+		}
+		return true;
+	}
+
+	public static void cd(String[] args) {
+		if (!checkArgs(args, 2)) return;
+
 		if (!isPath(args[1])) return;
 
 		Path path = Paths.get(args[1]);
@@ -48,6 +55,15 @@ public class CLI {
 		path = Paths.get(removeDots(path.toString()));
 		currentDir = path.toString();
 		System.setProperty("user.dir", currentDir);
+	}
+
+	public static void ls(String[] args) {
+		if (!checkArgs(args, 1)) return;
+
+		File file = new File(currentDir);
+		String[] results = file.list();
+		for (String result : results)
+			System.out.println(result);
 	}
 
 	public static void main(String[] args) {
@@ -61,6 +77,9 @@ public class CLI {
 			switch (arguments[0]) {
 				case "cd":
 					cd(arguments);
+					break;
+				case "ls":
+					ls(arguments);
 					break;
 			}
 		}

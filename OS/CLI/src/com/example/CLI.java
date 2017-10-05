@@ -46,7 +46,16 @@ public class CLI {
 	}
 
 	public static void cd(String[] args) {
-		if (!checkArgs(args, 2)) return;
+		if(args.length<1||args.length>2)return;
+		if(args.length==1)
+		{
+			Path path = Paths.get("C:\\");
+			path = path.normalize();
+			path = Paths.get(removeDots(path.toString()));
+			currentDir = path.toString();
+			System.setProperty("user.dir", currentDir);
+			return;
+		}
 
 		if (!isPath(args[1])) return;
 

@@ -123,6 +123,14 @@ public class CLI {
 		File file = new File(currentDir + "/"+args[1]);
 		file.delete();
 	}
+	
+	public static void rm(String args[])
+	{
+		if(!checkArgs(args,2))return; 
+		File file = new File(currentDir + "/"+args[1]);
+		if(file.delete())return;
+		else System.out.println("File not found");
+	}
 
 	public static void main(String[] args) {
 		while (true) {
@@ -152,6 +160,9 @@ public class CLI {
 					break;
 				case "rmdir":
 					rmdir(arguments);
+					break;
+				case "rm":
+					rm(arguments);
 					break;
 			}
 		}

@@ -107,6 +107,14 @@ public class CLI {
 		System.out.println("exit");
 		
 	}
+	
+	public static void mkdir(String args[])
+	{
+		if(!checkArgs(args,2))return;
+		File file = new File(currentDir + "/" + args[1]);
+		file.mkdir();
+		
+	}
 
 	public static void main(String[] args) {
 		while (true) {
@@ -131,6 +139,9 @@ public class CLI {
 					break;
 				case "exit":
 					return ;
+				case "mkdir":
+					mkdir(arguments);
+					break;
 			}
 		}
 	}

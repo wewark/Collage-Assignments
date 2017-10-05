@@ -4,6 +4,9 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Scanner;
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 public class CLI {
 	static String currentDir = System.getProperty("user.dir");
@@ -65,6 +68,36 @@ public class CLI {
 		for (String result : results)
 			System.out.println(result);
 	}
+	
+	public static void date(String[] args)
+	{
+		if(!checkArgs(args,1))return;
+		
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Date date = new Date();
+		System.out.println(dateFormat.format(date));
+	}
+	
+	public static void help(String[] args)
+	{
+		if(!checkArgs(args,1))return;
+		System.out.println("args:");
+		System.out.println("clear");
+		System.out.println("cd");
+		System.out.println("ls");
+		System.out.println("cp");
+		System.out.println("mv");
+		System.out.println("rm");
+		System.out.println("mkdir");
+		System.out.println("rmdir");
+		System.out.println("cat");
+		System.out.println("more");
+		System.out.println("pwd");
+		System.out.println();
+		System.out.println("date");
+		System.out.println("exit");
+		
+	}
 
 	public static void main(String[] args) {
 		while (true) {
@@ -81,6 +114,14 @@ public class CLI {
 				case "ls":
 					ls(arguments);
 					break;
+				case "date":
+					date(arguments);
+					break;
+				case "help":
+					help(arguments);
+					break;
+				case "exit":
+					return ;
 			}
 		}
 	}

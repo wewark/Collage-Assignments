@@ -115,6 +115,14 @@ public class CLI {
 		file.mkdir();
 		
 	}
+	
+	public static void rmdir(String args[])
+	{
+		if(!checkArgs(args,2))return;
+		if(!isPath(args[1]))return;
+		File file = new File(currentDir + "/"+args[1]);
+		file.delete();
+	}
 
 	public static void main(String[] args) {
 		while (true) {
@@ -141,6 +149,9 @@ public class CLI {
 					return ;
 				case "mkdir":
 					mkdir(arguments);
+					break;
+				case "rmdir":
+					rmdir(arguments);
 					break;
 			}
 		}

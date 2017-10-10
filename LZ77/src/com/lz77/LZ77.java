@@ -60,12 +60,26 @@ public class LZ77 {
 	}
 
 	public ArrayList<Tag> encode(String txt) {
-		ArrayList<Tag> result = new ArrayList<Tag>();
+		ArrayList<Tag> tags = new ArrayList<Tag>();
 		this.txt = txt;
 		for (int cur = 0; cur < txt.length();) {
 			Tag ret = getMax(cur);
-			result.add(ret);
+			tags.add(ret);
 			cur += ret.length + 1;
+		}
+		return tags;
+	}
+
+	public static String decode(ArrayList<Tag> tags) {
+		String result = "";
+		for (Tag tag : tags) {
+			int c = result.length();
+			for (int i = 0; i < tag.offset; ++i) c--;
+
+			for (int i = 0; i < tag.length; ++i) {
+				result += result.charAt(c++);
+			}
+			result += tag.nextSymbol;
 		}
 		return result;
 	}

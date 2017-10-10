@@ -17,9 +17,12 @@ public class App {
 //		frame.setVisible(true);
 		LZ77 lz = new LZ77(5, 5);
 		String s = "cabracadabrarrarrad";
-		ArrayList<LZ77.Tag> r = lz.encode(s);
-		for (LZ77.Tag tag : r) {
+		ArrayList<LZ77.Tag> tags = lz.encode(s);
+		for (LZ77.Tag tag : tags) {
 			System.out.println(tag.toString());
 		}
+		System.out.println(LZ77.decode(tags));
+		if (LZ77.decode(tags).equals(s))
+			System.out.println("Equal!!");
 	}
 }

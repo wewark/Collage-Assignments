@@ -95,8 +95,7 @@ public class CLI {
 		Path newPath = Paths.get(args[2]);
 		try {
 			Files.copy(oldPath, newPath, StandardCopyOption.REPLACE_EXISTING);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			System.out.println(e);
 		}
 	}
@@ -110,7 +109,8 @@ public class CLI {
 	}
 
 	public static void mv(String[] args) {
-		// TODO
+		cp(args);
+		rm(new String[]{args[0], args[1]});
 	}
 
 	public static void rm(String args[]) {
@@ -171,9 +171,9 @@ public class CLI {
 	}
 
 	public static void main(String[] args) {
+		Scanner scan = new Scanner(System.in);
 		while (true) {
 			System.out.print(currentDir + ": ");
-			Scanner scan = new Scanner(System.in);
 			String cmd = scan.nextLine();
 
 			String[] arguments = cmd.split(" ");
@@ -191,26 +191,32 @@ public class CLI {
 				case "cp":
 					cp(arguments);
 					break;
-				case "date":
-					date(arguments);
+				case "mv":
+					mv(arguments);
 					break;
-				case "help":
-					help(arguments);
+				case "rm":
+					rm(arguments);
 					break;
-				case "exit":
-					return;
 				case "mkdir":
 					mkdir(arguments);
 					break;
 				case "rmdir":
 					rmdir(arguments);
 					break;
-				case "rm":
-					rm(arguments);
+				case "date":
+					date(arguments);
+					break;
+				case "help":
+					help(arguments);
 					break;
 				case "pwd":
 					pwd(arguments);
 					break;
+				case "exit":
+					return;
+				default:
+					System.out.println("'" + arguments[0] + "' is not recognized as an internal or external command,\n" +
+							"operable program or batch file.");
 			}
 		}
 	}

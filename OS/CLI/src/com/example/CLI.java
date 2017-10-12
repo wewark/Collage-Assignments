@@ -53,7 +53,10 @@ public class CLI {
 	}
 
 	public static void clear(String[] args) {
-		// TODO
+		// :'D
+		for (int i = 0; i < 20; i++) {
+			System.out.println("\n");
+		}
 	}
 
 	public static void cd(String[] args) {

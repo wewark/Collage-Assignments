@@ -135,7 +135,14 @@ public class CLI {
 	}
 
 	public static void cat(String[] args) {
-		// TODO
+		for (int i = 1; i < args.length; i++) {
+			Path path = Paths.get(args[i]);
+			try {
+				Files.lines(path).forEach(s -> System.out.println(s));
+			} catch (Exception e) {
+				System.out.println(e);
+			}
+		}
 	}
 
 	public static void more(String[] args) {
@@ -202,6 +209,9 @@ public class CLI {
 					break;
 				case "rmdir":
 					rmdir(arguments);
+					break;
+				case "cat":
+					cat(arguments);
 					break;
 				case "date":
 					date(arguments);

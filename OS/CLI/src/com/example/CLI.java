@@ -1,5 +1,7 @@
 package com.example;
 
+import com.sun.xml.internal.bind.v2.TODO;
+
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,6 +46,10 @@ public class CLI {
 		return true;
 	}
 
+	public static void clear(String[] args) {
+		// TODO
+	}
+
 	public static void cd(String[] args) {
 		if (args.length < 1 || args.length > 2) return;
 		if (args.length == 1) {
@@ -76,12 +82,53 @@ public class CLI {
 			System.out.println(result);
 	}
 
+	public static void cp(String[] args) {
+		// TODO
+	}
+
 	public static void date(String[] args) {
 		if (!checkArgs(args, 1)) return;
 
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		Date date = new Date();
 		System.out.println(dateFormat.format(date));
+	}
+
+	public static void mv(String[] args) {
+		// TODO
+	}
+
+	public static void rm(String args[]) {
+		if (!checkArgs(args, 2)) return;
+		File file = new File(currentDir + "/" + args[1]);
+		if (file.delete()) return;
+		else System.out.println("File not found");
+	}
+
+	public static void mkdir(String args[]) {
+		if (!checkArgs(args, 2)) return;
+		File file = new File(currentDir + "/" + args[1]);
+		file.mkdir();
+
+	}
+
+	public static void rmdir(String args[]) {
+		if (!checkArgs(args, 2)) return;
+		if (!isPath(args[1])) return;
+		File file = new File(currentDir + "/" + args[1]);
+		file.delete();
+	}
+
+	public static void cat(String[] args) {
+		// TODO
+	}
+
+	public static void more(String[] args) {
+		// TODO
+	}
+
+	public static void pwd(String[] args) {
+		// TODO
 	}
 
 	public static void help(String[] args) {
@@ -101,28 +148,11 @@ public class CLI {
 		System.out.println();
 		System.out.println("date");
 		System.out.println("exit");
-
 	}
-
-	public static void mkdir(String args[]) {
-		if (!checkArgs(args, 2)) return;
-		File file = new File(currentDir + "/" + args[1]);
-		file.mkdir();
-
-	}
-
-	public static void rmdir(String args[]) {
-		if (!checkArgs(args, 2)) return;
-		if (!isPath(args[1])) return;
-		File file = new File(currentDir + "/" + args[1]);
-		file.delete();
-	}
-
-	public static void rm(String args[]) {
-		if (!checkArgs(args, 2)) return;
-		File file = new File(currentDir + "/" + args[1]);
-		if (file.delete()) return;
-		else System.out.println("File not found");
+	
+	// When '?' is written before a command
+	public static void helpCmd(String[] args) {
+		// TODO
 	}
 
 	public static void main(String[] args) {

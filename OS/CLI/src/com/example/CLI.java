@@ -143,7 +143,7 @@ public class CLI {
 	}
 
 	public static void pwd(String[] args) {
-		// TODO
+		System.out.println(currentDir);
 	}
 
 	public static void help(String[] args) {
@@ -207,6 +207,9 @@ public class CLI {
 					break;
 				case "rm":
 					rm(arguments);
+					break;
+				case "pwd":
+					pwd(arguments);
 					break;
 			}
 		}

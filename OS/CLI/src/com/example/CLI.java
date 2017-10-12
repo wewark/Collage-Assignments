@@ -20,8 +20,7 @@ public class CLI {
 		if (!file.exists()) {
 			System.out.println("Directory doesn't exist");
 			return false;
-		}
-		else if (!file.isDirectory()) {
+		} else if (!file.isDirectory()) {
 			System.out.println("This is not a directory");
 			return false;
 		}
@@ -46,9 +45,8 @@ public class CLI {
 	}
 
 	public static void cd(String[] args) {
-		if(args.length<1||args.length>2)return;
-		if(args.length==1)
-		{
+		if (args.length < 1 || args.length > 2) return;
+		if (args.length == 1) {
 			Path path = Paths.get("C:\\");
 			path = path.normalize();
 			path = Paths.get(removeDots(path.toString()));
@@ -77,19 +75,17 @@ public class CLI {
 		for (String result : results)
 			System.out.println(result);
 	}
-	
-	public static void date(String[] args)
-	{
-		if(!checkArgs(args,1))return;
-		
+
+	public static void date(String[] args) {
+		if (!checkArgs(args, 1)) return;
+
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		Date date = new Date();
 		System.out.println(dateFormat.format(date));
 	}
-	
-	public static void help(String[] args)
-	{
-		if(!checkArgs(args,1))return;
+
+	public static void help(String[] args) {
+		if (!checkArgs(args, 1)) return;
 		System.out.println("args:");
 		System.out.println("clear");
 		System.out.println("cd");
@@ -105,30 +101,27 @@ public class CLI {
 		System.out.println();
 		System.out.println("date");
 		System.out.println("exit");
-		
+
 	}
-	
-	public static void mkdir(String args[])
-	{
-		if(!checkArgs(args,2))return;
+
+	public static void mkdir(String args[]) {
+		if (!checkArgs(args, 2)) return;
 		File file = new File(currentDir + "/" + args[1]);
 		file.mkdir();
-		
+
 	}
-	
-	public static void rmdir(String args[])
-	{
-		if(!checkArgs(args,2))return;
-		if(!isPath(args[1]))return;
-		File file = new File(currentDir + "/"+args[1]);
+
+	public static void rmdir(String args[]) {
+		if (!checkArgs(args, 2)) return;
+		if (!isPath(args[1])) return;
+		File file = new File(currentDir + "/" + args[1]);
 		file.delete();
 	}
-	
-	public static void rm(String args[])
-	{
-		if(!checkArgs(args,2))return; 
-		File file = new File(currentDir + "/"+args[1]);
-		if(file.delete())return;
+
+	public static void rm(String args[]) {
+		if (!checkArgs(args, 2)) return;
+		File file = new File(currentDir + "/" + args[1]);
+		if (file.delete()) return;
 		else System.out.println("File not found");
 	}
 
@@ -154,7 +147,7 @@ public class CLI {
 					help(arguments);
 					break;
 				case "exit":
-					return ;
+					return;
 				case "mkdir":
 					mkdir(arguments);
 					break;

@@ -1,10 +1,7 @@
 package com.example;
 
-import com.sun.xml.internal.bind.v2.TODO;
-
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.Scanner;
 import java.util.Date;
 import java.text.DateFormat;
@@ -12,6 +9,15 @@ import java.text.SimpleDateFormat;
 
 public class CLI {
 	static String currentDir = System.getProperty("user.dir");
+
+	// Returns the absolute path (e.g "C:\myparent\myfile.txt")
+	// instead of the relative path (e.g "myfile.txt" when the current directory is "C:\myparent")
+	public static String makeAbsolute(String path) {
+		File file = new File(path);
+		if (!file.isAbsolute())
+			return currentDir + "/" + path;
+		return path;
+	}
 
 	public static boolean isPath(String path) {
 		File file = new File(path);
@@ -83,7 +89,16 @@ public class CLI {
 	}
 
 	public static void cp(String[] args) {
-		// TODO
+		args[1] = makeAbsolute(args[1]);
+		args[2] = makeAbsolute(args[2]);
+		Path oldPath = Paths.get(args[1]);
+		Path newPath = Paths.get(args[2]);
+		try {
+			Files.copy(oldPath, newPath, StandardCopyOption.REPLACE_EXISTING);
+		}
+		catch (Exception e) {
+			System.out.println(e);
+		}
 	}
 
 	public static void date(String[] args) {
@@ -149,7 +164,7 @@ public class CLI {
 		System.out.println("date");
 		System.out.println("exit");
 	}
-	
+
 	// When '?' is written before a command
 	public static void helpCmd(String[] args) {
 		// TODO
@@ -164,11 +179,17 @@ public class CLI {
 			String[] arguments = cmd.split(" ");
 
 			switch (arguments[0]) {
+				case "clear":
+					clear(arguments);
+					break;
 				case "cd":
 					cd(arguments);
 					break;
 				case "ls":
 					ls(arguments);
+					break;
+				case "cp":
+					cp(arguments);
 					break;
 				case "date":
 					date(arguments);

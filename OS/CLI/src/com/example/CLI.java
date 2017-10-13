@@ -1,12 +1,12 @@
 package com.example;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.nio.file.*;
-import java.util.ArrayList;
-import java.util.Scanner;
-import java.util.Date;
+import java.util.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.zip.Inflater;
 
 public class CLI {
 	static String currentDir = System.getProperty("user.dir");
@@ -230,6 +230,19 @@ public class CLI {
 		return ret.toArray(new String[0]);
 	}
 
+	public static void writeToFile(String filePath, String[] lines, boolean append) {
+		List<String> linesList = Arrays.asList(lines);
+		Path path = Paths.get(filePath);
+		try {
+			if (append)
+				Files.write(path, linesList, Charset.defaultCharset(), StandardOpenOption.APPEND);
+			else
+				Files.write(path, linesList, Charset.defaultCharset());
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	}
+
 	public static String[] executeCmd(String cmd, String[] prevOutput) {
 		String[] args = removeQuotes(cmd);
 		String[] output = new String[0];
@@ -289,16 +302,32 @@ public class CLI {
 			System.out.print(currentDir + ": ");
 			String input = scan.nextLine();
 
+			String filePath = "";
+			boolean append = false;
+			if (input.contains(">>")) {
+				filePath = input.substring(input.indexOf(">>") + 2);
+				filePath = filePath.trim();
+				input = input.substring(0, input.indexOf(">>"));
+				append = true;
+			} else if (input.contains(">")) {
+				filePath = input.substring(input.indexOf(">") + 1);
+				filePath = filePath.trim();
+				input = input.substring(0, input.indexOf(">"));
+			}
+
 			String[] cmds = input.split("[|]");
 			String[] output = new String[0];
 
 			for (String cmd : cmds) {
 				output = executeCmd(cmd, output);
-
 			}
 
-			for (String line : output) {
-				System.out.println(line);
+			if (!filePath.equals("")) {
+				writeToFile(filePath, output, append);
+			} else {
+				for (String line : output) {
+					System.out.println(line);
+				}
 			}
 		}
 	}

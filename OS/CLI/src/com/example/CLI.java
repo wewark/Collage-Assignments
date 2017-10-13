@@ -7,6 +7,9 @@ import java.util.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.zip.Inflater;
+import java.io.*;
+import java.io.BufferedReader;
+
 
 public class CLI {
 	static String currentDir = System.getProperty("user.dir");
@@ -147,18 +150,24 @@ public class CLI {
 		return lines.toArray(new String[0]);
 	}
 
-	public static void more(String[] args, String[] lines) {
-		if (lines.length == 0)
-			lines = cat(args);
-		Scanner scan = new Scanner(System.in);
-		for (int i = 0; i < lines.length; ) {
-			for (int j = 0; j < 10 && i < lines.length; j++, i++) {
-				System.out.print(lines[i]);
-				if (j < 9 && i < lines.length - 1)
-					System.out.println();
-			}
-			if (i != lines.length - 1)
-				scan.nextLine();
+	public static void more(String[] args) {
+		if(!checkArgs(args,2))return;
+		String desiredfile=makeAbsolute(args[1]);
+		File file = new File(desiredfile);
+		if (file.isDirectory()) {
+			System.out.println("This is a directory");
+			return;
+		}
+
+		try (BufferedReader br = new BufferedReader(new FileReader(desiredfile))) {
+			   String line = null;
+			   while ((line = br.readLine()) != null) {
+			       System.out.println(line);
+			   }
+		}
+		catch (Exception e)
+		{
+			System.out.println("file not found");
 		}
 	}
 
@@ -274,7 +283,7 @@ public class CLI {
 				output = cat(args);
 				break;
 			case "more":
-				more(args, prevOutput);
+				more(args);
 				break;
 			case "date":
 				output = new String[]{date(args)};

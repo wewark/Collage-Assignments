@@ -73,9 +73,7 @@ public class CLI {
 
 		if (!isPath(args[1])) return;
 
-		Path path = Paths.get(args[1]);
-		if (!path.isAbsolute())
-			path = Paths.get(currentDir + "/" + args[1]);
+		Path path = Paths.get(makeAbsolute(args[1]));
 
 		path = path.normalize();
 		path = Paths.get(removeDots(path.toString()));
@@ -117,14 +115,14 @@ public class CLI {
 
 	public static void rm(String args[]) {
 		if (!checkArgs(args, 2)) return;
-		File file = new File(currentDir + "/" + args[1]);
+		File file = new File(makeAbsolute(args[1]));
 		if (file.delete()) return;
 		else System.out.println("File not found");
 	}
 
 	public static void mkdir(String args[]) {
 		if (!checkArgs(args, 2)) return;
-		File file = new File(currentDir + "/" + args[1]);
+		File file = new File(makeAbsolute(args[1]));
 		file.mkdir();
 
 	}
@@ -132,14 +130,14 @@ public class CLI {
 	public static void rmdir(String args[]) {
 		if (!checkArgs(args, 2)) return;
 		if (!isPath(args[1])) return;
-		File file = new File(currentDir + "/" + args[1]);
+		File file = new File(makeAbsolute(args[1]));
 		file.delete();
 	}
 
 	public static String[] cat(String[] args) {
 		ArrayList<String> lines = new ArrayList<String>();
 		for (int i = 1; i < args.length; i++) {
-			Path path = Paths.get(args[i]);
+			Path path = Paths.get(makeAbsolute(args[i]));
 			try {
 				Files.lines(path).forEach(lines::add);
 			} catch (Exception e) {
@@ -232,7 +230,7 @@ public class CLI {
 
 	public static void writeToFile(String filePath, String[] lines, boolean append) {
 		List<String> linesList = Arrays.asList(lines);
-		Path path = Paths.get(filePath);
+		Path path = Paths.get(makeAbsolute(filePath));
 		try {
 			if (append)
 				Files.write(path, linesList, Charset.defaultCharset(), StandardOpenOption.APPEND);

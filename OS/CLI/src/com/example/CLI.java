@@ -83,13 +83,11 @@ public class CLI {
 		System.setProperty("user.dir", currentDir);
 	}
 
-	public static void ls(String[] args) {
-		if (!checkArgs(args, 1)) return;
+	public static String[] ls(String[] args) {
+		if (!checkArgs(args, 1)) return new String[0];
 
 		File file = new File(currentDir);
-		String[] results = file.list();
-		for (String result : results)
-			System.out.println(result);
+		return file.list();
 	}
 
 	public static void cp(String[] args) {
@@ -104,12 +102,12 @@ public class CLI {
 		}
 	}
 
-	public static void date(String[] args) {
-		if (!checkArgs(args, 1)) return;
+	public static String date(String[] args) {
+		if (!checkArgs(args, 1)) return "";
 
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		Date date = new Date();
-		System.out.println(dateFormat.format(date));
+		return dateFormat.format(date);
 	}
 
 	public static void mv(String[] args) {
@@ -138,42 +136,57 @@ public class CLI {
 		file.delete();
 	}
 
-	public static void cat(String[] args) {
+	public static String[] cat(String[] args) {
+		ArrayList<String> lines = new ArrayList<String>();
 		for (int i = 1; i < args.length; i++) {
 			Path path = Paths.get(args[i]);
 			try {
-				Files.lines(path).forEach(s -> System.out.println(s));
+				Files.lines(path).forEach(lines::add);
 			} catch (Exception e) {
 				System.out.println(e);
 			}
 		}
+		return lines.toArray(new String[0]);
 	}
 
-	public static void more(String[] args) {
-		// TODO
+	public static void more(String[] args, String[] lines) {
+		if (lines.length == 0)
+			lines = cat(args);
+		Scanner scan = new Scanner(System.in);
+		for (int i = 0; i < lines.length; ) {
+			for (int j = 0; j < 10 && i < lines.length; j++, i++) {
+				System.out.print(lines[i]);
+				if (j < 9 && i < lines.length - 1)
+					System.out.println();
+			}
+			if (i != lines.length - 1)
+				scan.nextLine();
+		}
 	}
 
-	public static void pwd(String[] args) {
-		System.out.println(currentDir);
+	public static String pwd(String[] args) {
+		return currentDir;
 	}
 
-	public static void help(String[] args) {
-		if (!checkArgs(args, 1)) return;
-		System.out.println("args:");
-		System.out.println("clear");
-		System.out.println("cd");
-		System.out.println("ls");
-		System.out.println("cp");
-		System.out.println("mv");
-		System.out.println("rm");
-		System.out.println("mkdir");
-		System.out.println("rmdir");
-		System.out.println("cat");
-		System.out.println("more");
-		System.out.println("pwd");
-		System.out.println();
-		System.out.println("date");
-		System.out.println("exit");
+	public static String[] help(String[] args) {
+		if (!checkArgs(args, 1)) return new String[]{""};
+		return new String[]{
+				"args:",
+				"clear",
+				"cd",
+				"ls",
+				"cp",
+				"mv",
+				"rm",
+				"mkdir",
+				"rmdir",
+				"cat",
+				"more",
+				"pwd",
+				"",
+				"date",
+				"exit"
+		};
 	}
 
 	// When '?' is written before a command
@@ -185,10 +198,11 @@ public class CLI {
 		ArrayList<String> ret = new ArrayList<String>();
 		int a = 0, b = 0;
 
+		cmd = cmd.trim();
 		String[] words = cmd.split(" ");
 
 		while (a < words.length) {
-			if (words[a].charAt(0) == '"') {
+			if (words[a].length() > 0 && words[a].charAt(0) == '"') {
 				if (words[a].charAt(words[a].length() - 1) == '"') {
 					ret.add(words[a].substring(1, words[a].length() - 1));
 					a++; b = a;
@@ -216,56 +230,75 @@ public class CLI {
 		return ret.toArray(new String[0]);
 	}
 
+	public static String[] executeCmd(String cmd, String[] prevOutput) {
+		String[] args = removeQuotes(cmd);
+		String[] output = new String[0];
+
+		switch (args[0]) {
+			case "clear":
+				clear(args);
+				break;
+			case "cd":
+				cd(args);
+				break;
+			case "ls":
+				output = ls(args);
+				break;
+			case "cp":
+				cp(args);
+				break;
+			case "mv":
+				mv(args);
+				break;
+			case "rm":
+				rm(args);
+				break;
+			case "mkdir":
+				mkdir(args);
+				break;
+			case "rmdir":
+				rmdir(args);
+				break;
+			case "cat":
+				output = cat(args);
+				break;
+			case "more":
+				more(args, prevOutput);
+				break;
+			case "date":
+				output = new String[]{date(args)};
+				break;
+			case "help":
+				output = help(args);
+				break;
+			case "pwd":
+				output = new String[]{pwd(args)};
+				break;
+			case "exit":
+				System.exit(0);
+			default:
+				output = new String[]{"'" + args[0] + "' is not recognized as an internal or external command,\n" +
+						"operable program or batch file."};
+		}
+		return output;
+	}
+
 	public static void main(String[] args) {
 		Scanner scan = new Scanner(System.in);
 		while (true) {
 			System.out.print(currentDir + ": ");
-			String cmd = scan.nextLine();
+			String input = scan.nextLine();
 
-			String[] arguments = removeQuotes(cmd);
+			String[] cmds = input.split("[|]");
+			String[] output = new String[0];
 
-			switch (arguments[0]) {
-				case "clear":
-					clear(arguments);
-					break;
-				case "cd":
-					cd(arguments);
-					break;
-				case "ls":
-					ls(arguments);
-					break;
-				case "cp":
-					cp(arguments);
-					break;
-				case "mv":
-					mv(arguments);
-					break;
-				case "rm":
-					rm(arguments);
-					break;
-				case "mkdir":
-					mkdir(arguments);
-					break;
-				case "rmdir":
-					rmdir(arguments);
-					break;
-				case "cat":
-					cat(arguments);
-					break;
-				case "date":
-					date(arguments);
-					break;
-				case "help":
-					help(arguments);
-					break;
-				case "pwd":
-					pwd(arguments);
-					break;
-				case "exit":
-					return;
-				default:
-					System.out.println("'" + arguments[0] + "' is not recognized as an internal or external command,\n" +
-							"operable program or batch file.");
+			for (String cmd : cmds) {
+				output = executeCmd(cmd, output);
+
+			}
+
+			for (String line : output) {
+				System.out.println(line);
 			}
 		}
 	}

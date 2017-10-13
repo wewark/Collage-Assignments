@@ -2,6 +2,7 @@ package com.example;
 
 import java.io.File;
 import java.nio.file.*;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.Date;
 import java.text.DateFormat;
@@ -180,13 +181,48 @@ public class CLI {
 		// TODO
 	}
 
+	public static String[] removeQuotes(String cmd) {
+		ArrayList<String> ret = new ArrayList<String>();
+		int a = 0, b = 0;
+
+		String[] words = cmd.split(" ");
+
+		while (a < words.length) {
+			if (words[a].charAt(0) == '"') {
+				if (words[a].charAt(words[a].length() - 1) == '"') {
+					ret.add(words[a].substring(1, words[a].length() - 1));
+					a++; b = a;
+					continue;
+				}
+				ret.add(words[a].substring(1));
+				b++;
+
+				while (b < words.length && words[b].charAt(words[b].length() - 1) != '"') {
+					String lastWord = ret.get(ret.size() - 1);
+					ret.set(ret.size() - 1, lastWord + " " + words[b]);
+					b++;
+				}
+				if (b < words.length) {
+					String lastWord = ret.get(ret.size() - 1);
+					ret.set(ret.size() - 1, lastWord + " " + words[b].substring(0, words[b].length() - 1));
+				}
+				b++; a = b;
+			} else {
+				ret.add(words[a++]);
+				b = a;
+			}
+		}
+
+		return ret.toArray(new String[0]);
+	}
+
 	public static void main(String[] args) {
 		Scanner scan = new Scanner(System.in);
 		while (true) {
 			System.out.print(currentDir + ": ");
 			String cmd = scan.nextLine();
 
-			String[] arguments = cmd.split(" ");
+			String[] arguments = removeQuotes(cmd);
 
 			switch (arguments[0]) {
 				case "clear":

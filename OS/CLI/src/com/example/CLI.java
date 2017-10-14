@@ -169,7 +169,7 @@ public class CLI {
 	public static String[] help(String[] args) {
 		if (!checkArgs(args, 1)) return new String[]{""};
 		return new String[]{
-				"args:",
+				"args",
 				"clear",
 				"cd",
 				"ls",
@@ -187,73 +187,43 @@ public class CLI {
 		};
 	}
 
-	// When '?' is written before a command
-	public static void helpCmd(String[] args) {
-		if (!checkArgs(args, 2)) return;
-		switch (args[1]) {
-			case "clear":
-				System.out.println("clear,  Clears the window and the line buffer, Example:clear");
-				break;
-			case "cd":
-				System.out.println("cd directory, Changes your current directory to the directory specified, Example:cd bin, Changes directory to the bin directory");
-				break;
-			case "ls":
-				System.out.println("ls, Lists all the nonhidden files and directories, Example:ls, Lists all nonhidden files and directories in the current directory");
-				break;
-			case "cp":
-				System.out.println("cp old new, Copy the containts of the file old to the file new , Example:cp old.txt new.txt, Copy the containts of the file old.txt to the file new.txt");
-				break;
-			case "mv":
-				System.out.println("mv old new, Move the containts of the file old to the file new and delete the old file , Example:mv old.txt new.txt, move the containts of the file old.txt to the file new.txt and delete old.txt");
-				break;
-			case "rm":
-				System.out.println("rm file, Remove(Deletes)file, Example rm xyz, Delets a file named xyz");
-				break;
-			case "mkdir":
-				System.out.println("mkdir dirName, Remove(Deletes)file, Example rm xyz, Delets a file named xyz");
-				break;
-			case "rmdir":
-				System.out.println("rmdir directory, Remove(Deletes)directory, Example rmdir xyz, Delets a directory named xyz");
-				break;
-			case "cat":
-				System.out.println("cat file1, show containts of file1, Example cat file1, This prints the file1 file to the screen");
-				break;
-			case "more":
-				System.out.println("more input, This prints to screen whatever is input�useful, Example: more groceries, This will list the groceries file to the screen");
-				break;
-			case "date":
-				System.out.println("date, Writes the current date to the screen");
-				break;
-			case "help":
-				System.out.println("help, list all user commands");
-				break;
-			case "pwd":
-				System.out.println("pwd, Prints the current directory to the screen");
-				break;
-			case "exit":
-				System.out.println("exit, exit the terminal");
-				break;
-			default:
-				System.out.println("'" + args[1] + "' is not recognized as an internal or external command,\n" + "operable program or batch file.");
-		}
+	private static HashMap<String, String> description = new HashMap<String, String>();
+
+	static {
+		description.put("clear", "clear: Clears the window and the line buffer, Example: clear");
+		description.put("cd", "cd directory: Changes your current directory to the directory specified, Example:cd bin, Changes directory to the bin directory");
+		description.put("ls", "ls: Lists all the non hidden files and directories, Example:ls, Lists all non hidden files and directories in the current directory");
+		description.put("cp", "cp old new: Copy the contents of the file old to the file new , Example:cp old.txt new.txt, Copy the containts of the file old.txt to the file new.txt");
+		description.put("mv", "mv old new: Move the contents of the file old to the file new and delete the old file , Example:mv old.txt new.txt, move the contents of the file old.txt to the file new.txt and delete old.txt");
+		description.put("rm", "rm file: Deletes file, Example rm xyz, Deletes a file named xyz");
+		description.put("mkdir", "mkdir dirName: Deletes file, Example rm xyz, Deletes a file named xyz");
+		description.put("rmdir", "rmdir directory: Deletes directory, Example rmdir xyz, Deletes directory named xyz");
+		description.put("cat", "cat file1: show contents of file1, Example cat file1, This prints the file1 file to the screen");
+		description.put("more", "more file: Prints content of the given file one screen(10 lines) at a time.");
+		description.put("date", "date: Writes the current date to the screen");
+		description.put("help", "help: list all user commands");
+		description.put("pwd", "pwd: Prints the current directory to the screen");
+		description.put("exit", "exit: exit the terminal");
 	}
 
-	public static void args(String args[]) {
-		System.out.println("clear,  Clears the window and the line buffer, Example:clear");
-		System.out.println("cd directory, Changes your current directory to the directory specified, Example:cd bin, Changes directory to the bin directory");
-		System.out.println("ls, Lists all the nonhidden files and directories, Example:ls, Lists all nonhidden files and directories in the current directory");
-		System.out.println("cp old new, Copy the containts of the file old to the file new , Example:cp old.txt new.txt, Copy the containts of the file old.txt to the file new.txt");
-		System.out.println("mv old new, Move the containts of the file old to the file new and delete the old file , Example:mv old.txt new.txt, move the containts of the file old.txt to the file new.txt and delete old.txt");
-		System.out.println("rm file, Remove(Deletes)file, Example rm xyz, Delets a file named xyz");
-		System.out.println("mkdir dirName, Remove(Deletes)file, Example rm xyz, Delets a file named xyz");
-		System.out.println("rmdir directory, Remove(Deletes)directory, Example rmdir xyz, Delets a directory named xyz");
-		System.out.println("cat file1, show containts of file1, Example cat file1, This prints the file1 file to the screen");
-		System.out.println("more input, This prints to screen whatever is input�useful, Example: more groceries, This will list the groceries file to the screen");
-		System.out.println("date, Writes the current date to the screen");
-		System.out.println("help, list all user commands");
-		System.out.println("pwd, Prints the current directory to the screen");
-		System.out.println("exit, exit the terminal");
+	// When '?' is written before a command
+	public static String[] helpCmd(String[] args) {
+		if (!checkArgs(args, 2)) return new String[]{" "}; ;
 
+		ArrayList<String> ret = new ArrayList<String>();
+		String result = description.get(args[1]);
+		if (result != null) {
+			ret.add(result);
+		} else {
+			ret.add("'" + args[1] + "' is not recognized as an internal or external command,\n" + "operable program or batch file.");
+		}
+		return ret.toArray(new String[0]);
+	}
+
+	public static String[] args(String args[]) {
+		ArrayList<String> ret = new ArrayList<String>();
+		ret.addAll(description.values());
+		return ret.toArray(new String[0]);
 	}
 
 	public static String[] removeQuotes(String cmd) {
@@ -347,10 +317,10 @@ public class CLI {
 				output = help(args);
 				break;
 			case "?":
-				helpCmd(args);
+				output = helpCmd(args);
 				break;
-			case "args:":
-				args(args);
+			case "args":
+				output = args(args);
 				break;
 			case "pwd":
 				output = new String[]{pwd(args)};

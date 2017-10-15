@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class App {
@@ -18,7 +19,9 @@ public class App {
 	private JButton compressButton;
 	private JButton decompressButton;
 
+	private LZ77 compressor = new LZ77(100, 100);
 	private JFileChooser fileChooser = new JFileChooser(new File(System.getProperty("user.dir")));
+	private String parentDir;
 
 	public App() {
 		FileNameExtensionFilter filter = new FileNameExtensionFilter(".txt", "txt", "text");
@@ -34,31 +37,62 @@ public class App {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				File file = fileChooser.getSelectedFile();
-				ArrayList<String> lines = new ArrayList<String>();
-				try {
-					Files.lines(file.toPath()).forEach(lines::add);
-				} catch (Exception ex) {
-					System.out.println(ex);
-				}
+				String[] lines = readFile(file.toPath().toString());
 
-				LZ77 compressor = new LZ77(10, 10);
-				ArrayList<LZ77.Tag> tags = compressor.encode(String.join("", lines));
+				ArrayList<LZ77.Tag> tags = compressor.encode(String.join("\n", lines));
 
 				StringBuilder builder = new StringBuilder();
 				for (LZ77.Tag tag : tags) {
 					builder.append(tag.toString());
 				}
 
-				Path path = Paths.get(file.toPath().getParent().toString() + "/compressed.txt");
-				List<String> linesList = new ArrayList<String>();
-				linesList.add(builder.toString());
-				try {
-					Files.write(path, linesList, Charset.defaultCharset());
-				} catch (Exception ex) {
-					System.out.println(ex);
-				}
+				parentDir = file.toPath().getParent().toString();
+				writeFile(parentDir + "/compressed.txt", builder.toString());
 			}
 		});
+		decompressButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String[] lines = readFile(parentDir + "/compressed.txt");
+				ArrayList<LZ77.Tag> tags = splitTags(String.join("\n", lines));
+				writeFile(parentDir + "/decompressed.txt", compressor.decode(tags));
+			}
+		});
+	}
+
+	private static void writeFile(String pathStr, String text) {
+		List<String> linesList = Arrays.asList(text);
+		Path path = Paths.get(pathStr);
+		try {
+			Files.write(path, linesList);
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	}
+
+	private static String[] readFile(String pathStr) {
+		ArrayList<String> lines = new ArrayList<String>();
+		Path path = Paths.get(pathStr);
+		try {
+			Files.lines(path).forEach(lines::add);
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		return lines.toArray(new String[0]);
+}
+
+	private static ArrayList<LZ77.Tag> splitTags(String tagsStr) {
+		String[] tagsStrArr = tagsStr
+				.replace("><"," ")
+				.replace("<", "")
+				.replace(">","")
+				.split(" ");
+
+		ArrayList<LZ77.Tag> result = new ArrayList<>();
+		for (String tag : tagsStrArr) {
+			result.add(new LZ77.Tag(tag));
+		}
+		return result;
 	}
 
 	public static void main(String[] args) {

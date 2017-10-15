@@ -16,7 +16,7 @@ public class LZ77 {
 
 	private String txt;
 
-	public class Tag {
+	public static class Tag {
 		public int offset, length;
 		public char nextSymbol;
 
@@ -24,6 +24,13 @@ public class LZ77 {
 			this.offset = offset;
 			this.length = length;
 			this.nextSymbol = nextSymbol;
+		}
+
+		public Tag(String tagStr) {
+			String[] values = tagStr.split(",");
+			offset = Integer.parseInt(values[0]);
+			length = Integer.parseInt(values[1]);
+			nextSymbol = values[2].charAt(0);
 		}
 
 		@Override
@@ -70,7 +77,7 @@ public class LZ77 {
 		return tags;
 	}
 
-	public static String decode(ArrayList<Tag> tags) {
+	public String decode(ArrayList<Tag> tags) {
 		String result = "";
 		for (Tag tag : tags) {
 			int c = result.length();

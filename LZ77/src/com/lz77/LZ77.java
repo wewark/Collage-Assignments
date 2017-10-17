@@ -1,8 +1,5 @@
 package com.lz77;
 
-import jdk.nashorn.internal.runtime.FindProperty;
-
-import java.sql.Struct;
 import java.util.ArrayList;
 
 public class LZ77 {
@@ -51,9 +48,9 @@ public class LZ77 {
 			bufferEnd = txt.length();
 		}
 
-		for (int i = windowStart; i < bufferStart; ++i) {
+		for (int i = windowStart; i < bufferEnd; ++i) {
 			int a = i, b = bufferStart;
-			while (b < bufferEnd && txt.charAt(a) == txt.charAt(b)) {
+			while (a < b && a < bufferEnd && b < bufferEnd && txt.charAt(a) == txt.charAt(b)) {
 				a++; b++;
 			}
 			if (b - bufferStart > maxLength) {

@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class LZW {
-	String txt;
-	ArrayList<String> dictionary = new ArrayList<>();
-	HashMap<String, Integer> dictionaryIndex = new HashMap<>();
+	private String txt;
+	private ArrayList<String> dictionary = new ArrayList<>();
+	private HashMap<String, Integer> dictionaryIndex = new HashMap<>();
 
 	public int[] encode(String _txt) {
 		txt = _txt;
-		getAlphabet();
+		initializeDictionary();
 		ArrayList<Integer> result = new ArrayList<>();
 
 		boolean end = false;
@@ -21,10 +21,8 @@ public class LZW {
 				curStr += txt.charAt(b++);
 			}
 			if (b < txt.length()) {
-				dictionaryIndex.put(curStr, dictionary.size());
-				dictionary.add(curStr);
-			}
-			else end = true;
+				addToDictionary(curStr);
+			} else end = true;
 
 			String lastPattern = txt.substring(a, b - 1);
 			result.add(dictionaryIndex.get(lastPattern));
@@ -32,6 +30,25 @@ public class LZW {
 		}
 
 		return arrayListToArray(result);
+	}
+
+	public String decode(int[] hash) {
+		initializeDictionary();
+		StringBuilder result = new StringBuilder();
+		for (int i = 0; i < hash.length; ++i) {
+			if (hash[i] < dictionary.size()) {
+				result.append(dictionary.get(hash[i]));
+				if (i > 0) {
+					addToDictionary(dictionary.get(hash[i - 1]) + dictionary.get(hash[i]).charAt(0));
+				}
+			} else {
+				String curPattern = dictionary.get(hash[i - 1]);
+				curPattern += curPattern.charAt(0);
+				result.append(curPattern);
+				addToDictionary(curPattern);
+			}
+		}
+		return result.toString();
 	}
 
 	private int[] arrayListToArray(ArrayList<Integer> arrayList) {
@@ -44,13 +61,17 @@ public class LZW {
 		return ret;
 	}
 
-	private void getAlphabet() {
-		for (int i = 0; i < txt.length(); ++i) {
-			String curChar = Character.toString(txt.charAt(i));
-			if (!dictionaryIndex.containsKey(curChar)) {
-				dictionaryIndex.put(curChar, dictionary.size());
-				dictionary.add(curChar);
-			}
+	private void initializeDictionary() {
+		dictionary = new ArrayList<>();
+		dictionaryIndex = new HashMap<>();
+		for (char c = 0; c < 256; c++) {
+			String curChar = Character.toString(c);
+			addToDictionary(curChar);
 		}
+	}
+
+	private void addToDictionary(String pattern) {
+		dictionaryIndex.put(pattern, dictionary.size());
+		dictionary.add(pattern);
 	}
 }

@@ -107,5 +107,7 @@ public class App {
 		for (int i : res) {
 			System.out.print(i + " ");
 		}
+		System.out.println();
+		System.out.println(lzw.decode(res));
 	}
 }

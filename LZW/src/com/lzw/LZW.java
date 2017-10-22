@@ -2,6 +2,7 @@ package com.lzw;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.StringJoiner;
 
 public class LZW {
 	private String txt;
@@ -13,16 +14,23 @@ public class LZW {
 		initializeDictionary();
 		ArrayList<Integer> result = new ArrayList<>();
 
-		boolean end = false;
 		int a = 0, b = 1;
-		while (!end) {
+		while (true) {
 			String curStr = Character.toString(txt.charAt(a));
 			while (b < txt.length() && dictionaryIndex.containsKey(curStr)) {
 				curStr += txt.charAt(b++);
 			}
 			if (b < txt.length()) {
 				addToDictionary(curStr);
-			} else end = true;
+			} else {
+				if (dictionaryIndex.containsKey(curStr)) {
+					result.add(dictionaryIndex.get(curStr));
+				} else {
+					result.add(dictionaryIndex.get(curStr.substring(0, curStr.length() - 1)));
+					result.add(dictionaryIndex.get(Character.toString(curStr.charAt(curStr.length() - 1))));
+				}
+				break;
+			}
 
 			String lastPattern = txt.substring(a, b - 1);
 			result.add(dictionaryIndex.get(lastPattern));

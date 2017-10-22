@@ -84,12 +84,11 @@ public class App {
 //		frame.setResizable(false);
 //		frame.setVisible(true);
 
-//		Huffman huffman = new Huffman();
-//		int[] res = huffman.encode("ABAABABBAABAABAAAABABBBBBBBB");
-//		for (int i : res) {
-//			System.out.print(i + " ");
-//		}
-//		System.out.println();
-//		System.out.println(huffman.decode(res));
+		Huffman huffman = new Huffman();
+		Huffman.HashResult res = huffman.encode("ABAABABBAABAABAAAABABBBBBBBBinfsidnsoduncdsnciousdanoiusdncoisududdhdhdhdhskjksdhfksjdhkd");
+		for (Huffman.Pair i : res.codeTable) {
+			System.out.println(i.letter + " " + i.code);
+		}
+		System.out.println(res.code);
 	}
 }

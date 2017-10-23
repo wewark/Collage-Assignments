@@ -18,6 +18,11 @@ class Huffman {
 			this.letter = letter;
 			this.frequency = frequency;
 		}
+
+		Pair(String letter, String code) {
+			this.letter = letter;
+			this.code = code;
+		}
 	}
 
 	private static class Node {

@@ -90,5 +90,6 @@ public class App {
 			System.out.println(i.letter + " " + i.code);
 		}
 		System.out.println(res.code);
+		System.out.println(huffman.decode(res));
 	}
 }

@@ -69,6 +69,30 @@ class Huffman {
 		return result;
 	}
 
+	String decode(HashResult hash) {
+		table = new HashMap<>();
+		for (Pair row : hash.codeTable) {
+			table.put(row.code, row);
+		}
+
+		StringBuilder result = new StringBuilder();
+		String curCode = "";
+		boolean foundBefore = false;
+		for (int i = 0; i < hash.code.length(); ++i) {
+			curCode += Character.toString(hash.code.charAt(i));
+			if (!table.containsKey(curCode) && foundBefore) {
+				result.append(table.get(curCode.substring(0, curCode.length() - 1)).letter);
+				curCode = curCode.substring(curCode.length() - 1);
+				foundBefore = false;
+			}
+			if (table.containsKey(curCode)) {
+				foundBefore = true;
+			}
+		}
+		result.append(table.get(curCode).letter);
+		return result.toString();
+	}
+
 	private void buildTable() {
 		PriorityQueue<Node> pq = new PriorityQueue<>(new Node.NodePriority());
 		for (Map.Entry<String, Pair> entry : table.entrySet()) {

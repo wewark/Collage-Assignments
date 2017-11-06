@@ -5,12 +5,10 @@ import java.util.HashMap;
 import java.util.StringJoiner;
 
 public class LZW {
-	private String txt;
 	private ArrayList<String> dictionary = new ArrayList<>();
 	private HashMap<String, Integer> dictionaryIndex = new HashMap<>();
 
-	public int[] encode(String _txt) {
-		txt = _txt;
+	public int[] encode(String txt) {
 		initializeDictionary();
 		ArrayList<Integer> result = new ArrayList<>();
 

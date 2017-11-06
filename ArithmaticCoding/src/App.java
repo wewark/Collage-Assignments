@@ -95,4 +95,18 @@ public class App {
 //		frame.pack();
 //		frame.setResizable(false);
 //		frame.setVisible(true);
+
+		ArrayList<Character> symbols = new ArrayList<>();
+		ArrayList<Double> probs = new ArrayList<>();
+		symbols.add('A');
+		symbols.add('B');
+		symbols.add('C');
+		probs.add(0.8);
+		probs.add(0.02);
+		probs.add(0.18);
+
+		ArithmaticCoding ar = new ArithmaticCoding(symbols, probs);
+		String rs = ar.encode("ACBA");
+		System.out.println(rs);
+	}
 }

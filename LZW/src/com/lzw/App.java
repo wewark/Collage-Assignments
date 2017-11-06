@@ -2,9 +2,10 @@ package com.lzw;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,6 +27,7 @@ public class App {
 	public App() {
 		FileNameExtensionFilter filter = new FileNameExtensionFilter(".txt", "txt", "text");
 		fileChooser.setFileFilter(filter);
+		fileChooser.setSelectedFile(new File("E:\\Projects\\Collage-Individual-Assignments\\LZW/test.txt"));
 
 		chooseFileButton.addActionListener(new ActionListener() {
 			@Override
@@ -41,26 +43,28 @@ public class App {
 
 				int[] hash = compressor.encode(String.join("\n", lines));
 
-				StringJoiner hashStr = new StringJoiner(",");
-				for (int i : hash) {
-					hashStr.add(Integer.toString(i));
-				}
-
+//				StringJoiner hashStr = new StringJoiner(",");
+//				for (int i : hash) {
+//					hashStr.add(Integer.toString(i));
+//				}
+//
 				parentDir = file.toPath().getParent().toString();
-				writeFile(parentDir + "/compressed.txt", hashStr.toString());
+//				writeFile(parentDir + "/compressed.txt", hashStr.toString());
+				serialize(hash);
 			}
 		});
 		decompressButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String[] lines = readFile(parentDir + "/compressed.txt");
-
-				String[] hashStr = String.join("\n", lines).split(",");
-				int[] hash = new int[hashStr.length];
-				for (int i = 0; i < hashStr.length; ++i) {
-					hash[i] = Integer.parseInt(hashStr[i]);
-				}
-
+//				String[] lines = readFile(parentDir + "/compressed.txt");
+//
+//				String[] hashStr = String.join("\n", lines).split(",");
+//				int[] hash = new int[hashStr.length];
+//				for (int i = 0; i < hashStr.length; ++i) {
+//					hash[i] = Integer.parseInt(hashStr[i]);
+//				}
+//
+				int[] hash = deserialize();
 				writeFile(parentDir + "/decompressed.txt", compressor.decode(hash));
 			}
 		});
@@ -85,7 +89,32 @@ public class App {
 			System.out.println(e);
 		}
 		return lines.toArray(new String[0]);
-}
+	}
+
+	private static void serialize(int[] arr) {
+		ObjectOutputStream out;
+		try {
+			out = new ObjectOutputStream(new FileOutputStream("compressed.ser"));
+			out.writeObject(arr);
+			out.flush();
+			out.close();
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	}
+
+	private static int[] deserialize() {
+		ObjectInputStream in;
+		try {
+			in = new ObjectInputStream(new FileInputStream("compressed.ser"));
+			int[] ret = (int[]) in.readObject();
+			in.close();
+			return ret;
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		return new int[0];
+	}
 
 	public static void main(String[] args) {
 		JFrame frame = new JFrame("App");
@@ -94,6 +123,7 @@ public class App {
 		frame.pack();
 		frame.setResizable(false);
 		frame.setVisible(true);
+		frame.setLocationRelativeTo(null);
 
 //		LZW lzw = new LZW();
 //		int[] res = lzw.encode("ABAABABBAABAABAAAABABBBBBBBB");

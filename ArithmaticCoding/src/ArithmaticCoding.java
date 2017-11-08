@@ -3,11 +3,10 @@ import java.util.HashMap;
 
 public class ArithmaticCoding {
 	private HashMap<Character, Pair> symbolLimits;
-	private int K, txtSize;
+	private int K;
+	int txtSize;
 
 	ArithmaticCoding(ArrayList<Character> symbols, ArrayList<Double> probs) {
-		cur = new Pair(0.0, 1.0);
-		result = new StringBuilder();
 		symbolLimits = new HashMap<>();
 		K = 1;
 
@@ -30,6 +29,9 @@ public class ArithmaticCoding {
 
 	String encode(String txt) {
 		txtSize = txt.length();
+		result = new StringBuilder();
+		cur = new Pair(0.0, 1.0);
+
 		for (int i = 0; i < txt.length(); ++i) {
 			updateCur(txt.charAt(i));
 

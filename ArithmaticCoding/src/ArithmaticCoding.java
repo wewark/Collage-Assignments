@@ -2,14 +2,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ArithmaticCoding {
-	private ArrayList<Character> symbols;
-	private ArrayList<Double> probs;
 	private HashMap<Character, Pair> symbolLimits;
-	private int K;
+	private int K, txtSize;
 
 	ArithmaticCoding(ArrayList<Character> symbols, ArrayList<Double> probs) {
-		this.symbols = symbols;
-		this.probs = probs;
 		cur = new Pair(0.0, 1.0);
 		result = new StringBuilder();
 		symbolLimits = new HashMap<>();
@@ -25,21 +21,23 @@ public class ArithmaticCoding {
 		for (Pair pair : symbolLimits.values())
 			minRange = pair.range() < minRange ? pair.range() : minRange;
 
-		while (Math.pow(2, -K) > minRange) ++K;
+		while (Math.pow(2, -K) >= minRange) ++K;
+		K += 5;
 	}
 
 	private Pair cur;
 	private StringBuilder result;
 
 	String encode(String txt) {
+		txtSize = txt.length();
 		for (int i = 0; i < txt.length(); ++i) {
 			updateCur(txt.charAt(i));
 
 			while (true) {
-				if (cur.lower < 0.5 && cur.upper < 0.5)
-					E1();
-				else if (cur.lower > 0.5 && cur.upper > 0.5)
-					E2();
+				if (cur.upper <= 0.5)
+					E1(true);
+				else if (cur.lower >= 0.5)
+					E2(true);
 				else break;
 			}
 		}
@@ -47,7 +45,7 @@ public class ArithmaticCoding {
 		Double mid = (cur.lower + cur.upper) / 2.0;
 		System.out.println(mid);
 		for (int i = 1; i <= K; ++i) {
-			Double x= Math.pow(2,-i);
+			Double x = Math.pow(2, -i);
 			if (Math.pow(2, -i) <= mid) {
 				result.append(1);
 				mid -= Math.pow(2, -i);
@@ -58,6 +56,60 @@ public class ArithmaticCoding {
 		return result.toString();
 	}
 
+	String decode(String hash) {
+		StringBuilder curHash = new StringBuilder();
+		for (int i = 0; i < K; ++i)
+			curHash.append(hash.charAt(i));
+
+		Double pin = 0.0;
+		String curHashStr = curHash.toString();
+		for (int i = 0; i < curHashStr.length(); ++i)
+			if (curHashStr.charAt(i) == '1')
+				pin += Math.pow(2, -(i + 1));
+
+		cur = new Pair(0.0, 1.0);
+		result = new StringBuilder();
+		result.append(getSymbol(pin));
+
+		for (int i = K; result.length() < txtSize; ) {
+			updateCur(result.charAt(result.length() - 1));
+
+			boolean finish = false;
+			while (!finish) {
+				finish = true;
+				if (cur.upper <= 0.5) {
+					E1(false);
+					finish = false;
+				}
+				else if (cur.lower >= 0.5) {
+					E2(false);
+					finish = false;
+				}
+
+				if (!finish) {
+					if (hash.charAt(i - K) == '1')
+						pin -= 0.5;
+					pin *= 2;
+					if (hash.charAt(i) == '1')
+						pin += Math.pow(2, -K);
+					i++;
+				}
+			}
+
+			Double code = (pin - cur.lower) / cur.range();
+			result.append(getSymbol(code));
+		}
+		return result.toString();
+	}
+
+	// TODO: Replace this with binary search
+	private Character getSymbol(Double pin) {
+		for (HashMap.Entry<Character, Pair> pair : symbolLimits.entrySet())
+			if (pin >= pair.getValue().lower && pin <= pair.getValue().upper)
+				return pair.getKey();
+		return '\0';
+	}
+
 	private void updateCur(Character curChar) {
 		Pair newLimits = new Pair();
 		newLimits.lower = cur.lower + cur.range() * symbolLimits.get(curChar).lower;
@@ -65,20 +117,16 @@ public class ArithmaticCoding {
 		cur = newLimits;
 	}
 
-	private void E1() {
-		Pair newLimits = new Pair();
-		newLimits.lower = cur.lower * 2;
-		newLimits.upper = cur.upper * 2;
-		cur = newLimits;
-		result.append(0);
+	private void E1(boolean append) {
+		cur.lower = cur.lower * 2;
+		cur.upper = cur.upper * 2;
+		if (append) result.append(0);
 	}
 
-	private void E2() {
-		Pair newLimits = new Pair();
-		newLimits.lower = (cur.lower - 0.5) * 2;
-		newLimits.upper = (cur.upper - 0.5) * 2;
-		cur = newLimits;
-		result.append(1);
+	private void E2(boolean append) {
+		cur.lower = (cur.lower - 0.5) * 2;
+		cur.upper = (cur.upper - 0.5) * 2;
+		if (append) result.append(1);
 	}
 
 	private class Pair {

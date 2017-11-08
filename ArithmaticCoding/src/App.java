@@ -108,5 +108,8 @@ public class App {
 		ArithmaticCoding ar = new ArithmaticCoding(symbols, probs);
 		String rs = ar.encode("ACBA");
 		System.out.println(rs);
+
+		rs = ar.decode(rs);
+		System.out.println(rs);
 	}
 }

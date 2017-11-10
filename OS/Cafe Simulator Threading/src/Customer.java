@@ -28,11 +28,11 @@ public class Customer extends Thread {
 
 		//Try to Occupy Table
 		try {
-			synchronized (this) {
+			synchronized (Restaurant.customerQueueLock) {
 
 				while (!Restaurant.occupyTable(this)) {
 					System.out.println(Name + " is waiting");
-					wait();     //Will be notified when someone Leaves a Table.
+					Restaurant.customerQueueLock.wait();     //Will be notified when someone Leaves a Table.
 				}
 				// While Loop for Sanity Checking and Synchronization
 				// (however it shouldn't be notified unless there is a free table)

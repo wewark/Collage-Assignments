@@ -4,6 +4,7 @@ import java.util.Queue;
 public class Restaurant {
 	public String Name;
 	public Queue<Customer> CustomersQueue;
+	public final Object customerQueueLock = new Object();
 	public Queue<Table> TablesQueue;
 	//GUI-Simulation Board
 	public SimulationBoard SimulationBoard;
@@ -28,9 +29,6 @@ public class Restaurant {
 		if (!tableAvailable())
 			return false;
 
-		//TODO (Remove Assert after testing)
-		assert customer == CustomersQueue.peek();
-
 		//Pull customer from Queue
 		CustomersQueue.poll();
 
@@ -48,9 +46,9 @@ public class Restaurant {
 		//Call-in First Customer in the Queue
 		Customer newCustomer = CustomersQueue.peek();
 		if (newCustomer != null) {
-			synchronized (newCustomer)  //TODO check Intellij warning.
+			synchronized (customerQueueLock)  //TODO check Intellij warning.
 			{
-				newCustomer.notify();
+				customerQueueLock.notify();
 			}
 		}
 		return true;

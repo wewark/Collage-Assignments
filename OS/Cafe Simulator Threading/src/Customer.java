@@ -71,10 +71,11 @@ public class Customer extends Thread {
 
 		//Leave
 		waitRandomTime();
-		Restaurant.leaveTable(this);
 		//GUI-Update
 		System.out.println(Name + " Left the Restaurant");
 		Button.setText(String.valueOf(TableID));
 		Button.setBackground(Color.GRAY);
+
+		Restaurant.leaveTable(this);
 	}
 }

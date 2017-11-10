@@ -20,9 +20,8 @@ public class Restaurant {
 		}
 	}
 
-	public synchronized boolean enterRestaurant(Customer customer) {
+	public synchronized void enterRestaurant(Customer customer) {
 		CustomersQueue.add(customer);
-		return true;
 	}
 
 	public synchronized boolean occupyTable(Customer customer) {
@@ -33,12 +32,11 @@ public class Restaurant {
 		CustomersQueue.poll();
 
 		//Pull Table from Queue and Link with customer
-		Table table = TablesQueue.poll();
-		customer.Table = table;
+		customer.Table = TablesQueue.poll();
 		return true;
 	}
 
-	public synchronized boolean leaveTable(Customer customer) {
+	public synchronized void leaveTable(Customer customer) {
 		//Put Table back to queue.
 		TablesQueue.add(customer.Table);
 		customer.Table = null;
@@ -51,7 +49,6 @@ public class Restaurant {
 				customerQueueLock.notify();
 			}
 		}
-		return true;
 	}
 
 	public boolean tableAvailable() {
@@ -59,8 +56,8 @@ public class Restaurant {
 	}
 
 	public void AddCustomersToSim(String[] Names) {
-		for (int i = 0; i < Names.length; i++) {
-			(new Customer(Names[i], this)).start();     //Create customers and start their threads.
+		for (String Name1 : Names) {
+			(new Customer(Name1, this)).start();     //Create customers and start their threads.
 		}
 	}
 

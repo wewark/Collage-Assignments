@@ -21,7 +21,7 @@ public class ArithmaticCoding {
 			minRange = pair.range() < minRange ? pair.range() : minRange;
 
 		while (Math.pow(2, -K) >= minRange) ++K;
-		K += 5;
+		K += 3;
 	}
 
 	private Pair cur;
@@ -44,16 +44,9 @@ public class ArithmaticCoding {
 			}
 		}
 
-		Double mid = (cur.lower + cur.upper) / 2.0;
-		System.out.println(mid);
-		for (int i = 1; i <= K; ++i) {
-			Double x = Math.pow(2, -i);
-			if (Math.pow(2, -i) <= mid) {
-				result.append(1);
-				mid -= Math.pow(2, -i);
-			}
-			else result.append(0);
-		}
+		result.append(1);
+		for (int i = 1; i < K; ++i)
+			result.append(0);
 
 		return result.toString();
 	}

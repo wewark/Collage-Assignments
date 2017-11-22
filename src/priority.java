@@ -3,17 +3,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Scanner;
 
-public class RR {
-    public static void rrSimulation()
+public class priority {
+    public static void prioritySimulation()
     {
         int n;
         int End=0;
-        int Qunt;
         System.out.print("Number of processes: ");
         Scanner sc = new Scanner(System.in);
         n=sc.nextInt();
-        System.out.print("Quantum: ");
-        Qunt=sc.nextInt();
         ArrayList<process> processes=new ArrayList<process>();
         ArrayList<process> Finished=new ArrayList<process>();
         ArrayList<String>order=new ArrayList<String>();
@@ -24,39 +21,43 @@ public class RR {
             int arr=i;
             System.out.print("Burst Time: ");
             int bur=sc.nextInt();
+            System.out.print("Priority: ");
+            int pr=sc.nextInt();
             process p=new process(name,arr,bur,bur,0,0,0);
+            p.priority=pr;
             End+=bur;
             processes.add(p);
         }
 
         int last=-1;
         for(int i=0;i<End;) {
-
-            System.out.println("Time: "+i);
+            Collections.sort(processes, new Comparator<process>() {
+                @Override
+                public int compare(process o1, process o2) {
+                    if (o1.priority < o2.priority) return -1;
+                    else return 1;
+                }
+            });
+            System.out.println("Time: " + i);
             for (int j = 0; j < processes.size(); j++) {
-                System.out.println(processes.get(j).name + " " + processes.get(j).remaining);
+                System.out.println(processes.get(j).name + " " + processes.get(j).remaining + " " + processes.get(j).priority);
             }
             System.out.println("------------------------------------------");
-            process p=new process(processes.get(0).name,processes.get(0).arrival,processes.get(0).burst,processes.get(0).remaining,processes.get(0).lastEntered,processes.get(0).waitingTime,processes.get(0).TurnAround);
-            p.waitingTime=i-(p.burst-(p.remaining));
-            i+=Math.min(Qunt,p.remaining);
-            p.remaining=Math.max(0,p.remaining-Qunt);
-            if(last!=p.arrival)
-            {
-                order.add(p.name);
-                p.lastEntered=i;
-                last=p.arrival;
-            }
+            process p = new process(processes.get(0).name, processes.get(0).arrival, processes.get(0).burst, processes.get(0).remaining, processes.get(0).lastEntered, processes.get(0).waitingTime, processes.get(0).TurnAround);
+            p.priority = processes.get(0).priority;
+            p.waitingTime = i;
+            i += p.burst;
+            order.add(p.name);
             processes.remove(0);
-            if(p.remaining==0)
+            p.TurnAround = i - p.arrival;
+            Finished.add(p);
+            for (int j =0; j < processes.size(); j++)
             {
-                p.TurnAround=i;
-                Finished.add(p);
+                process element = new process(processes.get(j).name, processes.get(j).arrival, processes.get(j).burst, processes.get(j).remaining, processes.get(j).lastEntered, processes.get(j).waitingTime, processes.get(j).TurnAround);
+                element.priority = processes.get(j).priority-1;
+                processes.set(j,element);
             }
-            else
-            {
-                processes.add(p);
-            }
+
         }
         double avgWaiting=0.0,avgTurnaround=0.0;
         System.out.println("Order of Execution:");

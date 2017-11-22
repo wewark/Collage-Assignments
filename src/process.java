@@ -8,6 +8,7 @@ public class process {
     int lastEntered;
     int waitingTime;
     int TurnAround;
+    int priority;
 
     public process(String name, int arrival, int burst, int remaining, int lastEntered, int waitingTime, int turnAround) {
         this.name = name;

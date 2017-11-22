@@ -1,3 +1,4 @@
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -13,6 +14,7 @@ public class sjf {
         System.out.print("Number of processes: ");
         n=sc.nextInt();
         ArrayList<process>processes=new ArrayList<process>();
+        ArrayList<String>order=new ArrayList<String>();
         for(int i=0;i<n;++i)
         {
             System.out.print("Process Name: ");
@@ -23,6 +25,7 @@ public class sjf {
             int bur=sc.nextInt();
             process p=new process(name,arr,bur,bur,0,0,0);
             End+=bur;
+            End=Math.max(End,arr+bur);
             processes.add(p);
         }
 
@@ -56,21 +59,29 @@ public class sjf {
             }
             System.out.println("------------------------------------------");
             process p=new process(processes.get(0).name,processes.get(0).arrival,processes.get(0).burst,processes.get(0).remaining,processes.get(0).lastEntered,processes.get(0).waitingTime,processes.get(0).TurnAround);
-            p.remaining=p.remaining-1;
-            if(last!=p.arrival)
-            {
-                p.lastEntered=i;
-                last=p.arrival;
-                p.waitingTime=i-p.arrival-(p.burst-(p.remaining+1));
-            }
-            if(p.remaining==0)
-            {
-                p.TurnAround=i+1-p.arrival;
-            }
-            processes.remove(0);
-            processes.add(p);
+           if(p.arrival<=i) {
+               p.remaining = p.remaining - 1;
+               if (last != p.arrival) {
+                   order.add(p.name);
+                   p.lastEntered = i;
+                   last = p.arrival;
+                   p.waitingTime = i - p.arrival - (p.burst - (p.remaining + 1));
+               }
+               if (p.remaining == 0) {
+                   p.TurnAround = i + 1 - p.arrival;
+               }
+               processes.remove(0);
+               processes.add(p);
+           }
         }
         double avgWaiting=0.0,avgTurnaround=0.0;
+        System.out.println("Order of Execution:");
+        for(int i=0;i<order.size();i++)
+        {
+            System.out.print(order.get(i));
+            if(i!=order.size()-1)System.out.print("->");
+        }
+        System.out.println();
         for (int j = 0; j < n; j++) {
             System.out.println("Name: "+processes.get(j).name + " Waiting Time: " + processes.get(j).waitingTime + " Turn Around Time: " + processes.get(j).TurnAround);
             avgWaiting+=processes.get(j).waitingTime;

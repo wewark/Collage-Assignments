@@ -95,5 +95,25 @@ public class App {
 //		frame.setResizable(false);
 //		frame.setVisible(true);
 
+		ArrayList<Integer> arr = new ArrayList<>(Arrays.asList(6, 15, 17, 60, 100, 90, 66, 59, 18, 3, 5, 16, 14,67, 63, 2, 98, 92));
+		ArrayList<ArrayList<Integer>> rs = ScalarQuantization.encode(arr, 2);
+		int c = 0;
+		for (ArrayList<Integer> curArr : rs) {
+			System.out.print(c++ + " " + ScalarQuantization.average(curArr) + ":");
+			for (Integer i : curArr)
+				System.out.print(" " + i);
+			System.out.println();
+		}
+
+		for (int i = 0; i < arr.size(); ++i) {
+			boolean found = false;
+			for (int j = 0; j < rs.size() && !found; ++j)
+				for (int k = 0; k < rs.get(j).size(); ++k)
+					if (rs.get(j).get(k) == arr.get(i)) {
+						System.out.print(j + " ");
+						found = true;
+						break;
+					}
+		}
 	}
 }

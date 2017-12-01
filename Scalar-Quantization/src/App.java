@@ -11,60 +11,49 @@ public class App {
 	private JButton chooseFileButton;
 	private JButton compressButton;
 	private JButton decompressButton;
+	private JTextField bitsTextField;
+	private JPanel containerPanel;
 
-//	private ArithmaticCoding compressor;
-//	private JFileChooser fileChooser = new JFileChooser(new File(System.getProperty("user.dir")));
-//	private String parentDir;
-//
-//	public App() {
-//		FileNameExtensionFilter filter = new FileNameExtensionFilter(".txt", "txt", "text");
-//		fileChooser.setFileFilter(filter);
-//
-//		ArrayList<Character> symbols = new ArrayList<>();
-//		ArrayList<Double> probs = new ArrayList<>();
-//		symbols.add('A');
-//		symbols.add('B');
-//		symbols.add('C');
-//		probs.add(0.8);
-//		probs.add(0.02);
-//		probs.add(0.18);
-//
-//		compressor = new ArithmaticCoding(symbols, probs);
-//
-//		chooseFileButton.addActionListener(new ActionListener() {
-//			@Override
-//			public void actionPerformed(ActionEvent e) {
-//				fileChooser.showOpenDialog(null);
-//			}
-//		});
-//
-//		compressButton.addActionListener(new ActionListener() {
-//			@Override
-//			public void actionPerformed(ActionEvent e) {
-//				File file = fileChooser.getSelectedFile();
-//				parentDir = file.toPath().getParent().toString();
-//				String[] lines = readFile(file.toPath().toString());
-//
-//				String hash = compressor.encode(String.join("\n", lines));
-//				hash = compressor.txtSize + "\n" + hash;
-//
-//				writeFile(parentDir + "/compressed.txt", hash);
-//			}
-//		});
-//
+	private JFileChooser fileChooser = new JFileChooser(new File(System.getProperty("user.dir")));
+	private String parentDir;
+
+	private App() {
+		FileNameExtensionFilter filter = new FileNameExtensionFilter(".txt", "txt", "text");
+		fileChooser.setFileFilter(filter);
+		fileChooser.setSelectedFile(new File("E:\\Projects\\Collage-Individual-Assignments\\Scalar-Quantization/test.txt"));
+
+		chooseFileButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				fileChooser.showOpenDialog(null);
+			}
+		});
+
+		compressButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				File file = fileChooser.getSelectedFile();
+				parentDir = file.toPath().getParent().toString();
+				String[] lines = readFile(file.toPath().toString());
+				lines = lines[0].split(" ");
+
+				ArrayList<Integer> arr = stringArraytoIntegerList(lines);
+				int bits = Integer.parseInt(bitsTextField.getText());
+				ArrayList<ArrayList<Integer>> result = ScalarQuantization.encode(arr, bits);
+
+				writeFile(parentDir + "/compressed.txt", ScalarQuantization.toString(arr, result));
+			}
+		});
+
 //		decompressButton.addActionListener(new ActionListener() {
 //			@Override
 //			public void actionPerformed(ActionEvent e) {
 //				String[] lines = readFile(parentDir + "/compressed.txt");
-//				compressor.txtSize = Integer.parseInt(lines[0]);
-//				lines = Arrays.copyOfRange(lines, 1, lines.length);
 //
-//				String decoded = compressor.decode(String.join("\n", lines));
-//
-//				writeFile(parentDir + "/decompressed.txt", decoded);
+//				writeFile(parentDir + "/decompressed.txt", "");
 //			}
 //		});
-//	}
+	}
 
 	private static void writeFile(String pathStr, String text) {
 		List<String> linesList = Collections.singletonList(text);
@@ -87,33 +76,42 @@ public class App {
 		return lines.toArray(new String[0]);
 	}
 
+	private static ArrayList<Integer> stringArraytoIntegerList(String[] strArr) {
+		ArrayList<Integer> ret = new ArrayList<>();
+		for (String str : strArr)
+			ret.add(Integer.parseInt(str));
+		return ret;
+	}
+
 	public static void main(String[] args) {
-//		JFrame frame = new JFrame("App");
-//		frame.setContentPane(new App().panelMain);
-//		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-//		frame.pack();
-//		frame.setResizable(false);
-//		frame.setVisible(true);
+		JFrame frame = new JFrame("App");
+		frame.setContentPane(new App().panelMain);
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		frame.pack();
+		frame.setResizable(false);
+		frame.setVisible(true);
+		frame.setLocationRelativeTo(null);
 
-		ArrayList<Integer> arr = new ArrayList<>(Arrays.asList(6, 15, 17, 60, 100, 90, 66, 59, 18, 3, 5, 16, 14,67, 63, 2, 98, 92));
-		ArrayList<ArrayList<Integer>> rs = ScalarQuantization.encode(arr, 2);
-		int c = 0;
-		for (ArrayList<Integer> curArr : rs) {
-			System.out.print(c++ + " " + ScalarQuantization.average(curArr) + ":");
-			for (Integer i : curArr)
-				System.out.print(" " + i);
-			System.out.println();
-		}
-
-		for (int i = 0; i < arr.size(); ++i) {
-			boolean found = false;
-			for (int j = 0; j < rs.size() && !found; ++j)
-				for (int k = 0; k < rs.get(j).size(); ++k)
-					if (rs.get(j).get(k) == arr.get(i)) {
-						System.out.print(j + " ");
-						found = true;
-						break;
-					}
-		}
+//		ArrayList<Integer> arr = new ArrayList<>(Arrays.asList(6, 15, 17, 60, 100, 90, 66, 59, 18, 3, 5, 16, 14,67, 63, 2, 98, 92));
+//		ArrayList<ArrayList<Integer>> result = ScalarQuantization.encode(arr, 2);
+//
+//		int c = 0;
+//		for (ArrayList<Integer> curArr : result) {
+//			System.out.print(c++ + " " + ScalarQuantization.average(curArr) + ":");
+//			for (Integer i : curArr)
+//				System.out.print(" " + i);
+//			System.out.println();
+//		}
+//
+//		for (Integer anArr : arr) {
+//			boolean found = false;
+//			for (int j = 0; j < result.size() && !found; ++j)
+//				for (int k = 0; k < result.get(j).size(); ++k)
+//					if (result.get(j).get(k).equals(anArr)) {
+//						System.out.print(j + " ");
+//						found = true;
+//						break;
+//					}
+//		}
 	}
 }

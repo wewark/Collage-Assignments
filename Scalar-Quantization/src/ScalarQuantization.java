@@ -50,10 +50,37 @@ public class ScalarQuantization {
 		return ret;
 	}
 
-	static int average(ArrayList<Integer> num) {
+	private static int average(ArrayList<Integer> num) {
 		int ret = 0;
 		for (Integer i : num)
 			ret += i;
-		return ret / num.size();
+		return num.isEmpty() ? 0 : ret / num.size();
+	}
+
+	static String toString(ArrayList<Integer> arr, ArrayList<ArrayList<Integer>> result) {
+		StringBuilder ret = new StringBuilder();
+		int c = 0;
+		for (ArrayList<Integer> curArr : result) {
+			ret.append(c++)
+					.append(" ")
+					.append(ScalarQuantization.average(curArr))
+					.append(":");
+			for (Integer i : curArr)
+				ret.append(" ").append(i);
+			ret.append('\n');
+		}
+
+		for (Integer anArr : arr) {
+			boolean found = false;
+			for (int j = 0; j < result.size() && !found; ++j)
+				for (int k = 0; k < result.get(j).size(); ++k)
+					if (result.get(j).get(k).equals(anArr)) {
+						ret.append(j).append(" ");
+						found = true;
+						break;
+					}
+		}
+
+		return ret.toString();
 	}
 }

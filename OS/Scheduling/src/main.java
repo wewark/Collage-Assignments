@@ -25,7 +25,8 @@ public class main {
                 case 3:  priority p=new priority();
                     p.prioritySimulation();
                     break;
-                case 4:  ;
+                case 4: AG ag=new AG();
+                    ag.agSimulation();
                     break;
                 case 5: return ;
                 default: System.out.println("Invalid Input");

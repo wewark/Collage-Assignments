@@ -1,10 +1,7 @@
 import java.util.Scanner;
 
-public class main {
-
-
+public class Main {
 	public static void main(String[] args) {
-
 		while (true) {
 			System.out.println("1: preemptive Shortest- Job First (SJF) Scheduling");
 			System.out.println("2: Round Robin (RR)");
@@ -16,13 +13,13 @@ public class main {
 			int input = sc.nextInt();
 			switch (input) {
 				case 1:
-					sjf.sjfSimulation();
+					SJF.sjfSimulation();
 					break;
 				case 2:
 					RR.rrSimulation();
 					break;
 				case 3:
-					priority.prioritySimulation();
+					Priority.prioritySimulation();
 					break;
 				case 4:
 					AG.agSimulation();

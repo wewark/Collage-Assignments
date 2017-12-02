@@ -1,6 +1,5 @@
-import java.util.Comparator;
 
-public class process {
+public class QProcess {
 	String name;
 	int arrival;
 	int burst;
@@ -11,7 +10,7 @@ public class process {
 	int priority;
 	int quantum;
 
-	public process(String name, int arrival, int burst, int remaining, int lastEntered, int waitingTime, int turnAround) {
+	public QProcess(String name, int arrival, int burst, int remaining, int lastEntered, int waitingTime, int turnAround) {
 		this.name = name;
 		this.arrival = arrival;
 		this.burst = burst;
@@ -20,6 +19,4 @@ public class process {
 		this.waitingTime = waitingTime;
 		TurnAround = turnAround;
 	}
-
-
 }

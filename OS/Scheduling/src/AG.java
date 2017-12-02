@@ -8,13 +8,13 @@ public class AG {
 		Scanner sc = new Scanner(System.in);
 		System.out.print("Number of processes: ");
 		n = sc.nextInt();
-		ArrayList<process> processes = new ArrayList<process>();
-		ArrayList<process> original = new ArrayList<process>();
-		Queue<process> usedbefore = new LinkedList<>(); ;
+		ArrayList<QProcess> processes = new ArrayList<>();
+		ArrayList<QProcess> original = new ArrayList<>();
+		Queue<QProcess> usedbefore = new LinkedList<>(); ;
 
-		ArrayList<String> order = new ArrayList<String>();
+		ArrayList<String> order = new ArrayList<>();
 		for (int i = 0; i < n; ++i) {
-			System.out.print("Process Name: ");
+			System.out.print("QProcess Name: ");
 			String name = sc.next();
 			System.out.print("Arrival Time: ");
 			int arr = sc.nextInt();
@@ -22,7 +22,7 @@ public class AG {
 			int bur = sc.nextInt();
 			System.out.print("Quantum: ");
 			int qnt = sc.nextInt();
-			process p = new process(name, arr, bur, bur, 0, 0, 0);
+			QProcess p = new QProcess(name, arr, bur, bur, 0, 0, 0);
 			p.quantum = qnt;
 			End += bur;
 			End = Math.max(End, arr + bur);
@@ -33,24 +33,19 @@ public class AG {
 		int last = -1;
 		for (int i = 0; i < End; ) {
 			int finalI = i;
-			Collections.sort(processes, new Comparator<process>() {
-				@Override
-				public int compare(process o1, process o2) {
-
-
-					if (o1.arrival <= finalI && o2.arrival <= finalI) {
-						if (o1.remaining != 0 && o2.remaining != 0 && o1.remaining < o2.remaining) return -1;
-						else if (o1.remaining != 0 && o2.remaining != 0 && o1.remaining > o2.remaining) return 1;
-						else if (o1.remaining > o2.remaining) return -1;
-						else return 1;
-					}
-					else {
-						if (o1.arrival < o2.arrival) return -1;
-						else return 1;
-					}
-
-
+			processes.sort((o1, o2) -> {
+				if (o1.arrival <= finalI && o2.arrival <= finalI) {
+					if (o1.remaining != 0 && o2.remaining != 0 && o1.remaining < o2.remaining) return -1;
+					else if (o1.remaining != 0 && o2.remaining != 0 && o1.remaining > o2.remaining) return 1;
+					else if (o1.remaining > o2.remaining) return -1;
+					else return 1;
 				}
+				else {
+					if (o1.arrival < o2.arrival) return -1;
+					else return 1;
+				}
+
+
 			});
 			System.out.println("Time : " + i);
 			System.out.print("* Quantum ( ");
@@ -67,7 +62,15 @@ public class AG {
 			}
 			System.out.println(" )");
 			if (processes.size() != 0 && processes.get(0).arrival <= i) {
-				process p = new process(processes.get(0).name, processes.get(0).arrival, processes.get(0).burst, processes.get(0).remaining, processes.get(0).lastEntered, processes.get(0).waitingTime, processes.get(0).TurnAround);
+				QProcess p = new QProcess(
+						processes.get(0).name,
+						processes.get(0).arrival,
+						processes.get(0).burst,
+						processes.get(0).remaining,
+						processes.get(0).lastEntered,
+						processes.get(0).waitingTime,
+						processes.get(0).TurnAround
+				);
 				p.quantum = processes.get(0).quantum;
 				p.waitingTime = i - p.arrival - (p.burst - p.remaining);
 				int halfQuantum = (int) Math.ceil(p.quantum * 1.0 / 2.0);
@@ -80,13 +83,13 @@ public class AG {
 				if (p.remaining != 0) {
 
 					Boolean isSmaller = false;
-					for (int j = 0; j < processes.size(); j++) {
-						if (processes.get(j).arrival <= i && processes.get(j).remaining < p.remaining) {
+					for (QProcess process : processes) {
+						if (process.arrival <= i && process.remaining < p.remaining) {
 							isSmaller = true;
 							break;
 						}
 					}
-					if (isSmaller == true) {
+					if (isSmaller) {
 						processes.remove(0);
 						usedbefore.add(p);
 						if (p.burst - p.remaining >= p.quantum)
@@ -111,7 +114,7 @@ public class AG {
 					processes.remove(0);
 				}
 				for (int j = 0; j < original.size(); j++) {
-					if (original.get(j).name == p.name) {
+					if (original.get(j).name.equals(p.name)) {
 						original.set(j, p);
 						break;
 					}
@@ -119,7 +122,7 @@ public class AG {
 			}
 			else   //take from the queue
 			{
-				process p = usedbefore.peek();
+				QProcess p = usedbefore.peek();
 				p.waitingTime = i - p.arrival - (p.burst - p.remaining);
 				int halfQuantum = (int) Math.ceil(p.quantum * 1.0 / 2.0);
 				i += Math.min(p.remaining, halfQuantum);
@@ -141,7 +144,7 @@ public class AG {
 					usedbefore.remove();
 				}
 				for (int j = 0; j < original.size(); j++) {
-					if (original.get(j).name == p.name) {
+					if (original.get(j).name.equals(p.name)) {
 						original.set(j, p);
 						break;
 					}
@@ -157,10 +160,10 @@ public class AG {
 			if (i != order.size() - 1) System.out.print("->");
 		}
 		System.out.println();
-		for (int j = 0; j < n; j++) {
-			System.out.println("Name: " + original.get(j).name + " Waiting Time: " + original.get(j).waitingTime + " Turn Around Time: " + original.get(j).TurnAround);
-			avgWaiting += original.get(j).waitingTime;
-			avgTurnaround += original.get(j).TurnAround;
+		for (QProcess org : original) {
+			System.out.println("Name: " + org.name + " Waiting Time: " + org.waitingTime + " Turn Around Time: " + org.TurnAround);
+			avgWaiting += org.waitingTime;
+			avgTurnaround += org.TurnAround;
 		}
 		avgTurnaround /= n;
 		avgWaiting /= n;

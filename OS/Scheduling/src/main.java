@@ -16,20 +16,16 @@ public class main {
 			int input = sc.nextInt();
 			switch (input) {
 				case 1:
-					sjf s = new sjf();
-					s.sjfSimulation(); ;
+					sjf.sjfSimulation();
 					break;
 				case 2:
-					RR r = new RR();
-					r.rrSimulation(); ;
+					RR.rrSimulation();
 					break;
 				case 3:
-					priority p = new priority();
-					p.prioritySimulation();
+					priority.prioritySimulation();
 					break;
 				case 4:
-					AG ag = new AG();
-					ag.agSimulation();
+					AG.agSimulation();
 					break;
 				case 5:
 					return;

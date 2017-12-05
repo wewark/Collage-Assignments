@@ -44,6 +44,45 @@ public class VectorQuantization {
 		return new HashResult();
 	}
 
+	public int[][] decode(HashResult hash) {
+		int imgHeight = labelsHeight * vectorSize;
+		int imgWidth = labelsWidth * vectorSize;
+		int[][] result = new int[imgHeight][imgWidth];
+
+		for (int i = 0; i < imgHeight; i += vectorSize)
+			for (int j = 0; j < imgWidth; j += vectorSize) {
+				int lbl = getLabel(i, j, hash);
+
+				for (int x = 0; x < vectorSize; ++x)
+					for (int y = 0; y < vectorSize; ++y)
+						result[i + x][j + y] = hash.codeBook.get(lbl).get(x * vectorSize + y);
+			}
+		return result;
+	}
+
+	private int getLabel(int i, int j, HashResult hash) {
+		int hi = i / vectorSize;
+		int hj = j / vectorSize;
+		return hash.codeLabels.get(hi).get(hj);
+	}
+
+	private boolean equals(ArrayList<Group> tmp, ArrayList<Group> groups) {
+		if (tmp.size() != groups.size()) return false;
+		for (int i = 0; i < tmp.size(); ++i)
+			if (!tmp.get(i).equals(groups.get(i)))
+				return false;
+		return true;
+	}
+
+	private static class Group {
+		ArrayList<Integer> avg = new ArrayList<>();
+		ArrayList<ArrayList<Integer>> children = new ArrayList<>();
+
+		Group() {}
+
+		Group(ArrayList<Integer> avg) {
+			this.avg = avg;
+		}
 
 		static ArrayList<Group> split(ArrayList<Group> groups, boolean intoTwo) {
 			ArrayList<Group> ret = new ArrayList<>();

@@ -15,16 +15,16 @@ public class App {
 	private JButton chooseFileButton;
 	private JButton compressButton;
 	private JButton decompressButton;
-	private JTextField bitsTextField;
 	private JPanel containerPanel;
 
 	private JFileChooser fileChooser = new JFileChooser(new File(System.getProperty("user.dir")));
-	private String parentDir;
+	private String parentDir, fileName;
+	private int[][] pixels;
 
 	private App() {
-		FileNameExtensionFilter filter = new FileNameExtensionFilter(".txt", "txt", "text");
+		FileNameExtensionFilter filter = new FileNameExtensionFilter(".jpg", "jpg", "JPG");
 		fileChooser.setFileFilter(filter);
-		fileChooser.setSelectedFile(new File("E:\\Projects\\Collage-Individual-Assignments\\Scalar-Quantization/test.txt"));
+//		fileChooser.setSelectedFile(new File("E:\\Projects\\Collage-Individual-Assignments\\Vector-Quantization/test.txt"));
 
 		chooseFileButton.addActionListener(new ActionListener() {
 			@Override
@@ -33,30 +33,28 @@ public class App {
 			}
 		});
 
-//		compressButton.addActionListener(new ActionListener() {
-//			@Override
-//			public void actionPerformed(ActionEvent e) {
-//				File file = fileChooser.getSelectedFile();
-//				parentDir = file.toPath().getParent().toString();
-//				String[] lines = readFile(file.toPath().toString());
-//				lines = lines[0].split(" ");
-//
-//				ArrayList<Integer> arr = stringArraytoIntegerList(lines);
-//				int bits = Integer.parseInt(bitsTextField.getText());
-//				ArrayList<ArrayList<Integer>> result = ScalarQuantization.encode(arr, bits);
-//
-//				writeFile(parentDir + "/compressed.txt", ScalarQuantization.toString(arr, result));
-//			}
-//		});
+		compressButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				File file = fileChooser.getSelectedFile();
+				parentDir = file.toPath().getParent().toString();
+				fileName = file.getName();
+				pixels = ImageClass.readImage(fileName);
 
-//		decompressButton.addActionListener(new ActionListener() {
-//			@Override
-//			public void actionPerformed(ActionEvent e) {
-//				String[] lines = readFile(parentDir + "/compressed.txt");
-//
-//				writeFile(parentDir + "/decompressed.txt", "");
-//			}
-//		});
+				VectorQuantization vq = new VectorQuantization(4, 2);
+				VectorQuantization.HashResult hash = vq.encode(pixels);
+				pixels = vq.decode(hash);
+
+				writeFile(parentDir + "/compressed.txt", hash.toString());
+			}
+		});
+
+		decompressButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ImageClass.writeImage(pixels, fileName.substring(0, fileName.length() - 4) + "_out.jpg");
+			}
+		});
 	}
 
 	private static void writeFile(String pathStr, String text) {
@@ -88,13 +86,40 @@ public class App {
 	}
 
 	public static void main(String[] args) {
-//		JFrame frame = new JFrame("App");
-//		frame.setContentPane(new App().panelMain);
-//		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-//		frame.pack();
-//		frame.setResizable(false);
-//		frame.setVisible(true);
-//		frame.setLocationRelativeTo(null);
+		JFrame frame = new JFrame("App");
+		frame.setContentPane(new App().panelMain);
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		frame.pack();
+		frame.setResizable(false);
+		frame.setVisible(true);
+		frame.setLocationRelativeTo(null);
 
+//		int[][] pixels = ImageClass.readImage("lenaTest3.jpg");
+//
+//		VectorQuantization vq = new VectorQuantization(2, 50);
+//		VectorQuantization.HashResult hash = vq.encode(pixels);
+//		pixels = vq.decode(hash);
+//
+//		ImageClass.writeImage(pixels, "lenaTest3_out.jpg");
+
+
+//		VectorQuantization vq = new VectorQuantization(2, 4);
+//		int[][] arr = {
+//				{1, 2, 7, 9, 4, 11},
+//				{3, 4, 6, 6, 12, 12},
+//				{4, 9, 15, 14, 9, 9},
+//				{10, 10, 20, 18, 8, 8},
+//				{4, 3, 17, 16, 1, 4},
+//				{4, 5, 18, 18, 5, 6}
+//		};
+//		VectorQuantization.HashResult hash = vq.encode(arr);
+//		System.out.println(hash);
+//
+//		int[][] result = vq.decode(hash);
+//		for (int[] aResult : result) {
+//			for (int i : aResult)
+//				System.out.print(i + " ");
+//			System.out.println();
+//		}
 	}
 }

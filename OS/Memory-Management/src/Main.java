@@ -16,9 +16,12 @@ public class Main {
 				case 1:
 					int size = sc.nextInt();
 					int type = sc.nextInt();
-					if (type == 1) bestFit(size);
-					else if (type == 2) worstFit(size);
-					else firstFit(size);
+					if (type == 1)
+						System.out.println(bestFit(size));
+					else if (type == 2)
+						System.out.println(worstFit(size));
+					else
+						System.out.println(firstFit(size));
 					break;
 				case 2:
 					int startAddress = sc.nextInt();
@@ -37,7 +40,7 @@ public class Main {
 
 	private static int firstFit(int size) {
 		for (Partition cur : memory)
-			if (!cur.used == cur.size >= size) {
+			if (!cur.used && cur.size >= size) {
 				cur.allocate(size);
 				return cur.start;
 			}
@@ -48,7 +51,7 @@ public class Main {
 		Partition worst = new Partition(-1, -1, -1);
 		for (Partition cur : memory)
 			if (!cur.used && cur.sizeFree() >= size &&
-					(worst.start == -1 || cur.sizeFree() < worst.sizeFree()))
+					(worst.start == -1 || cur.size < worst.size))
 				worst = cur;
 		return worst.start;
 	}
@@ -57,7 +60,7 @@ public class Main {
 		Partition best = new Partition(-1, -1, -1);
 		for (Partition cur : memory)
 			if (!cur.used && cur.sizeFree() >= size &&
-					(best.start == -1 || cur.sizeFree() > best.sizeFree()))
+					(best.start == -1 || cur.size > best.size))
 				best = cur;
 		return best.start;
 	}

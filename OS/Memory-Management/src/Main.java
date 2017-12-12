@@ -35,8 +35,13 @@ public class Main {
 		}
 	}
 
-	private static void firstFit(int size) {
-		// TODO: 12/12/2017
+	private static int firstFit(int size) {
+		for (Partition cur : memory)
+			if (!cur.used == cur.size >= size) {
+				cur.allocate(size);
+				return cur.start;
+			}
+		return -1;
 	}
 
 	private static void worstFit(int size) {

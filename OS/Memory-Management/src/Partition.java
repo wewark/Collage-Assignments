@@ -7,4 +7,13 @@ public class Partition {
 		this.size = size;
 		this.sizeAllocated = sizeAllocated;
 	}
+
+	public boolean allocate(int size) {
+		if (!used) {
+			this.sizeAllocated = size;
+			this.used = true;
+			return true;
+		}
+		return false;
+	}
 }

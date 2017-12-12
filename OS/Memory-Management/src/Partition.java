@@ -16,4 +16,8 @@ public class Partition {
 		}
 		return false;
 	}
+
+	public int sizeFree() {
+		return size - sizeAllocated;
+	}
 }

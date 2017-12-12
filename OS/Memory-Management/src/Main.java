@@ -44,23 +44,40 @@ public class Main {
 		return -1;
 	}
 
-	private static void worstFit(int size) {
-		// TODO: 12/12/2017
+	private static int worstFit(int size) {
+		Partition worst = new Partition(-1, -1, -1);
+		for (Partition cur : memory)
+			if (!cur.used && cur.sizeFree() >= size &&
+					(worst.start == -1 || cur.sizeFree() < worst.sizeFree()))
+				worst = cur;
+		return worst.start;
 	}
 
-	private static void bestFit(int size) {
-		// TODO: 12/12/2017
+	private static int bestFit(int size) {
+		Partition best = new Partition(-1, -1, -1);
+		for (Partition cur : memory)
+			if (!cur.used && cur.sizeFree() >= size &&
+					(best.start == -1 || cur.sizeFree() > best.sizeFree()))
+				best = cur;
+		return best.start;
 	}
 
 	private static void defragment(int type) {
 		// TODO: 12/12/2017  
 	}
 
-	private static void deallocate(int startAddress) {
-		// TODO: 12/12/2017  
+	private static boolean deallocate(int startAddress) {
+		for (Partition cur : memory)
+			if (cur.start == startAddress && cur.used) {
+				cur.used = false;
+				return true;
+			}
+		return false;
 	}
 
 	private static void print() {
-		// TODO: 12/12/2017
+		System.out.println("Start\tSize\tSize Allocated\tUsed");
+		for (Partition cur : memory)
+			System.out.println(cur);
 	}
 }

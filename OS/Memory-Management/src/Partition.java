@@ -19,6 +19,7 @@ public class Partition {
 
 	@Override
 	public String toString() {
-		return start + "\t" + size + "\t" + sizeAllocated + "\t" + (used ? "used" : "not used");
+		//                    +-------+------+----------------+------+
+		return String.format("|%-16d|%-16d|%-16d|%-16s|", start, size, sizeAllocated, (used ? "YES" : "NO"));
 	}
 }

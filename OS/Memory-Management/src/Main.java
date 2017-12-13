@@ -6,16 +6,27 @@ public class Main {
 
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
+		System.out.print("Initial size: ");
 		int initialSize = sc.nextInt();
 
 		memory.add(new Partition(0, initialSize));
 
 		while (true) {
+			System.out.println("1. Allocation\n" +
+					"2. De-allocation\n" +
+					"3. Defragmentation\n" +
+					"4. Print memory status");
 			int x = sc.nextInt();
+
 			switch (x) {
 				case 1:
+					System.out.print("Size: ");
 					int size = sc.nextInt();
+					System.out.println("1. Best Fit\n" +
+							"2. Worst Fit\n" +
+							"3. First Fit");
 					int type = sc.nextInt();
+
 					if (type == 1)
 						System.out.println(bestFit(size));
 					else if (type == 2)
@@ -24,6 +35,7 @@ public class Main {
 						System.out.println(firstFit(size));
 					break;
 				case 2:
+					System.out.print("Start address: ");
 					int startAddress = sc.nextInt();
 					if (deallocate(startAddress))
 						System.out.println("De-allocated successfully");
@@ -31,11 +43,15 @@ public class Main {
 						System.out.println("De-allocation unsuccessful");
 					break;
 				case 3:
+					System.out.println("\t1. Split into filled and empty blocks\n" +
+							"\t2. Group contiguous free blocks\n" +
+							"\t3. Group all free blocks into one");
 					type = sc.nextInt();
 					defragment(type);
 					break;
 			}
 			print();
+			System.out.println();
 		}
 	}
 
@@ -120,8 +136,11 @@ public class Main {
 	}
 
 	private static void print() {
-		System.out.println("Start\tSize\tSize Allocated\tUsed");
+		System.out.format("+----------------+----------------+----------------+----------------+%n");
+		System.out.format("|      Start     |      Size      | Size Allocated |      Used      |%n");
+		System.out.format("+----------------+----------------+----------------+----------------+%n");
 		for (Partition cur : memory)
 			System.out.println(cur);
+		System.out.format("+----------------+----------------+----------------+----------------+%n");
 	}
 }

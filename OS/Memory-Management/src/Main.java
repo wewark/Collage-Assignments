@@ -2,13 +2,13 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
-	static ArrayList<Partition> memory = new ArrayList<>();
+	private static ArrayList<Partition> memory = new ArrayList<>();
 
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
 		int initialSize = sc.nextInt();
 
-		memory.add(new Partition(0, initialSize, 0));
+		memory.add(new Partition(0, initialSize));
 
 		while (true) {
 			int x = sc.nextInt();
@@ -25,16 +25,17 @@ public class Main {
 					break;
 				case 2:
 					int startAddress = sc.nextInt();
-					deallocate(startAddress);
+					if (deallocate(startAddress))
+						System.out.println("De-allocated successfully");
+					else
+						System.out.println("De-allocation unsuccessful");
 					break;
 				case 3:
 					type = sc.nextInt();
 					defragment(type);
 					break;
-				case 4:
-					print();
-					break;
 			}
+			print();
 		}
 	}
 
@@ -48,31 +49,71 @@ public class Main {
 	}
 
 	private static int worstFit(int size) {
-		Partition worst = new Partition(-1, -1, -1);
+		Partition worst = new Partition(-1, -1);
 		for (Partition cur : memory)
-			if (!cur.used && cur.sizeFree() >= size &&
-					(worst.start == -1 || cur.size < worst.size))
+			if (!cur.used && cur.size >= size &&
+					(worst.start == -1 || cur.size > worst.size))
 				worst = cur;
+		worst.allocate(size);
 		return worst.start;
 	}
 
 	private static int bestFit(int size) {
-		Partition best = new Partition(-1, -1, -1);
+		Partition best = new Partition(-1, -1);
 		for (Partition cur : memory)
-			if (!cur.used && cur.sizeFree() >= size &&
-					(best.start == -1 || cur.size > best.size))
+			if (!cur.used && cur.size >= size &&
+					(best.start == -1 || cur.size < best.size))
 				best = cur;
+		best.allocate(size);
 		return best.start;
 	}
 
 	private static void defragment(int type) {
-		// TODO: 12/12/2017  
+		if (type == 1) {
+			for (int i = 0; i < memory.size(); ++i) {
+				Partition cur = memory.get(i);
+				if (cur.used && cur.size > cur.sizeAllocated) {
+					int free = cur.size - cur.sizeAllocated;
+					cur.size = cur.sizeAllocated;
+					memory.add(++i, new Partition(cur.start + cur.size, free));
+				}
+			}
+		}
+		else if (type == 2) {
+			for (int i = 0; i < memory.size() - 1; ++i) {
+				Partition cur = memory.get(i);
+				Partition next = memory.get(i + 1);
+				if (!cur.used && !next.used) {
+					cur.size += next.size;
+					memory.remove(i-- + 1);
+				}
+			}
+		}
+		else {
+			int unused = 0;
+			for (int i = 0; i < memory.size(); ++i) {
+				if (!memory.get(i).used) {
+					unused += memory.get(i).size;
+					memory.remove(i--);
+				}
+				else memory.get(i).start -= unused;
+			}
+
+			if (unused > 0) {
+				int start = 0;
+				if (!memory.isEmpty()) {
+					Partition last = memory.get(memory.size() - 1);
+					start = last.start + last.size;
+				}
+				memory.add(new Partition(start, unused));
+			}
+		}
 	}
 
 	private static boolean deallocate(int startAddress) {
 		for (Partition cur : memory)
 			if (cur.start == startAddress && cur.used) {
-				cur.used = false;
+				cur.deAllocate();
 				return true;
 			}
 		return false;

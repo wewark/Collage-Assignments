@@ -1,25 +1,20 @@
 public class Partition {
-	int start, size;
-	private int sizeAllocated;
+	int start, size, sizeAllocated;
 	boolean used = false;
 
-	Partition(int start, int size, int sizeAllocated) {
+	Partition(int start, int size) {
 		this.start = start;
 		this.size = size;
-		this.sizeAllocated = sizeAllocated;
 	}
 
-	public boolean allocate(int size) {
-		if (!used) {
-			this.sizeAllocated = size;
-			this.used = true;
-			return true;
-		}
-		return false;
+	public void allocate(int size) {
+		this.sizeAllocated = size;
+		this.used = true;
 	}
 
-	public int sizeFree() {
-		return size - sizeAllocated;
+	public void deAllocate() {
+		this.sizeAllocated = 0;
+		this.used = false;
 	}
 
 	@Override

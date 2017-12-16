@@ -15,7 +15,8 @@ public class Main {
 			System.out.println("1. Allocation\n" +
 					"2. De-allocation\n" +
 					"3. Defragmentation\n" +
-					"4. Print memory status");
+					"4. Print memory status\n"+
+					"5. Exit");
 			int x = sc.nextInt();
 
 			switch (x) {
@@ -49,6 +50,8 @@ public class Main {
 					type = sc.nextInt();
 					defragment(type);
 					break;
+                case 5:
+                    return;
 			}
 			print();
 			System.out.println();

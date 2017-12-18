@@ -36,7 +36,7 @@ public class App {
 			fileName = file.getName();
 			pixels = ImageClass.readImage(fileName);
 
-			PredictiveCoding pc = new PredictiveCoding(8);
+			PredictiveCoding pc = new PredictiveCoding(5);
 			PredictiveCoding.HashResult hash = pc.encode(pixels);
 			pixels = pc.decode(hash);
 

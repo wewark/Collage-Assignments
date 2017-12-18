@@ -31,12 +31,12 @@ public class ImageClass {
 			int[][] imagePixels = new int[height][width];
 			for (int x = 0; x < height; x++) {
 				for (int y = 0; y < width; y++) {
-					int pixel = img.getRGB(x, y);
+					int pixel = img.getRGB(y, x);
 					int red = (pixel & 0x00ff0000) >> 16;
 					int green = (pixel & 0x0000ff00) >> 8;
 					int blue = pixel & 0x000000ff;
 					int alpha = (pixel & 0xff000000) >> 24;
-					imagePixels[y][x] = red;
+					imagePixels[x][y] = red;
 				}
 			}
 
@@ -49,7 +49,7 @@ public class ImageClass {
 	}
 
 	public static void writeImage(int[][] imagePixels, String outPath) {
-		BufferedImage image = new BufferedImage(imagePixels.length, imagePixels[0].length, BufferedImage.TYPE_INT_RGB);
+		BufferedImage image = new BufferedImage(imagePixels[0].length, imagePixels.length, BufferedImage.TYPE_INT_RGB);
 		for (int y = 0; y < imagePixels.length; y++) {
 			for (int x = 0; x < imagePixels[y].length; x++) {
 				int value = -1 << 24;

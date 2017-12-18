@@ -57,8 +57,10 @@ public class PredictiveCoding {
 	int[][] decode(HashResult hash) {
 		int[] img1D = new int[hash.idx.size()];
 		img1D[0] = hash.idx.get(0);
-		for (int i = 1; i < img1D.length; ++i)
-			img1D[i] = img1D[i - 1] - hash.quantizer.get(hash.idx.get(i));
+		for (int i = 1; i < img1D.length; ++i) {
+			img1D[i] = img1D[i - 1] + hash.quantizer.get(hash.idx.get(i));
+			img1D[i] = Math.max(0, Math.min(255, img1D[i]));
+		}
 
 		int[][] img = new int[height][width];
 		for (int i = 0; i < height; ++i)

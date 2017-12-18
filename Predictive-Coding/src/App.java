@@ -24,7 +24,7 @@ public class App {
 	private App() {
 		FileNameExtensionFilter filter = new FileNameExtensionFilter(".jpg", "jpg", "JPG");
 		fileChooser.setFileFilter(filter);
-//		fileChooser.setSelectedFile(new File("E:\\Projects\\Collage-Individual-Assignments\\Vector-Quantization/test.txt"));
+		fileChooser.setSelectedFile(new File("E:\\Projects\\Collage-Individual-Assignments\\Predictive-Coding/lena.jpg"));
 
 		chooseFileButton.addActionListener(e -> {
 			fileChooser.showOpenDialog(null);
@@ -36,11 +36,11 @@ public class App {
 			fileName = file.getName();
 			pixels = ImageClass.readImage(fileName);
 
-//				VectorQuantization vq = new VectorQuantization(4, 2);
-//				VectorQuantization.HashResult hash = vq.encode(pixels);
-//				pixels = vq.decode(hash);
+			PredictiveCoding pc = new PredictiveCoding(8);
+			PredictiveCoding.HashResult hash = pc.encode(pixels);
+			pixels = pc.decode(hash);
 
-//				writeFile(parentDir + "/compressed.txt", hash.toString());
+			writeFile(parentDir + "/compressed.txt", hash.toString());
 		});
 
 		decompressButton.addActionListener(e -> {
@@ -77,13 +77,13 @@ public class App {
 	}
 
 	public static void main(String[] args) {
-//		JFrame frame = new JFrame("App");
-//		frame.setContentPane(new App().panelMain);
-//		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-//		frame.pack();
-//		frame.setResizable(false);
-//		frame.setVisible(true);
-//		frame.setLocationRelativeTo(null);
+		JFrame frame = new JFrame("App");
+		frame.setContentPane(new App().panelMain);
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		frame.pack();
+		frame.setResizable(false);
+		frame.setVisible(true);
+		frame.setLocationRelativeTo(null);
 
 //		int[][] pixels = ImageClass.readImage("lenaTest3.jpg");
 //

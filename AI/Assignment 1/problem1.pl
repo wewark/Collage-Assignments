@@ -54,11 +54,11 @@ connected(giza,omm_elmisryeen).
 connected(omm_elmisryeen,sakiat_mekki).
 connected(sakiat_mekki,elmounib).
 
-% ---------- Task 1 ----------
-
 % Biconnection
 isconnected(X, Y) :- connected(X, Y).
 isconnected(X, Y) :- connected(Y, X).
+
+% ---------- Task 1 ----------
 
 path(X, Y, Z) :- path(X, Y, X, Z).
 
@@ -76,3 +76,13 @@ nstations(X, R) :-
     aggregate_all(count, isconnected(X, _), R).
 
 % ---------- Task 3 ----------
+
+checkPath([[X, Y]|T]) :-
+    checkPathr([[X, Y]|T], X).
+
+% Recursive function
+checkPathr([], _).
+checkPathr([[X, Y]|T], P) :-
+    isconnected(X, Y),
+    X = P,
+    checkPathr(T, Y).

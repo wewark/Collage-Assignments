@@ -67,8 +67,7 @@ path(X, X, _, []).
 path(X, Y, P, [[X, L]|Z]) :-
     isconnected(X, L),
     L \= P,
-    path(L, Y, X, Z),
-    append([], Z, Z).
+    path(L, Y, X, Z).
 
 
 % ---------- Task 2 ----------

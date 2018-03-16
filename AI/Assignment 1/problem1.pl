@@ -72,4 +72,7 @@ path(X, Y, P, [[X, L]|Z]) :-
 
 % ---------- Task 2 ----------
 
+nstations(X, R) :-
+    aggregate_all(count, isconnected(X, _), R).
+
 % ---------- Task 3 ----------

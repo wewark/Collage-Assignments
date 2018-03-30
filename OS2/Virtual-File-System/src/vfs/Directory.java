@@ -3,6 +3,8 @@ package vfs;
 import java.util.HashMap;
 
 class Directory {
+	public static Directory root = new Directory();
+
 	private String path;
 	private String name;
 	HashMap<String, File> files;

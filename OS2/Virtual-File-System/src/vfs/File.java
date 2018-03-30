@@ -2,13 +2,29 @@ package vfs;
 
 class File {
 	private String path;
-	private int[] allocatedBlocks;
 	private String filename;
 	private int size;
 
-	public File(String path, String filename, int size) {
+	AllocationMethod allocationMethod;
+	// Best fit
+	public int startLocation;
+	public int blockCount;
+
+	// Indexed
+	public int[] allocatedBlocks;
+
+	public File(String path, String filename, int size,
+	            AllocationMethod allocationMethod) {
 		this.path = path;
 		this.filename = filename;
 		this.size = size;
+		this.allocationMethod = allocationMethod;
+
+		if (allocationMethod == AllocationMethod.BESTFIT) {
+			MemoryManager.allocateBestFit(this);
+		}
+		else {
+			MemoryManager.allocateIndexed(this);
+		}
 	}
 }

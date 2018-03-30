@@ -1,8 +1,6 @@
 package vfs;
 
 public class Main {
-	private static Directory root = new Directory();
-
 	public static void main(String[] args) {
 		// TODO
 	}
@@ -21,7 +19,8 @@ public class Main {
 			return;
 		}
 
-		cur.files.put(filename, new File(pathStr, filename, size));
+		cur.files.put(filename,
+				new File(pathStr, filename, size, AllocationMethod.BESTFIT)); // temp
 	}
 
 	private static void createFolder(String pathStr) {
@@ -77,7 +76,7 @@ public class Main {
 
 	private static boolean valid(String[] path) {
 		if (!path[0].equals("root")) return false;
-		Directory cur = root;
+		Directory cur = Directory.root;
 		for (int i = 1; i < path.length - 1; ++i) {
 			if (!cur.directories.containsKey(path[i]))
 				return false;
@@ -88,7 +87,7 @@ public class Main {
 	}
 
 	private static Directory getParent(String[] path) {
-		Directory ret = root;
+		Directory ret = Directory.root;
 		for (int i = 1; i < path.length - 1; ++i) {
 			ret = ret.directories.get(path[i]);
 		}

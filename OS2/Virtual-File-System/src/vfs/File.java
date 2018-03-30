@@ -3,7 +3,7 @@ package vfs;
 class File {
 	private String path;
 	private String filename;
-	private int size;
+	int size;
 
 	AllocationMethod allocationMethod;
 	// Best fit

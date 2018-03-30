@@ -1,5 +1,7 @@
 package vfs;
 
+import java.util.HashMap;
+
 public class MemoryManager {
 	public static boolean memory[];
 
@@ -8,14 +10,67 @@ public class MemoryManager {
 	}
 
 	public static void initialize(int memorySize, Directory root) {
-		// TODO
+		memory = new boolean[memorySize];
+		initialize(root);
+	}
+
+	public static void initialize(Directory cur) {
+		for (File file : cur.files.values()) {
+			reallocate(file);
+		}
+		for (Directory directory : cur.directories.values()) {
+			initialize(directory);
+		}
 	}
 
 	public static void allocateBestFit(File file) {
-		// TODO
+		int start = 0, mn = (int) 1e9, mnStart = -1;
+		for (int i = 0; i < memory.length; ++i) {
+			if (!memory[i] && (i == 0 || memory[i - 1])) {
+				start = i;
+			}
+			if (memory[i] && i > 0 && !memory[i - 1] &&
+					i - start >= file.size && i - start < mn) {
+				mn = i - start;
+				mnStart = start;
+			}
+		}
+		if (!memory[memory.length - 1] &&
+				memory.length - start >= file.size &&
+				memory.length - start < mn) {
+			mn = memory.length - start;
+			mnStart = start;
+		}
+
+		for (int i = mnStart; i < mnStart + file.size; ++i) {
+			memory[i] = true;
+		}
+		file.blockCount = file.size;
+		file.startLocation = mnStart;
 	}
 
 	public static void allocateIndexed(File file) {
-		// TODO
+		file.allocatedBlocks = new int[file.size];
+		for (int i = 0, cnt = 0;
+		     i < memory.length && cnt < file.size;
+		     ++i) {
+			if (!memory[i]) {
+				file.allocatedBlocks[cnt++] = i;
+				memory[i] = true;
+			}
+		}
+	}
+
+	public static void reallocate(File file) {
+		if (file.allocationMethod == AllocationMethod.BESTFIT) {
+			for (int i = file.startLocation; i < file.startLocation + file.size; ++i) {
+				memory[i] = true;
+			}
+		}
+		else {
+			for (int i : file.allocatedBlocks) {
+				memory[i] = true;
+			}
+		}
 	}
 }

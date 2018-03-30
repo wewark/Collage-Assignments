@@ -1,6 +1,8 @@
 package vfs;
 
-public enum AllocationMethod {
+import java.io.Serializable;
+
+public enum AllocationMethod implements Serializable {
 	BESTFIT,
 	INDEXED
 }

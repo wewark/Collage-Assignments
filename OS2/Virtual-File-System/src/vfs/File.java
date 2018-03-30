@@ -1,6 +1,8 @@
 package vfs;
 
-class File {
+import java.io.Serializable;
+
+class File implements Serializable {
 	private String path;
 	private String filename;
 	int size;

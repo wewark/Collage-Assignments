@@ -1,8 +1,43 @@
 package vfs;
 
+import java.io.*;
+import java.util.Scanner;
+
 public class Main {
 	public static void main(String[] args) {
-		// TODO
+		Scanner sc = new Scanner(System.in);
+		load();
+
+		MemoryManager.initialize(10000, Directory.root);
+
+		while (true) {
+			String cmd = sc.nextLine();
+			args = cmd.split(" ");
+
+			switch (args[0]) {
+				case "exit":
+					save();
+					return;
+				case "CreateFile":
+					createFile(args[1], Integer.parseInt(args[2]));
+					break;
+				case "CreateFolder":
+					createFolder(args[1]);
+					break;
+				case "DeleteFile":
+					deleteFile(args[1]);
+					break;
+				case "DeleteFolder":
+					deleteFolder(args[1]);
+					break;
+				case "DisplayDiskStructure":
+					Directory.root.print(0);
+					break;
+				case "DisplayDiskStatus":
+					// TODO
+					break;
+			}
+		}
 	}
 
 	private static void createFile(String pathStr, int size) {
@@ -19,6 +54,7 @@ public class Main {
 			return;
 		}
 
+		System.out.println("File created");
 		cur.files.put(filename,
 				new File(pathStr, filename, size, AllocationMethod.BESTFIT)); // temp
 	}
@@ -37,6 +73,7 @@ public class Main {
 			return;
 		}
 
+		System.out.println("Folder created");
 		cur.directories.put(dirname, new Directory(pathStr, dirname));
 	}
 
@@ -54,6 +91,7 @@ public class Main {
 			return;
 		}
 
+		System.out.println("File deleted");
 		cur.files.remove(filename);
 	}
 
@@ -66,11 +104,12 @@ public class Main {
 
 		Directory cur = getParent(path);
 		String dirname = path[path.length - 1];
-		if (cur.directories.containsKey(dirname)) {
+		if (!cur.directories.containsKey(dirname)) {
 			System.out.println("directory doesn't exist");
 			return;
 		}
 
+		System.out.println("Folder deleted");
 		cur.directories.remove(dirname);
 	}
 
@@ -92,5 +131,36 @@ public class Main {
 			ret = ret.directories.get(path[i]);
 		}
 		return ret;
+	}
+
+	private static void save() {
+		try {
+			FileOutputStream fileOut =
+					new FileOutputStream("vfs.ser");
+			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			out.writeObject(Directory.root);
+			out.close();
+			fileOut.close();
+			System.out.print("Serialized data is saved in /vfs.ser");
+		} catch (IOException i) {
+			i.printStackTrace();
+		}
+	}
+
+	private static void load() {
+		try {
+			FileInputStream fileIn = new FileInputStream("vfs.ser");
+			ObjectInputStream in = new ObjectInputStream(fileIn);
+			Directory.root = (Directory) in.readObject();
+			in.close();
+			fileIn.close();
+		} catch (IOException i) {
+			i.printStackTrace();
+			return;
+		} catch (ClassNotFoundException c) {
+			System.out.println("class not found");
+			c.printStackTrace();
+			return;
+		}
 	}
 }

@@ -50,7 +50,7 @@ class Directory implements Serializable {
 
 		System.out.println("File created");
 		cur.files.put(filename,
-				new File(pathStr, filename, size, AllocationMethod.BESTFIT)); // temp
+				new File(pathStr, filename, size, AllocationMethod.EXTENT)); // temp
 	}
 
 	public static void createFolder(String pathStr) {

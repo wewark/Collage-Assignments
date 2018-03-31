@@ -17,6 +17,28 @@ public class MemoryManager {
 		}
 	}
 
+	public static void allocateExtent(File file) {
+		int allocated = 0;
+		Extent extent = null;
+		for (int i = 0; i < memory.length && allocated < file.size; ++i) {
+			if (!memory[i]) {
+				if (extent == null) {
+					file.firstExtent = new Extent(i);
+					extent = file.firstExtent;
+				}
+				else {
+					extent.next = new Extent(i);
+					extent = extent.next;
+				}
+				while (!memory[i] && allocated < file.size) {
+					memory[i++] = true;
+					extent.size++;
+					allocated++;
+				}
+			}
+		}
+	}
+
 	public static void allocateBestFit(File file) {
 		int start = 0, mn = (int) 1e9, mnStart = -1;
 		for (int i = 0; i < memory.length; ++i) {
@@ -55,7 +77,16 @@ public class MemoryManager {
 	}
 
 	private static void reallocate(File file) {
-		if (file.allocationMethod == AllocationMethod.BESTFIT) {
+		if (file.allocationMethod == AllocationMethod.EXTENT) {
+			Extent extent = file.firstExtent;
+			while (extent != null) {
+				for (int i = extent.startLocation; i < extent.startLocation + extent.size; ++i) {
+					memory[i] = true;
+				}
+				extent = extent.next;
+			}
+		}
+		else if (file.allocationMethod == AllocationMethod.BESTFIT) {
 			for (int i = file.startLocation; i < file.startLocation + file.size; ++i) {
 				memory[i] = true;
 			}
@@ -68,12 +99,20 @@ public class MemoryManager {
 	}
 
 	public static void deallocate(File file) {
-		if (file.allocationMethod == AllocationMethod.BESTFIT) {
+		if (file.allocationMethod == AllocationMethod.EXTENT) {
+			Extent extent = file.firstExtent;
+			while (extent != null) {
+				for (int i = extent.startLocation; i < extent.startLocation + extent.size; ++i) {
+					memory[i] = false;
+				}
+				extent = extent.next;
+			}
+		}
+		else if (file.allocationMethod == AllocationMethod.BESTFIT) {
 			for (int i = file.startLocation; i < file.startLocation + file.size; ++i) {
 				memory[i] = false;
 			}
-		}
-		else {
+		} else {
 			for (int i : file.allocatedBlocks) {
 				memory[i] = false;
 			}
@@ -94,6 +133,10 @@ public class MemoryManager {
 				start = i;
 			}
 			if (memory[i]) allocated++;
+		}
+
+		if (!memory[memory.length - 1]) {
+			System.out.println("- " + start + " " + (memory.length - 1));
 		}
 
 		System.out.println("Empty space: " + (memory.length - allocated));

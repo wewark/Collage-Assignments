@@ -15,6 +15,9 @@ class File implements Serializable {
 	// Indexed
 	public int[] allocatedBlocks;
 
+	// Extent-based
+	public Extent firstExtent;
+
 	public File(String path, String filename, int size,
 	            AllocationMethod allocationMethod) {
 		this.path = path;
@@ -22,7 +25,10 @@ class File implements Serializable {
 		this.size = size;
 		this.allocationMethod = allocationMethod;
 
-		if (allocationMethod == AllocationMethod.BESTFIT) {
+		if (allocationMethod == AllocationMethod.EXTENT) {
+			MemoryManager.allocateExtent(this);
+		}
+		else if (allocationMethod == AllocationMethod.BESTFIT) {
 			MemoryManager.allocateBestFit(this);
 		}
 		else {

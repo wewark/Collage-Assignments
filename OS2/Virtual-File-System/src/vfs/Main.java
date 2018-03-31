@@ -34,7 +34,7 @@ public class Main {
 					Directory.root.print(0);
 					break;
 				case "DisplayDiskStatus":
-					// TODO
+					MemoryManager.printDiskStatus();
 					break;
 			}
 		}

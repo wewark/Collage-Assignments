@@ -1,20 +1,14 @@
 package vfs;
 
-import java.util.HashMap;
-
 public class MemoryManager {
-	public static boolean memory[];
-
-	public static void initialize(int memorySize) {
-		memory = new boolean[memorySize];
-	}
+	private static boolean memory[];
 
 	public static void initialize(int memorySize, Directory root) {
 		memory = new boolean[memorySize];
 		initialize(root);
 	}
 
-	public static void initialize(Directory cur) {
+	private static void initialize(Directory cur) {
 		for (File file : cur.files.values()) {
 			reallocate(file);
 		}
@@ -38,7 +32,6 @@ public class MemoryManager {
 		if (!memory[memory.length - 1] &&
 				memory.length - start >= file.size &&
 				memory.length - start < mn) {
-			mn = memory.length - start;
 			mnStart = start;
 		}
 
@@ -61,7 +54,7 @@ public class MemoryManager {
 		}
 	}
 
-	public static void reallocate(File file) {
+	private static void reallocate(File file) {
 		if (file.allocationMethod == AllocationMethod.BESTFIT) {
 			for (int i = file.startLocation; i < file.startLocation + file.size; ++i) {
 				memory[i] = true;
@@ -72,5 +65,38 @@ public class MemoryManager {
 				memory[i] = true;
 			}
 		}
+	}
+
+	public static void deallocate(File file) {
+		if (file.allocationMethod == AllocationMethod.BESTFIT) {
+			for (int i = file.startLocation; i < file.startLocation + file.size; ++i) {
+				memory[i] = false;
+			}
+		}
+		else {
+			for (int i : file.allocatedBlocks) {
+				memory[i] = false;
+			}
+		}
+	}
+
+	public static void printDiskStatus() {
+		int allocated = 0;
+		int start = 0;
+
+		for (int i = 0; i < memory.length; ++i) {
+			if (!memory[i] && (i != 0 && memory[i - 1])) {
+				System.out.println("+ " + start + " " + (i - 1));
+				start = i;
+			}
+			if (memory[i] && i > 0 && !memory[i - 1]) {
+				System.out.println("- " + start + " " + (i - 1));
+				start = i;
+			}
+			if (memory[i]) allocated++;
+		}
+
+		System.out.println("Empty space: " + (memory.length - allocated));
+		System.out.println("Allocated space: " + allocated);
 	}
 }

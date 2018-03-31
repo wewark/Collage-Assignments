@@ -86,6 +86,7 @@ class Directory implements Serializable {
 		}
 
 		System.out.println("File deleted");
+		MemoryManager.deallocate(cur.files.get(filename));
 		cur.files.remove(filename);
 	}
 

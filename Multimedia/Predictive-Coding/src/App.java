@@ -36,7 +36,7 @@ public class App {
 			fileName = file.getName();
 			pixels = ImageClass.readImage(fileName);
 
-			PredictiveCoding pc = new PredictiveCoding(5);
+			PredictiveCoding pc = new PredictiveCoding(6);
 			PredictiveCoding.HashResult hash = pc.encode(pixels);
 			pixels = pc.decode(hash);
 
@@ -44,7 +44,7 @@ public class App {
 		});
 
 		decompressButton.addActionListener(e -> {
-			ImageClass.writeImage(pixels, fileName.substring(0, fileName.length() - 4) + "_out.jpg");
+			ImageClass.writeImage(pixels, fileName.substring(0, fileName.length() - 4) + "_out2.jpg");
 		});
 	}
 
@@ -58,24 +58,6 @@ public class App {
 		}
 	}
 
-	private static String[] readFile(String pathStr) {
-		ArrayList<String> lines = new ArrayList<String>();
-		Path path = Paths.get(pathStr);
-		try {
-			Files.lines(path).forEach(lines::add);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return lines.toArray(new String[0]);
-	}
-
-	private static ArrayList<Integer> stringArraytoIntegerList(String[] strArr) {
-		ArrayList<Integer> ret = new ArrayList<>();
-		for (String str : strArr)
-			ret.add(Integer.parseInt(str));
-		return ret;
-	}
-
 	public static void main(String[] args) {
 		JFrame frame = new JFrame("App");
 		frame.setContentPane(new App().panelMain);
@@ -84,33 +66,5 @@ public class App {
 		frame.setResizable(false);
 		frame.setVisible(true);
 		frame.setLocationRelativeTo(null);
-
-//		int[][] pixels = ImageClass.readImage("lenaTest3.jpg");
-//
-//		VectorQuantization vq = new VectorQuantization(2, 50);
-//		VectorQuantization.HashResult hash = vq.encode(pixels);
-//		pixels = vq.decode(hash);
-//
-//		ImageClass.writeImage(pixels, "lenaTest3_out.jpg");
-
-
-//		VectorQuantization vq = new VectorQuantization(2, 4);
-//		int[][] arr = {
-//				{1, 2, 7, 9, 4, 11},
-//				{3, 4, 6, 6, 12, 12},
-//				{4, 9, 15, 14, 9, 9},
-//				{10, 10, 20, 18, 8, 8},
-//				{4, 3, 17, 16, 1, 4},
-//				{4, 5, 18, 18, 5, 6}
-//		};
-//		VectorQuantization.HashResult hash = vq.encode(arr);
-//		System.out.println(hash);
-//
-//		int[][] result = vq.decode(hash);
-//		for (int[] aResult : result) {
-//			for (int i : aResult)
-//				System.out.print(i + " ");
-//			System.out.println();
-//		}
 	}
 }

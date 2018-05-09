@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Circle.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Line.h" />
     <ClInclude Include="resource.h" />
@@ -154,6 +155,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Circle.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Line.cpp" />
     <ClCompile Include="stdafx.cpp">

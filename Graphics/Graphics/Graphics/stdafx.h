@@ -26,4 +26,5 @@ using namespace std;
 
 extern COLORREF color;
 #include "Line.h"
+#include "Circle.h"
 

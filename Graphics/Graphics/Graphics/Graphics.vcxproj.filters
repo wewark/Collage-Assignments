@@ -37,7 +37,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="WindowsProject1.rc">
+    <ResourceCompile Include="Graphics.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
@@ -45,7 +45,7 @@
     <Image Include="small.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="WindowsProject1.ico">
+    <Image Include="Graphics.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

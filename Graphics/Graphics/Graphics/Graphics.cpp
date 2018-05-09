@@ -124,7 +124,12 @@ vector<Line> lines;
 enum Drawing {
 	DDA,
 	MIDPOINTLINE,
-	CIRCLE,
+
+	CIRCLE_CARTESIAN,
+	CIRCLE_POLAR,
+	CIRCLE_POLAR_ITERATIVE,
+	CIRCLE_MIDPOINT,
+	
 	LINE_CLIPPING,
 	FILLING_DFS,
 	FILLING_BFS
@@ -153,16 +158,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		HMENU HFilling = CreateMenu();
 
 		AppendMenu(HMenuBar, MF_POPUP, (UINT_PTR)HFile, "File");
-		AppendMenu(HMenuBar, MF_POPUP, (UINT_PTR)HDrawLine, "Draw Line");
-		AppendMenu(HMenuBar, MF_POPUP, (UINT_PTR)HDrawCircle, "Draw Circle");
-		AppendMenu(HMenuBar, MF_POPUP, (UINT_PTR)HLineClipping, "Clipping");
-		AppendMenu(HMenuBar, MF_POPUP, (UINT_PTR)HFilling, "Filling");
-
 		AppendMenu(HFile, MF_STRING, IDM_EXIT, "Exit");
-		AppendMenu(HDrawLine, MF_POPUP, DDA, "Draw Line Using DDA ");
-		AppendMenu(HDrawLine, MF_POPUP, MIDPOINTLINE, "Draw Line Using Midpoint ");
-		AppendMenu(HDrawCircle, MF_POPUP, CIRCLE, "Draw Circle Using Cartisian ");
+
+		AppendMenu(HMenuBar, MF_POPUP, (UINT_PTR)HDrawLine, "Line");
+		AppendMenu(HDrawLine, MF_POPUP, DDA, "DDA");
+		AppendMenu(HDrawLine, MF_POPUP, MIDPOINTLINE, "Midpoint");
+
+		AppendMenu(HMenuBar, MF_POPUP, (UINT_PTR)HDrawCircle, "Circle");
+		AppendMenu(HDrawCircle, MF_POPUP, CIRCLE_CARTESIAN, "Cartisian");
+		AppendMenu(HDrawCircle, MF_POPUP, CIRCLE_POLAR, "Polar");
+		AppendMenu(HDrawCircle, MF_POPUP, CIRCLE_POLAR_ITERATIVE, "Iterative Polar");
+		AppendMenu(HDrawCircle, MF_POPUP, CIRCLE_MIDPOINT, "Midpoint");
+
+		AppendMenu(HMenuBar, MF_POPUP, (UINT_PTR)HLineClipping, "Clipping");
 		AppendMenu(HLineClipping, MF_POPUP, LINE_CLIPPING, "Line Clipping");
+
+		AppendMenu(HMenuBar, MF_POPUP, (UINT_PTR)HFilling, "Filling");
 		AppendMenu(HFilling, MF_POPUP, FILLING_BFS, "BFS");
 		AppendMenu(HFilling, MF_POPUP, FILLING_DFS, "DFS");
 
@@ -177,19 +188,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		// Parse the menu selections:
 		switch (wmId)
 		{
-			//case 2:
-			//	drawingMethod = DDA;
-			//	break;
-			//case 3:
-			//	drawingMethod = MIDPOINTLINE;
-			//	break;
-			//case 4:
-			//	drawingMethod = CIRCLE;
-			//	break;
-			//case 5:
-			//	drawingMethod = LINE_CLIPPING;
-			//	break;
-
 		case IDM_ABOUT:
 			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
 			break;
@@ -205,8 +203,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	break;
 	case WM_PAINT:
 	{
-		//PAINTSTRUCT ps;
-		//HDC hdc = BeginPaint(hWnd, &ps);
+		PAINTSTRUCT ps;
+		HDC hdc = BeginPaint(hWnd, &ps);
 		//// TODO: Add any drawing code that uses hdc here...
 
 		//if (clicks.size() == 2) {
@@ -221,15 +219,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		//			clicks[0].first, clicks[0].second,
 		//			clicks[1].first, clicks[1].second);
 		//		break;
-		//	case CIRCLE:
-		//		DrawCircle(hdc,
+		//	case CIRCLE_CARTESIAN:
+		//		cartesianCircle(hdc,
 		//			clicks[0].first, clicks[0].second,
 		//			clicks[1].first, clicks[1].second);
 		//		break;
 		//	}
 		//}
 		InvalidateRect(hWnd, NULL, FALSE);
-		//EndPaint(hWnd, &ps);
+		EndPaint(hWnd, &ps);
 		break;
 	}
 	case WM_LBUTTONDOWN: {
@@ -264,8 +262,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					clicks[1].first, clicks[1].second);
 				break;
 
-			case CIRCLE:
-				DrawCircle(hdc,
+			case CIRCLE_CARTESIAN:
+				cartesianCircle(hdc,
+					clicks[0].first, clicks[0].second,
+					clicks[1].first, clicks[1].second);
+				break;
+
+			case CIRCLE_POLAR:
+				PolarCircle(hdc,
+					clicks[0].first, clicks[0].second,
+					clicks[1].first, clicks[1].second);
+				break;
+
+			case CIRCLE_POLAR_ITERATIVE:
+				IterativePolarCircle(hdc,
+					clicks[0].first, clicks[0].second,
+					clicks[1].first, clicks[1].second);
+				break;
+
+			case CIRCLE_MIDPOINT:
+				CircleMidPoint(hdc,
 					clicks[0].first, clicks[0].second,
 					clicks[1].first, clicks[1].second);
 				break;

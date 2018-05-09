@@ -92,4 +92,3 @@ void LineClipping(HDC hdc, int& xs, int& ys, int& xe, int& ye,
 	if (out1.All == 0 && out2.All == 0)
 		DrawDDA(hdc, xs, ys, xe, ye);
 }
-

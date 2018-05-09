@@ -1,6 +1,21 @@
 #include "stdafx.h"
 #include "Line.h"
 
+void DirectLine(HDC hdc, int xs, int ys, int xe, int ye) {
+	int dx = xe - xs;
+	int dy = ye - ys;
+
+	double xInc = dx / fabs(dx);
+	double yInc = dy / fabs(dx);
+	double x = xs;
+	double y = ys;
+	while (x >= min(xs, xe) && x <= max(xs, xe)) {
+		SetPixel(hdc, round(x), round(y), color);
+		x += xInc;
+		y += yInc;
+	}
+}
+
 void DrawDDA(HDC& hdc, int x0, int y0, int x1, int y1) {
 	int dx = x1 - x0;
 	int dy = y1 - y0;
@@ -11,7 +26,8 @@ void DrawDDA(HDC& hdc, int x0, int y0, int x1, int y1) {
 	double yInc = dy / (double)steps;
 	double x = x0;
 	double y = y0;
-	while (x >= min(x0, x1) && x <= max(x0, x1)) {
+	while (x >= min(x0, x1) && x <= max(x0, x1) &&
+		y >= min(y0, y1) && y <= max(y0, y1)) {
 		SetPixel(hdc, x, y, color);
 		x += xInc;
 		y += yInc;

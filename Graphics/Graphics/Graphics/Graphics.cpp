@@ -122,6 +122,7 @@ struct Line {
 vector<Line> lines;
 
 enum Drawing {
+	LINE_DIRECT,
 	DDA,
 	MIDPOINTLINE,
 
@@ -160,6 +161,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		HMENU HDrawLine = CreateMenu();
 		AppendMenu(HMenuBar, MF_POPUP, (UINT_PTR)HDrawLine, "Line");
+		AppendMenu(HDrawLine, MF_POPUP, LINE_DIRECT, "Parametric");
 		AppendMenu(HDrawLine, MF_POPUP, DDA, "DDA");
 		AppendMenu(HDrawLine, MF_POPUP, MIDPOINTLINE, "Midpoint");
 
@@ -247,6 +249,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		HDC hdc = BeginPaint(hWnd, &ps);
 
 		switch (drawingMethod) {
+		case LINE_DIRECT:
+			if (clicks.size() == 2) {
+				lines.push_back(Line{
+					clicks[0].x, clicks[0].y,
+					clicks[1].x, clicks[1].y });
+				DirectLine(hdc,
+					clicks[0].x, clicks[0].y,
+					clicks[1].x, clicks[1].y);
+				clicks.clear();
+			}
+			break;
+
 		case DDA:
 			if (clicks.size() == 2) {
 				lines.push_back(Line{

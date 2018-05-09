@@ -32,3 +32,4 @@ POINT makePOINT(int x, int y);
 #include "Circle.h"
 #include "Filling.h"
 #include "Clipping.h"
+#include "Curve.h"

@@ -149,6 +149,7 @@
   <ItemGroup>
     <ClInclude Include="Circle.h" />
     <ClInclude Include="Clipping.h" />
+    <ClInclude Include="Curve.h" />
     <ClInclude Include="Filling.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Line.h" />
@@ -159,6 +160,7 @@
   <ItemGroup>
     <ClCompile Include="Circle.cpp" />
     <ClCompile Include="Clipping.cpp" />
+    <ClCompile Include="Curve.cpp" />
     <ClCompile Include="Filling.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Line.cpp" />

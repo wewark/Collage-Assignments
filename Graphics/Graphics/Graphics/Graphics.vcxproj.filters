@@ -39,6 +39,9 @@
     <ClInclude Include="Clipping.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Curve.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -57,6 +60,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Clipping.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Curve.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

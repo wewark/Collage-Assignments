@@ -129,7 +129,9 @@ enum Drawing {
 	CIRCLE_POLAR,
 	CIRCLE_POLAR_ITERATIVE,
 	CIRCLE_MIDPOINT,
-	
+	CURVE_HERMITE,
+	CURVE_BEZIER,
+
 	LINE_CLIPPING,
 	FILLING_DFS,
 	FILLING_BFS
@@ -151,28 +153,33 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_CREATE:
 	{
 		HMENU HMenuBar = CreateMenu();
+
 		HMENU HFile = CreateMenu();
-		HMENU HDrawLine = CreateMenu();
-		HMENU HDrawCircle = CreateMenu();
-		HMENU HLineClipping = CreateMenu();
-		HMENU HFilling = CreateMenu();
-		
 		AppendMenu(HMenuBar, MF_POPUP, (UINT_PTR)HFile, "File");
 		AppendMenu(HFile, MF_STRING, IDM_EXIT, "Exit");
 
+		HMENU HDrawLine = CreateMenu();
 		AppendMenu(HMenuBar, MF_POPUP, (UINT_PTR)HDrawLine, "Line");
 		AppendMenu(HDrawLine, MF_POPUP, DDA, "DDA");
 		AppendMenu(HDrawLine, MF_POPUP, MIDPOINTLINE, "Midpoint");
 
+		HMENU HDrawCircle = CreateMenu();
 		AppendMenu(HMenuBar, MF_POPUP, (UINT_PTR)HDrawCircle, "Circle");
 		AppendMenu(HDrawCircle, MF_POPUP, CIRCLE_CARTESIAN, "Cartisian");
 		AppendMenu(HDrawCircle, MF_POPUP, CIRCLE_POLAR, "Polar");
 		AppendMenu(HDrawCircle, MF_POPUP, CIRCLE_POLAR_ITERATIVE, "Iterative Polar");
 		AppendMenu(HDrawCircle, MF_POPUP, CIRCLE_MIDPOINT, "Midpoint");
 
+		HMENU HCurve = CreateMenu();
+		AppendMenu(HMenuBar, MF_POPUP, (UINT_PTR)HCurve, "Curve");
+		AppendMenu(HCurve, MF_POPUP, CURVE_HERMITE, "Hermite");
+		AppendMenu(HCurve, MF_POPUP, CURVE_BEZIER, "Bezier");
+
+		HMENU HLineClipping = CreateMenu();
 		AppendMenu(HMenuBar, MF_POPUP, (UINT_PTR)HLineClipping, "Clipping");
 		AppendMenu(HLineClipping, MF_POPUP, LINE_CLIPPING, "Line Clipping");
 
+		HMENU HFilling = CreateMenu();
 		AppendMenu(HMenuBar, MF_POPUP, (UINT_PTR)HFilling, "Filling");
 		AppendMenu(HFilling, MF_POPUP, FILLING_BFS, "BFS");
 		AppendMenu(HFilling, MF_POPUP, FILLING_DFS, "DFS");
@@ -232,63 +239,108 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 
 	case WM_LBUTTONDOWN: {
-		if (clicks.size() < 2) {
-			clicks.push_back({
-				LOWORD(lParam),
-				HIWORD(lParam) });
-		}
+		clicks.push_back({ LOWORD(lParam), HIWORD(lParam) });
 		POINT curClick = makePOINT(LOWORD(lParam), HIWORD(lParam));
 
 
 		PAINTSTRUCT ps;
 		HDC hdc = BeginPaint(hWnd, &ps);
 
-		if (clicks.size() == 2) {
-			switch (drawingMethod) {
-			case DDA:
+		switch (drawingMethod) {
+		case DDA:
+			if (clicks.size() == 2) {
 				lines.push_back(Line{
 					clicks[0].x, clicks[0].y,
 					clicks[1].x, clicks[1].y });
 				DrawDDA(hdc,
 					clicks[0].x, clicks[0].y,
 					clicks[1].x, clicks[1].y);
-				break;
+				clicks.clear();
+			}
+			break;
 
-			case MIDPOINTLINE:
+		case MIDPOINTLINE:
+			if (clicks.size() == 2) {
 				lines.push_back(Line{
 					clicks[0].x, clicks[0].y,
 					clicks[1].x, clicks[1].y });
 				DrawMidPointLine(hdc,
 					clicks[0].x, clicks[0].y,
 					clicks[1].x, clicks[1].y);
-				break;
+				clicks.clear();
+			}
+			break;
 
-			case CIRCLE_CARTESIAN:
+		case CIRCLE_CARTESIAN:
+			if (clicks.size() == 2) {
 				cartesianCircle(hdc,
 					clicks[0].x, clicks[0].y,
 					clicks[1].x, clicks[1].y);
-				break;
+				clicks.clear();
+			}
+			break;
 
-			case CIRCLE_POLAR:
+		case CIRCLE_POLAR:
+			if (clicks.size() == 2) {
 				PolarCircle(hdc,
 					clicks[0].x, clicks[0].y,
 					clicks[1].x, clicks[1].y);
-				break;
+				clicks.clear();
+			}
+			break;
 
-			case CIRCLE_POLAR_ITERATIVE:
+		case CIRCLE_POLAR_ITERATIVE:
+			if (clicks.size() == 2) {
 				IterativePolarCircle(hdc,
 					clicks[0].x, clicks[0].y,
 					clicks[1].x, clicks[1].y);
-				break;
+				clicks.clear();
+			}
+			break;
 
-			case CIRCLE_MIDPOINT:
+		case CIRCLE_MIDPOINT:
+			if (clicks.size() == 2) {
 				CircleMidPoint(hdc,
 					clicks[0].x, clicks[0].y,
 					clicks[1].x, clicks[1].y);
-				break;
+				clicks.clear();
+			}
+			break;
 
-			case LINE_CLIPPING:
-			{
+		case CURVE_HERMITE:
+			if (clicks.size() == 4) {
+				Hermite(hdc,
+					clicks[0].x, clicks[0].y,
+					clicks[1].x, clicks[1].y,
+					clicks[2].x, clicks[2].y,
+					clicks[3].x, clicks[3].y);
+				clicks.clear();
+			}
+			break;
+
+		case CURVE_BEZIER:
+			if (clicks.size() == 4) {
+				Bezier(hdc,
+					clicks[0].x, clicks[0].y,
+					clicks[1].x, clicks[1].y,
+					clicks[2].x, clicks[2].y,
+					clicks[3].x, clicks[3].y);
+				clicks.clear();
+			}
+			break;
+
+		case FILLING_DFS:
+			fillingDFS(hWnd, hdc,
+				curClick.x, curClick.y);
+			break;
+
+		case FILLING_BFS:
+			fillingBFS(hWnd, hdc,
+				curClick.x, curClick.y);
+			break;
+
+		case LINE_CLIPPING:
+			if (clicks.size() == 2) {
 				color = RGB(255, 255, 255);
 				for (int i = 0; i < lines.size(); i++) {
 					DrawDDA(hdc,
@@ -308,28 +360,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						lines[i].x2, lines[i].y2,
 						xleft, xright, ytop, ybot);
 				}
-				break;
+				clicks.clear();
 			}
-
-			}
-			clicks.clear();
-		}
-
-		switch (drawingMethod) {
-		case FILLING_DFS:
-			fillingDFS(hWnd, hdc,
-				curClick.x, curClick.y);
-			break;
-
-		case FILLING_BFS:
-			fillingBFS(hWnd, hdc,
-				curClick.x, curClick.y);
-			break;
-
-		default:
 			break;
 		}
-
 
 		InvalidateRect(hWnd, NULL, FALSE);
 		EndPaint(hWnd, &ps);

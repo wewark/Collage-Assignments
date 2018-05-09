@@ -132,7 +132,10 @@ enum Drawing {
 
 	LINE_CLIPPING,
 	FILLING_DFS,
-	FILLING_BFS
+	FILLING_BFS,
+
+	SAVE,
+	LOAD
 } drawingMethod;
 
 struct History {
@@ -144,7 +147,7 @@ struct History {
 		ret += to_string(drawingMethod);
 		for (POINT& point : clicks)
 			ret += " " + to_string(point.x) + " " + to_string(point.y);
-		return ret;
+		return ret + " -1";
 	}
 };
 
@@ -156,39 +159,68 @@ void save() {
 		cout << historyItem.toString() << endl;
 }
 
+void draw(Drawing, vector<POINT>&, HWND);
+
+void load(HWND hWnd) {
+	ifstream cin("history.txt");
+	int dm;
+	while (cin >> dm) {
+		drawingMethod = (Drawing)dm;
+
+		int x;
+		while (cin >> x && x != -1) {
+			int y; cin >> y;
+			clicks.push_back({ x,y });
+		}
+
+		draw(drawingMethod, clicks, hWnd);
+	}
+}
+
 // Lines drawn so far
 vector<Line> lines;
 
-void draw(Drawing drawingMethod, vector<POINT>& clicks, bool addToHistory, HWND hWnd) {
+void draw(Drawing drawingMethod, vector<POINT>& clicks, HWND hWnd) {
 	PAINTSTRUCT ps;
 	HDC hdc = BeginPaint(hWnd, &ps);
 
-	bool drawnSomething = false;
 	switch (drawingMethod) {
 	case LINE_DIRECT:
 		if (clicks.size() == 2) {
+			lines.push_back({
+				clicks[0].x, clicks[0].y,
+				clicks[1].x, clicks[1].y });
 			DirectLine(hdc,
 				clicks[0].x, clicks[0].y,
 				clicks[1].x, clicks[1].y);
-			drawnSomething = true;
+			history.push_back(History{ drawingMethod, clicks });
+			clicks.clear();
 		}
 		break;
 
 	case DDA:
 		if (clicks.size() == 2) {
+			lines.push_back({
+				clicks[0].x, clicks[0].y,
+				clicks[1].x, clicks[1].y });
 			DrawDDA(hdc,
 				clicks[0].x, clicks[0].y,
 				clicks[1].x, clicks[1].y);
-			drawnSomething = true;
+			history.push_back(History{ drawingMethod, clicks });
+			clicks.clear();
 		}
 		break;
 
 	case MIDPOINTLINE:
 		if (clicks.size() == 2) {
+			lines.push_back({
+				clicks[0].x, clicks[0].y,
+				clicks[1].x, clicks[1].y });
 			DrawMidPointLine(hdc,
 				clicks[0].x, clicks[0].y,
 				clicks[1].x, clicks[1].y);
-			drawnSomething = true;
+			history.push_back(History{ drawingMethod, clicks });
+			clicks.clear();
 		}
 		break;
 
@@ -197,7 +229,8 @@ void draw(Drawing drawingMethod, vector<POINT>& clicks, bool addToHistory, HWND 
 			cartesianCircle(hdc,
 				clicks[0].x, clicks[0].y,
 				clicks[1].x, clicks[1].y);
-			drawnSomething = true;
+			history.push_back(History{ drawingMethod, clicks });
+			clicks.clear();
 		}
 		break;
 
@@ -206,7 +239,8 @@ void draw(Drawing drawingMethod, vector<POINT>& clicks, bool addToHistory, HWND 
 			PolarCircle(hdc,
 				clicks[0].x, clicks[0].y,
 				clicks[1].x, clicks[1].y);
-			drawnSomething = true;
+			history.push_back(History{ drawingMethod, clicks });
+			clicks.clear();
 		}
 		break;
 
@@ -215,7 +249,8 @@ void draw(Drawing drawingMethod, vector<POINT>& clicks, bool addToHistory, HWND 
 			IterativePolarCircle(hdc,
 				clicks[0].x, clicks[0].y,
 				clicks[1].x, clicks[1].y);
-			drawnSomething = true;
+			history.push_back(History{ drawingMethod, clicks });
+			clicks.clear();
 		}
 		break;
 
@@ -224,7 +259,8 @@ void draw(Drawing drawingMethod, vector<POINT>& clicks, bool addToHistory, HWND 
 			CircleMidPoint(hdc,
 				clicks[0].x, clicks[0].y,
 				clicks[1].x, clicks[1].y);
-			drawnSomething = true;
+			history.push_back(History{ drawingMethod, clicks });
+			clicks.clear();
 		}
 		break;
 
@@ -235,7 +271,8 @@ void draw(Drawing drawingMethod, vector<POINT>& clicks, bool addToHistory, HWND 
 				clicks[1].x, clicks[1].y,
 				clicks[2].x, clicks[2].y,
 				clicks[3].x, clicks[3].y);
-			drawnSomething = true;
+			history.push_back(History{ drawingMethod, clicks });
+			clicks.clear();
 		}
 		break;
 
@@ -246,20 +283,23 @@ void draw(Drawing drawingMethod, vector<POINT>& clicks, bool addToHistory, HWND 
 				clicks[1].x, clicks[1].y,
 				clicks[2].x, clicks[2].y,
 				clicks[3].x, clicks[3].y);
-			drawnSomething = true;
+			history.push_back(History{ drawingMethod, clicks });
+			clicks.clear();
 		}
 		break;
 
 	case FILLING_DFS:
 		fillingDFS(hWnd, hdc,
 			clicks.back().x, clicks.back().y);
-		drawnSomething = true;
+		history.push_back(History{ drawingMethod, clicks });
+		clicks.clear();
 		break;
 
 	case FILLING_BFS:
 		fillingBFS(hWnd, hdc,
 			clicks.back().x, clicks.back().y);
-		drawnSomething = true;
+		history.push_back(History{ drawingMethod, clicks });
+		clicks.clear();
 		break;
 
 	case LINE_CLIPPING:
@@ -283,14 +323,10 @@ void draw(Drawing drawingMethod, vector<POINT>& clicks, bool addToHistory, HWND 
 					lines[i].x2, lines[i].y2,
 					xleft, xright, ytop, ybot);
 			}
-			drawnSomething = true;
+			history.push_back(History{ drawingMethod, clicks });
+			clicks.clear();
 		}
 		break;
-	}
-
-	if (addToHistory && drawnSomething) {
-		history.push_back(History{ drawingMethod, clicks });
-		clicks.clear();
 	}
 
 	InvalidateRect(hWnd, NULL, FALSE);
@@ -316,6 +352,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		HMENU HFile = CreateMenu();
 		AppendMenu(HMenuBar, MF_POPUP, (UINT_PTR)HFile, "File");
+		AppendMenu(HFile, MF_POPUP, SAVE, "Save");
+		AppendMenu(HFile, MF_POPUP, LOAD, "Load");
 		AppendMenu(HFile, MF_STRING, IDM_EXIT, "Exit");
 
 		HMENU HDrawLine = CreateMenu();
@@ -372,8 +410,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	break;
 	case WM_PAINT:
 	{
-		PAINTSTRUCT ps;
-		HDC hdc = BeginPaint(hWnd, &ps);
+		//PAINTSTRUCT ps;
+		//HDC hdc = BeginPaint(hWnd, &ps);
 		//// TODO: Add any drawing code that uses hdc here...
 		//if (clicks.size() == 2) {
 		//	switch (drawingMethod) {
@@ -394,18 +432,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		//		break;
 		//	}
 		//}
-		InvalidateRect(hWnd, NULL, FALSE);
-		EndPaint(hWnd, &ps);
+		//InvalidateRect(hWnd, NULL, FALSE);
+		//EndPaint(hWnd, &ps);
+		switch (drawingMethod) {
+		case SAVE:
+			save();
+			break;
+		case LOAD:
+			load(hWnd);
+			break;
+		}
 		break;
 	}
 
 	case WM_LBUTTONDOWN:
 		clicks.push_back({ LOWORD(lParam), HIWORD(lParam) });
-		draw(drawingMethod, clicks, true, hWnd);
+		draw(drawingMethod, clicks, hWnd);
 		break;
 
 	case WM_DESTROY:
-		save();
 
 		PostQuitMessage(0);
 		break;

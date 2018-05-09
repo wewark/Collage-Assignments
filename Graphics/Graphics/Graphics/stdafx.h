@@ -19,14 +19,17 @@
 
 
 // TODO: reference additional headers your program requires here
-#include <vector>
-#include <queue>
-#include <stack>
-using namespace std;
 
 extern COLORREF color;
 
 POINT makePOINT(int x, int y);
+
+#include <vector>
+#include <queue>
+#include <stack>
+#include <string>
+#include <fstream>
+using namespace std;
 
 #include "Line.h"
 #include "Circle.h"

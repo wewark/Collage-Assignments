@@ -11,21 +11,21 @@ void fillingDFS(HWND hWnd, HDC hdc, int x, int y) {
 	int dx[] = { 1,-1,0,0 };
 	int dy[] = { 0,0,1,-1 };
 
-	while (!points.empty()) {
-		RECT rect;
-		int width, height;
-		if (GetClientRect(hWnd, &rect)) {
-			width = rect.right - rect.left;
-			height = rect.bottom - rect.top;
-		}
+	RECT rect;
+	int width, height;
+	if (GetClientRect(hWnd, &rect)) {
+		width = rect.right - rect.left;
+		height = rect.bottom - rect.top;
+	}
 
+	while (!points.empty()) {
 		POINT cur = points.top(); points.pop();
 		if (!validPoint(cur.x, cur.y, width, height)) continue;
 		if (GetPixel(hdc, cur.x, cur.y) == color) continue;
 
 		SetPixel(hdc, cur.x, cur.y, color);
 		for (int i = 0; i < 4; i++)
-			points.push(makePOINT(cur.x + dx[i], cur.y + dy[i]));
+			points.push({ cur.x + dx[i], cur.y + dy[i] });
 	}
 }
 
@@ -35,20 +35,20 @@ void fillingBFS(HWND hWnd, HDC hdc, int x, int y) {
 	int dx[] = { 1,-1,0,0 };
 	int dy[] = { 0,0,1,-1 };
 
-	while (!points.empty()) {
-		RECT rect;
-		int width, height;
-		if (GetClientRect(hWnd, &rect)) {
-			width = rect.right - rect.left;
-			height = rect.bottom - rect.top;
-		}
+	RECT rect;
+	int width, height;
+	if (GetClientRect(hWnd, &rect)) {
+		width = rect.right - rect.left;
+		height = rect.bottom - rect.top;
+	}
 
+	while (!points.empty()) {
 		POINT cur = points.front(); points.pop();
 		if (!validPoint(cur.x, cur.y, width, height)) continue;
 		if (GetPixel(hdc, cur.x, cur.y) == color) continue;
 
 		SetPixel(hdc, cur.x, cur.y, color);
 		for (int i = 0; i < 4; i++)
-			points.push(makePOINT(cur.x + dx[i], cur.y + dy[i]));
+			points.push({ cur.x + dx[i], cur.y + dy[i] });
 	}
 }

@@ -118,9 +118,6 @@ struct Line {
 	int x1, y1, x2, y2;
 };
 
-// Lines drawn so far
-vector<Line> lines;
-
 enum Drawing {
 	LINE_DIRECT,
 	DDA,
@@ -137,6 +134,168 @@ enum Drawing {
 	FILLING_DFS,
 	FILLING_BFS
 } drawingMethod;
+
+struct History {
+	Drawing drawingMethod;
+	vector<POINT> clicks;
+
+	string toString() {
+		string ret;
+		ret += to_string(drawingMethod);
+		for (POINT& point : clicks)
+			ret += " " + to_string(point.x) + " " + to_string(point.y);
+		return ret;
+	}
+};
+
+vector<History> history;
+
+void save() {
+	ofstream cout("history.txt");
+	for (History& historyItem : history)
+		cout << historyItem.toString() << endl;
+}
+
+// Lines drawn so far
+vector<Line> lines;
+
+void draw(Drawing drawingMethod, vector<POINT>& clicks, bool addToHistory, HWND hWnd) {
+	PAINTSTRUCT ps;
+	HDC hdc = BeginPaint(hWnd, &ps);
+
+	bool drawnSomething = false;
+	switch (drawingMethod) {
+	case LINE_DIRECT:
+		if (clicks.size() == 2) {
+			DirectLine(hdc,
+				clicks[0].x, clicks[0].y,
+				clicks[1].x, clicks[1].y);
+			drawnSomething = true;
+		}
+		break;
+
+	case DDA:
+		if (clicks.size() == 2) {
+			DrawDDA(hdc,
+				clicks[0].x, clicks[0].y,
+				clicks[1].x, clicks[1].y);
+			drawnSomething = true;
+		}
+		break;
+
+	case MIDPOINTLINE:
+		if (clicks.size() == 2) {
+			DrawMidPointLine(hdc,
+				clicks[0].x, clicks[0].y,
+				clicks[1].x, clicks[1].y);
+			drawnSomething = true;
+		}
+		break;
+
+	case CIRCLE_CARTESIAN:
+		if (clicks.size() == 2) {
+			cartesianCircle(hdc,
+				clicks[0].x, clicks[0].y,
+				clicks[1].x, clicks[1].y);
+			drawnSomething = true;
+		}
+		break;
+
+	case CIRCLE_POLAR:
+		if (clicks.size() == 2) {
+			PolarCircle(hdc,
+				clicks[0].x, clicks[0].y,
+				clicks[1].x, clicks[1].y);
+			drawnSomething = true;
+		}
+		break;
+
+	case CIRCLE_POLAR_ITERATIVE:
+		if (clicks.size() == 2) {
+			IterativePolarCircle(hdc,
+				clicks[0].x, clicks[0].y,
+				clicks[1].x, clicks[1].y);
+			drawnSomething = true;
+		}
+		break;
+
+	case CIRCLE_MIDPOINT:
+		if (clicks.size() == 2) {
+			CircleMidPoint(hdc,
+				clicks[0].x, clicks[0].y,
+				clicks[1].x, clicks[1].y);
+			drawnSomething = true;
+		}
+		break;
+
+	case CURVE_HERMITE:
+		if (clicks.size() == 4) {
+			Hermite(hdc,
+				clicks[0].x, clicks[0].y,
+				clicks[1].x, clicks[1].y,
+				clicks[2].x, clicks[2].y,
+				clicks[3].x, clicks[3].y);
+			drawnSomething = true;
+		}
+		break;
+
+	case CURVE_BEZIER:
+		if (clicks.size() == 4) {
+			Bezier(hdc,
+				clicks[0].x, clicks[0].y,
+				clicks[1].x, clicks[1].y,
+				clicks[2].x, clicks[2].y,
+				clicks[3].x, clicks[3].y);
+			drawnSomething = true;
+		}
+		break;
+
+	case FILLING_DFS:
+		fillingDFS(hWnd, hdc,
+			clicks.back().x, clicks.back().y);
+		drawnSomething = true;
+		break;
+
+	case FILLING_BFS:
+		fillingBFS(hWnd, hdc,
+			clicks.back().x, clicks.back().y);
+		drawnSomething = true;
+		break;
+
+	case LINE_CLIPPING:
+		if (clicks.size() == 2) {
+			color = RGB(255, 255, 255);
+			for (int i = 0; i < lines.size(); i++) {
+				DrawDDA(hdc,
+					lines[i].x1, lines[i].y1,
+					lines[i].x2, lines[i].y2);
+			}
+
+			color = RGB(0, 0, 0);
+			int xleft = min(clicks[0].x, clicks[1].x);
+			int xright = max(clicks[0].x, clicks[1].x);
+			int ytop = min(clicks[0].y, clicks[1].y);
+			int ybot = max(clicks[0].y, clicks[1].y);
+
+			for (int i = 0; i < lines.size(); i++) {
+				LineClipping(hdc,
+					lines[i].x1, lines[i].y1,
+					lines[i].x2, lines[i].y2,
+					xleft, xright, ytop, ybot);
+			}
+			drawnSomething = true;
+		}
+		break;
+	}
+
+	if (addToHistory && drawnSomething) {
+		history.push_back(History{ drawingMethod, clicks });
+		clicks.clear();
+	}
+
+	InvalidateRect(hWnd, NULL, FALSE);
+	EndPaint(hWnd, &ps);
+}
 
 //
 //  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
@@ -240,150 +399,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 
-	case WM_LBUTTONDOWN: {
+	case WM_LBUTTONDOWN:
 		clicks.push_back({ LOWORD(lParam), HIWORD(lParam) });
-		POINT curClick = makePOINT(LOWORD(lParam), HIWORD(lParam));
-
-
-		PAINTSTRUCT ps;
-		HDC hdc = BeginPaint(hWnd, &ps);
-
-		switch (drawingMethod) {
-		case LINE_DIRECT:
-			if (clicks.size() == 2) {
-				lines.push_back(Line{
-					clicks[0].x, clicks[0].y,
-					clicks[1].x, clicks[1].y });
-				DirectLine(hdc,
-					clicks[0].x, clicks[0].y,
-					clicks[1].x, clicks[1].y);
-				clicks.clear();
-			}
-			break;
-
-		case DDA:
-			if (clicks.size() == 2) {
-				lines.push_back(Line{
-					clicks[0].x, clicks[0].y,
-					clicks[1].x, clicks[1].y });
-				DrawDDA(hdc,
-					clicks[0].x, clicks[0].y,
-					clicks[1].x, clicks[1].y);
-				clicks.clear();
-			}
-			break;
-
-		case MIDPOINTLINE:
-			if (clicks.size() == 2) {
-				lines.push_back(Line{
-					clicks[0].x, clicks[0].y,
-					clicks[1].x, clicks[1].y });
-				DrawMidPointLine(hdc,
-					clicks[0].x, clicks[0].y,
-					clicks[1].x, clicks[1].y);
-				clicks.clear();
-			}
-			break;
-
-		case CIRCLE_CARTESIAN:
-			if (clicks.size() == 2) {
-				cartesianCircle(hdc,
-					clicks[0].x, clicks[0].y,
-					clicks[1].x, clicks[1].y);
-				clicks.clear();
-			}
-			break;
-
-		case CIRCLE_POLAR:
-			if (clicks.size() == 2) {
-				PolarCircle(hdc,
-					clicks[0].x, clicks[0].y,
-					clicks[1].x, clicks[1].y);
-				clicks.clear();
-			}
-			break;
-
-		case CIRCLE_POLAR_ITERATIVE:
-			if (clicks.size() == 2) {
-				IterativePolarCircle(hdc,
-					clicks[0].x, clicks[0].y,
-					clicks[1].x, clicks[1].y);
-				clicks.clear();
-			}
-			break;
-
-		case CIRCLE_MIDPOINT:
-			if (clicks.size() == 2) {
-				CircleMidPoint(hdc,
-					clicks[0].x, clicks[0].y,
-					clicks[1].x, clicks[1].y);
-				clicks.clear();
-			}
-			break;
-
-		case CURVE_HERMITE:
-			if (clicks.size() == 4) {
-				Hermite(hdc,
-					clicks[0].x, clicks[0].y,
-					clicks[1].x, clicks[1].y,
-					clicks[2].x, clicks[2].y,
-					clicks[3].x, clicks[3].y);
-				clicks.clear();
-			}
-			break;
-
-		case CURVE_BEZIER:
-			if (clicks.size() == 4) {
-				Bezier(hdc,
-					clicks[0].x, clicks[0].y,
-					clicks[1].x, clicks[1].y,
-					clicks[2].x, clicks[2].y,
-					clicks[3].x, clicks[3].y);
-				clicks.clear();
-			}
-			break;
-
-		case FILLING_DFS:
-			fillingDFS(hWnd, hdc,
-				curClick.x, curClick.y);
-			break;
-
-		case FILLING_BFS:
-			fillingBFS(hWnd, hdc,
-				curClick.x, curClick.y);
-			break;
-
-		case LINE_CLIPPING:
-			if (clicks.size() == 2) {
-				color = RGB(255, 255, 255);
-				for (int i = 0; i < lines.size(); i++) {
-					DrawDDA(hdc,
-						lines[i].x1, lines[i].y1,
-						lines[i].x2, lines[i].y2);
-				}
-
-				color = RGB(0, 0, 0);
-				int xleft = min(clicks[0].x, clicks[1].x);
-				int xright = max(clicks[0].x, clicks[1].x);
-				int ytop = min(clicks[0].y, clicks[1].y);
-				int ybot = max(clicks[0].y, clicks[1].y);
-
-				for (int i = 0; i < lines.size(); i++) {
-					LineClipping(hdc,
-						lines[i].x1, lines[i].y1,
-						lines[i].x2, lines[i].y2,
-						xleft, xright, ytop, ybot);
-				}
-				clicks.clear();
-			}
-			break;
-		}
-
-		InvalidateRect(hWnd, NULL, FALSE);
-		EndPaint(hWnd, &ps);
+		draw(drawingMethod, clicks, true, hWnd);
 		break;
-	}
+
 	case WM_DESTROY:
+		save();
+
 		PostQuitMessage(0);
 		break;
 	default:

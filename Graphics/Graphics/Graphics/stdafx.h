@@ -23,3 +23,7 @@
 #include <queue>
 #include <stack>
 using namespace std;
+
+extern COLORREF color;
+#include "Line.h"
+

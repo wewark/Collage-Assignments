@@ -112,7 +112,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 int x, y;
 bool flag = true;
-vector<pair<int, int>> clicks;
+vector<POINT> clicks;
 
 struct Line {
 	int x1, y1, x2, y2;
@@ -156,7 +156,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		HMENU HDrawCircle = CreateMenu();
 		HMENU HLineClipping = CreateMenu();
 		HMENU HFilling = CreateMenu();
-
+		
 		AppendMenu(HMenuBar, MF_POPUP, (UINT_PTR)HFile, "File");
 		AppendMenu(HFile, MF_STRING, IDM_EXIT, "Exit");
 
@@ -180,6 +180,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		SetMenu(hWnd, HMenuBar);
 		break;
 	}
+
 	case WM_COMMAND:
 	{
 		int wmId = LOWORD(wParam);
@@ -206,23 +207,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		PAINTSTRUCT ps;
 		HDC hdc = BeginPaint(hWnd, &ps);
 		//// TODO: Add any drawing code that uses hdc here...
-
 		//if (clicks.size() == 2) {
 		//	switch (drawingMethod) {
 		//	case DDA:
 		//		DrawDDA(hdc,
-		//			clicks[0].first, clicks[0].second,
-		//			clicks[1].first, clicks[1].second);
+		//			clicks[0].x, clicks[0].y,
+		//			clicks[1].x, clicks[1].y);
 		//		break;
 		//	case MIDPOINTLINE:
 		//		DrawMidPointLine(hdc,
-		//			clicks[0].first, clicks[0].second,
-		//			clicks[1].first, clicks[1].second);
+		//			clicks[0].x, clicks[0].y,
+		//			clicks[1].x, clicks[1].y);
 		//		break;
 		//	case CIRCLE_CARTESIAN:
 		//		cartesianCircle(hdc,
-		//			clicks[0].first, clicks[0].second,
-		//			clicks[1].first, clicks[1].second);
+		//			clicks[0].x, clicks[0].y,
+		//			clicks[1].x, clicks[1].y);
 		//		break;
 		//	}
 		//}
@@ -230,13 +230,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		EndPaint(hWnd, &ps);
 		break;
 	}
+
 	case WM_LBUTTONDOWN: {
 		if (clicks.size() < 2) {
 			clicks.push_back({
 				LOWORD(lParam),
 				HIWORD(lParam) });
 		}
-		pair<int, int> curClick(LOWORD(lParam), HIWORD(lParam));
+		POINT curClick = makePOINT(LOWORD(lParam), HIWORD(lParam));
 
 
 		PAINTSTRUCT ps;
@@ -246,44 +247,44 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			switch (drawingMethod) {
 			case DDA:
 				lines.push_back(Line{
-					clicks[0].first, clicks[0].second,
-					clicks[1].first, clicks[1].second });
+					clicks[0].x, clicks[0].y,
+					clicks[1].x, clicks[1].y });
 				DrawDDA(hdc,
-					clicks[0].first, clicks[0].second,
-					clicks[1].first, clicks[1].second);
+					clicks[0].x, clicks[0].y,
+					clicks[1].x, clicks[1].y);
 				break;
 
 			case MIDPOINTLINE:
 				lines.push_back(Line{
-					clicks[0].first, clicks[0].second,
-					clicks[1].first, clicks[1].second });
+					clicks[0].x, clicks[0].y,
+					clicks[1].x, clicks[1].y });
 				DrawMidPointLine(hdc,
-					clicks[0].first, clicks[0].second,
-					clicks[1].first, clicks[1].second);
+					clicks[0].x, clicks[0].y,
+					clicks[1].x, clicks[1].y);
 				break;
 
 			case CIRCLE_CARTESIAN:
 				cartesianCircle(hdc,
-					clicks[0].first, clicks[0].second,
-					clicks[1].first, clicks[1].second);
+					clicks[0].x, clicks[0].y,
+					clicks[1].x, clicks[1].y);
 				break;
 
 			case CIRCLE_POLAR:
 				PolarCircle(hdc,
-					clicks[0].first, clicks[0].second,
-					clicks[1].first, clicks[1].second);
+					clicks[0].x, clicks[0].y,
+					clicks[1].x, clicks[1].y);
 				break;
 
 			case CIRCLE_POLAR_ITERATIVE:
 				IterativePolarCircle(hdc,
-					clicks[0].first, clicks[0].second,
-					clicks[1].first, clicks[1].second);
+					clicks[0].x, clicks[0].y,
+					clicks[1].x, clicks[1].y);
 				break;
 
 			case CIRCLE_MIDPOINT:
 				CircleMidPoint(hdc,
-					clicks[0].first, clicks[0].second,
-					clicks[1].first, clicks[1].second);
+					clicks[0].x, clicks[0].y,
+					clicks[1].x, clicks[1].y);
 				break;
 
 			case LINE_CLIPPING:
@@ -296,10 +297,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				}
 
 				color = RGB(0, 0, 0);
-				int xleft = min(clicks[0].first, clicks[1].first);
-				int xright = max(clicks[0].first, clicks[1].first);
-				int ytop = min(clicks[0].second, clicks[1].second);
-				int ybot = max(clicks[0].second, clicks[1].second);
+				int xleft = min(clicks[0].x, clicks[1].x);
+				int xright = max(clicks[0].x, clicks[1].x);
+				int ytop = min(clicks[0].y, clicks[1].y);
+				int ybot = max(clicks[0].y, clicks[1].y);
 
 				for (int i = 0; i < lines.size(); i++) {
 					LineClipping(hdc,
@@ -317,12 +318,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		switch (drawingMethod) {
 		case FILLING_DFS:
 			fillingDFS(hWnd, hdc,
-				curClick.first, curClick.second);
+				curClick.x, curClick.y);
 			break;
 
 		case FILLING_BFS:
 			fillingBFS(hWnd, hdc,
-				curClick.first, curClick.second);
+				curClick.x, curClick.y);
 			break;
 
 		default:

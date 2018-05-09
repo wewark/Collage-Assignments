@@ -25,6 +25,10 @@
 using namespace std;
 
 extern COLORREF color;
+
+POINT makePOINT(int x, int y);
+
 #include "Line.h"
 #include "Circle.h"
+#include "Filling.h"
 

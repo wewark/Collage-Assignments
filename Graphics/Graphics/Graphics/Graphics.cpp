@@ -131,8 +131,12 @@ enum Drawing {
 	CURVE_BEZIER,
 
 	LINE_CLIPPING,
+	POLYGON_CLIPPING,
+
 	FILLING_DFS,
 	FILLING_BFS,
+
+	POLYGON,
 
 	SAVE,
 	LOAD
@@ -327,6 +331,14 @@ void draw(Drawing drawingMethod, vector<POINT>& clicks, HWND hWnd) {
 			clicks.clear();
 		}
 		break;
+
+	case POLYGON:
+		if (clicks.size() == 5) {
+			polygon(hdc, clicks);
+			history.push_back({ drawingMethod, clicks });
+			clicks.clear();
+		}
+		break;
 	}
 
 	InvalidateRect(hWnd, NULL, FALSE);
@@ -382,6 +394,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		AppendMenu(HMenuBar, MF_POPUP, (UINT_PTR)HFilling, "Filling");
 		AppendMenu(HFilling, MF_POPUP, FILLING_BFS, "BFS");
 		AppendMenu(HFilling, MF_POPUP, FILLING_DFS, "DFS");
+
+		HMENU HPolygon = CreateMenu();
+		AppendMenu(HMenuBar, MF_POPUP, (UINT_PTR)HPolygon, "Polygon");
+		AppendMenu(HPolygon, MF_POPUP, POLYGON, "Draw Poylgon");
 
 		SetMenu(hWnd, HMenuBar);
 		break;

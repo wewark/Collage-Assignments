@@ -84,3 +84,12 @@ void DrawMidPointLine(HDC hdc, int xs, int ys, int xe, int ye) {
 		}
 	}
 }
+
+void polygon(HDC hdc, vector<POINT> vertices) {
+	POINT v1 = vertices.back();
+	for (int i = 0; i < vertices.size(); i++) {
+		POINT v2 = vertices[i];
+		DrawDDA(hdc, v1.x, v1.y, v2.x, v2.y);
+		v1 = v2;
+	}
+}

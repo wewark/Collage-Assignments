@@ -183,6 +183,7 @@ void load(HWND hWnd) {
 
 // Lines drawn so far
 vector<Line> lines;
+vector<vector<POINT>> polygons;
 
 void draw(Drawing drawingMethod, vector<POINT>& clicks, HWND hWnd) {
 	PAINTSTRUCT ps;
@@ -336,6 +337,35 @@ void draw(Drawing drawingMethod, vector<POINT>& clicks, HWND hWnd) {
 		if (clicks.size() == 5) {
 			polygon(hdc, clicks);
 			history.push_back({ drawingMethod, clicks });
+			polygons.push_back(clicks);
+			clicks.clear();
+		}
+		break;
+
+	case POLYGON_CLIPPING:
+		if (clicks.size() == 2) {
+			color = RGB(255, 255, 255);
+			for (int i = 0; i < polygons.size(); i++) {
+				if (polygons[i].empty()) continue;
+				POINT v1 = polygons[i].back();
+				for (int j = 0; j < polygons[i].size(); j++) {
+					POINT v2 = polygons[i][j];
+					DrawDDA(hdc, v1.x, v1.y, v2.x, v2.y);
+					v1 = v2;
+				}
+			}
+
+			color = RGB(0, 0, 0);
+			int xleft = min(clicks[0].x, clicks[1].x);
+			int xright = max(clicks[0].x, clicks[1].x);
+			int ytop = min(clicks[0].y, clicks[1].y);
+			int ybot = max(clicks[0].y, clicks[1].y);
+
+			for (int i = 0; i < polygons.size(); i++) {
+				PolygonClip(hdc, polygons[i], xleft, ytop, xright, ybot);
+			}
+
+			history.push_back(History{ drawingMethod, clicks });
 			clicks.clear();
 		}
 		break;
@@ -389,6 +419,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		HMENU HLineClipping = CreateMenu();
 		AppendMenu(HMenuBar, MF_POPUP, (UINT_PTR)HLineClipping, "Clipping");
 		AppendMenu(HLineClipping, MF_POPUP, LINE_CLIPPING, "Line Clipping");
+		AppendMenu(HLineClipping, MF_POPUP, POLYGON_CLIPPING, "Polygon Clipping");
 
 		HMENU HFilling = CreateMenu();
 		AppendMenu(HMenuBar, MF_POPUP, (UINT_PTR)HFilling, "Filling");

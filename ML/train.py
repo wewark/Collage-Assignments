@@ -3,6 +3,7 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas
+import random
 
 
 def sigmoid(x):
@@ -42,7 +43,7 @@ def propagate(w, b, X, Y):
     return grads, cost
 
 
-def train(w, b, X, Y, num_iterations, lr, print_every):
+def train(w, b, X, Y, num_iterations, lr, lr_decay, print_every):
     """
     Arguments:
     w -- weights, shape (num_feat, 1)
@@ -51,6 +52,7 @@ def train(w, b, X, Y, num_iterations, lr, print_every):
     """
 
     costs = []
+    accuracies = []
     for i in range(num_iterations):
         grads, cost = propagate(w, b, X, Y)
 
@@ -66,14 +68,16 @@ def train(w, b, X, Y, num_iterations, lr, print_every):
             costs.append(cost)
 
         if print_every > 0 and i % print_every == 0:
-            lr *= 0.99
+            lr *= lr_decay
             pred_train = predict(w, b, X)
-            print("Cost after iteration %i: %f, lr: %s, accuracy: %s" % (i, cost, lr, (100 - np.mean(np.abs(pred_train - Y)) * 100)))
+            accuracy = (100 - np.mean(np.abs(pred_train - Y)) * 100)
+            accuracies.append(accuracy)
+            print("Cost after iteration %i: %f, lr: %s, accuracy: %s" % (i, cost, lr, accuracy))
 
     params = {"w": w, "b": b}
     grads = {"dw": dw, "db": db}
 
-    return params, grads, costs
+    return params, grads, costs, accuracies
 
 
 def predict(w, b, X):
@@ -97,15 +101,29 @@ def predict(w, b, X):
 
 
 def init_params(num_feat):
-    w = np.zeros([num_feat, 1])
-    b = 0
+    w = np.random.rand(num_feat, 1)
+    b = random.uniform(0, 1)
     return w, b
 
 
-def model(X_train, Y_train, X_test, num_iterations=2000, lr=0.5, print_every=0):
+def model(X_train, Y_train, X_test, num_iterations=2000, lr=0.5, lr_decay=1.0, print_every=0):
     w, b = init_params(X_train.shape[0])
 
-    params, grads, costs = train(w, b, X_train, Y_train, num_iterations, lr, print_every)
+    params, grads, costs, accuracies = train(w, b, X_train, Y_train, num_iterations, lr, lr_decay, print_every)
+
+    plt.subplot(2, 1, 2)
+    plt.title('Accuracy')
+    plt.plot(list(range(0, num_iterations, print_every)), accuracies)
+    plt.grid(True)
+    
+    plt.subplot(2, 1, 1)
+    plt.title('Cost')
+    plt.plot(list(range(0, num_iterations, print_every)), costs)
+    plt.grid(True)
+    plt.ylim(0, 1)
+
+    plt.tight_layout()
+    plt.show()
     
     w = params["w"]
     b = params["b"]
@@ -134,7 +152,8 @@ def preprocess(dataset, is_train=True):
     SibSp = dataset['SibSp']
     Parch = dataset['Parch']
     Fare = dataset['Fare']
-    X = np.concatenate(([sex], [pclass], [age], [SibSp], [Parch], [Fare]))
+    embarked = [ord(i if isinstance(i, str) else 'Z') - ord('A') for i in dataset['Embarked']]
+    X = np.concatenate(([sex], [pclass], [age], [SibSp], [Parch], [Fare], [embarked]))
 
     if is_train:
         survived = dataset['Survived']
@@ -152,9 +171,10 @@ def main():
     X_test = preprocess(test_dataset, is_train=False)
 
     d = model(X_train, Y_train, X_test,
-            num_iterations = 200000,
-            lr = 0.01,
-            print_every = 5000)
+            num_iterations = 400000,
+            lr = 0.009,
+            lr_decay = 0.98,
+            print_every = 10000)
 
 
 if __name__ == "__main__":

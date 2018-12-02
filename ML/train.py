@@ -175,6 +175,12 @@ def main():
             lr = 0.009,
             lr_decay = 0.98,
             print_every = 10000)
+    
+    pred_test = np.squeeze(d['Y_prediction_test'])
+    with open('data/pred_test.csv', 'w') as f:
+        f.write('PassengerId,Survived\n')
+        for passenger_id, survived in zip(test_dataset['PassengerId'], pred_test):
+            f.write('%s,%s\n' % (passenger_id, int(survived)))
 
 
 if __name__ == "__main__":

@@ -6,6 +6,7 @@ def main():
 2: View Songs
 3: Create Playlist
 4: View Playlists
+5: View Artists
 0: exit
 """
 
@@ -41,6 +42,9 @@ def main():
             Playlist.create_playlist()
         elif res == 4:
             Playlist.view_playlists()
+        elif res == 5:
+            Artist.view_artists()
+            input()
         elif res == 0:
             break
 

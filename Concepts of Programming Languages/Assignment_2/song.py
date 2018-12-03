@@ -1,7 +1,8 @@
-from sqlalchemy.ext.declarative import declarative_base
+from Assignment_2 import Base
 from sqlalchemy import Column, Integer, String
-
-Base = declarative_base()
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
+from artist import Artist
 
 
 class Song(Base):
@@ -9,8 +10,10 @@ class Song(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
-    artist = Column(String)
+
+    artist_id = Column(Integer, ForeignKey('artists.id'))
+    artist = relationship('Artist', back_populates='songs')
 
     def __repr__(self):
         return "<Song(name='%s', artist='%s')>" % (
-            self.name, self.artist)
+            self.name, self.artist.name)

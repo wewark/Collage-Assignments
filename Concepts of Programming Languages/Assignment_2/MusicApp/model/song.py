@@ -1,8 +1,7 @@
-from Assignment_2 import Base
 from sqlalchemy import Column, Integer, String
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
-from artist import Artist
+from . import Artist, Base
 
 
 class Song(Base):

@@ -1,12 +1,10 @@
-import sys
-import os
-sys.path.append(os.path.join(__file__, '..', '..'))
+# import sys
+# import os
+# sys.path.append(os.path.join(__file__, '..', '..'))
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from song import Song
-from artist import Artist
-from Assignment_2 import Base
+from model import *
 
 
 def init_db_session():

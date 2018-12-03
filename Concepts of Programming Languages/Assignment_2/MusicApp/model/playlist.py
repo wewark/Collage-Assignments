@@ -19,6 +19,21 @@ class Playlist(Base):
     songs = relationship('Song', secondary=playlist_song)
 
     @staticmethod
+    def get_all():
+        return session.query(Playlist).order_by(Playlist.name).all()
+
+    @staticmethod
+    def view_playlists():
+        playlists = Playlist.get_all()
+        for i, playlist in enumerate(playlists):
+            print('%s: %s' % (i + 1, playlist.name))
+
+        playlist_id = int(input('Select Playlist (0 back): '))
+        if playlist_id > 0:
+            print(playlists[playlist_id - 1])
+            input()
+
+    @staticmethod
     def create_playlist():
         playlist = Playlist()
         playlist.name = input('Playlist Name: ')

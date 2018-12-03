@@ -7,6 +7,7 @@ def main():
 3: Create Playlist
 4: View Playlists
 5: View Artists
+6: Play Song
 0: exit
 """
 
@@ -15,6 +16,11 @@ def main():
         if res == 1:
             song = Song()
             song.name = input('Song Name: ')
+
+            song_files = Song.view_files()
+            file_id = int(input('Select song file: '))
+            song.path = 'db/songs/%s' % song_files[file_id - 1]
+
 
             artist_list = []
             for artist in session.query(Artist).order_by(Artist.name):
@@ -45,6 +51,8 @@ def main():
         elif res == 5:
             Artist.view_artists()
             input()
+        elif res == 6:
+            Song.play_song()
         elif res == 0:
             break
 

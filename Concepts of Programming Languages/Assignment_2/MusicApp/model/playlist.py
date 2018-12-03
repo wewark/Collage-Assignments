@@ -40,7 +40,7 @@ class Playlist(Base):
         playlist.desc = input('Playlist Desc: ')
 
         Song.view_songs()
-        songs = Song.get_all_songs()
+        songs = Song.get_all()
         while True:
             song_id = int(input('Song id (0 to finish): '))
             if song_id == 0:

@@ -18,6 +18,18 @@ class Playlist(Base):
     desc = Column(String)
     songs = relationship('Song', secondary=playlist_song)
 
+    def play(self):
+        for song in self.songs:
+            song.play()
+
+    @staticmethod
+    def select_and_play():
+        playlists = Playlist.get_all()
+        for i, playlist in enumerate(playlists):
+            print('%s: %s' % (i + 1, playlist.name))
+        playlist_id = int(input('Select Playlist (0 back): '))
+        playlists[playlist_id - 1].play()
+
     @staticmethod
     def get_all():
         return session.query(Playlist).order_by(Playlist.name).all()

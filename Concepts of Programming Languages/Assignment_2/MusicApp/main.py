@@ -8,6 +8,7 @@ def main():
 4: View Playlists
 5: View Artists
 6: Play Song
+7: Play Playlist
 0: exit
 """
 
@@ -53,6 +54,8 @@ def main():
             input()
         elif res == 6:
             Song.play_song()
+        elif res == 7:
+            Playlist.select_and_play()
         elif res == 0:
             break
 

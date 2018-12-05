@@ -1,26 +1,17 @@
 from sqlalchemy import Column, Integer, String, Table
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
-from . import Base, Song, session
+from . import Base, Song, session, SongCollection
 
 
-playlist_song = Table('playlist_song', Base.metadata,
-                      Column('playlist_id', Integer,
-                             ForeignKey('playlists.id')),
-                      Column('song_id', Integer, ForeignKey('songs.id')))
-
-
-class Playlist(Base):
+class Playlist(SongCollection):
     __tablename__ = 'playlists'
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-    desc = Column(String)
-    songs = relationship('Song', secondary=playlist_song)
+    id = Column(Integer, ForeignKey('song_collection.id'), primary_key=True)
 
-    def play(self):
-        for song in self.songs:
-            song.play()
+    __mapper_args__ = {
+        'polymorphic_identity':'playlist',
+    }
 
     @staticmethod
     def select_and_play():

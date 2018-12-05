@@ -23,9 +23,7 @@ def main():
             file_id = int(input('Select song file: '))
             song.path = 'db/songs/%s' % song_files[file_id - 1]
 
-            artist_list = []
-            for artist in session.query(Artist).order_by(Artist.name):
-                artist_list.append(artist)
+            artist_list = session.query(Artist).order_by(Artist.name).all()
 
             print('Select an artist:')
             print('0: Add new artist')
@@ -41,6 +39,11 @@ def main():
             else:
                 artist_list[res - 1].songs.append(song)
                 session.add(artist_list[res - 1])
+            
+            album_name = input('Album Name: ')
+            album = Album.find_or_create(album_name)
+            album.songs.append(song)
+            session.add(album)
 
             session.commit()
         elif res == 2:

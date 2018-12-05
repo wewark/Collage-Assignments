@@ -10,15 +10,21 @@ class Artist(Base):
     name = Column(String)
     songs = relationship('Song', back_populates='artist')
 
+    def play_all(self):
+        for song in self.songs:
+            song.play()
+
     @staticmethod
     def get_all():
         return session.query(Artist).order_by(Artist.name).all()
 
     @staticmethod
     def view_artists():
+        artists = Artist.get_all()
         print('Artists:')
-        for i, artist in enumerate(Artist.get_all()):
-            print('\t%s: %s' % (i, artist))
+        for i, artist in enumerate(artists):
+            print('\t%s: %s' % (i + 1, artist))
+        return artists
 
     def __repr__(self):
         return self.name

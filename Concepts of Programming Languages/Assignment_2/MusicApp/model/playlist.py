@@ -20,6 +20,19 @@ class Playlist(Base):
     def play(self):
         for song in self.songs:
             song.play()
+    
+    def remove_song(self):
+        song = self.select_song()
+        if song is not None:
+            self.songs.remove(song)
+            session.commit()
+    
+    def select_song(self):
+        for i, song in enumerate(self.songs):
+            print('%s: %s' % (i + 1, song))
+        song_id = int(input('Select song to remove (0 back): '))
+        if song_id > 0:
+            return self.songs[song_id - 1]
 
     @staticmethod
     def select_and_play():
@@ -34,15 +47,14 @@ class Playlist(Base):
         return session.query(Playlist).order_by(Playlist.name).all()
 
     @staticmethod
-    def view_playlists():
+    def select_playlist():
         playlists = Playlist.get_all()
         for i, playlist in enumerate(playlists):
             print('%s: %s' % (i + 1, playlist.name))
 
         playlist_id = int(input('Select Playlist (0 back): '))
         if playlist_id > 0:
-            print(playlists[playlist_id - 1])
-            input()
+            return playlists[playlist_id - 1]
 
     @staticmethod
     def create_playlist():

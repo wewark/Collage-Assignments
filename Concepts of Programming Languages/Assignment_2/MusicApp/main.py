@@ -14,7 +14,8 @@ def main():
 10: View Albums
 11: Play Genre
 12: Remove song from playlist
-13: Remove Playlist
+13: Delete Playlist
+14: Delete Song
 0: exit
 """
 
@@ -53,7 +54,7 @@ def main():
 
             session.commit()
         elif res == 2:
-            Song.view_songs()
+            Song.select_song()
         elif res == 3:
             Playlist.create_playlist()
         elif res == 4:
@@ -87,6 +88,10 @@ def main():
             playlist = Playlist.select_playlist()
             if playlist is not None:
                 playlist.delete()
+        elif res == 14:
+            song = Song.select_song()
+            if song is not None:
+                song.delete()
         elif res == 0:
             break
 

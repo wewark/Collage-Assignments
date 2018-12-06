@@ -54,8 +54,9 @@ class Album(Base):
         album.name = input('Album Name: ')
         album.desc = input('Album Desc: ')
 
-        Song.view_songs()
         songs = Song.get_all()
+        for i, song in enumerate(songs):
+            print('%s: %s' % (i + 1, song))
         while True:
             song_id = int(input('Song id (0 to finish): '))
             if song_id == 0:

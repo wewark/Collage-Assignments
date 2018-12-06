@@ -13,10 +13,26 @@ class Artist(Base):
     def play_all(self):
         for song in self.songs:
             song.play()
+    
+    def delete(self):
+        for song in self.songs:
+            song.delete()
+        session.delete(self)
+        session.commit()
 
     @staticmethod
     def get_all():
         return session.query(Artist).order_by(Artist.name).all()
+    
+    @staticmethod
+    def select_artist():
+        artists = Artist.get_all()
+        print('Artists:')
+        for i, artist in enumerate(artists):
+            print('\t%s: %s' % (i + 1, artist))
+        artist_id = int(input('Select Artist(0 back): '))
+        if artist_id > 0:
+            return artists[artist_id - 1]
 
     @staticmethod
     def view_artists():

@@ -17,6 +17,12 @@ class Album(Base):
     def play(self):
         for song in self.songs:
             song.play()
+    
+    def delete(self):
+        for song in self.songs:
+            song.delete()
+        session.delete(self)
+        session.commit()
 
     @staticmethod
     def find_or_create(name):
@@ -36,6 +42,16 @@ class Album(Base):
     @staticmethod
     def get_all():
         return session.query(Album).order_by(Album.name).all()
+    
+    @staticmethod
+    def select_album():
+        albums = Album.get_all()
+        for i, album in enumerate(albums):
+            print('%s: %s' % (i + 1, album.name))
+
+        album_id = int(input('Select Album (0 back): '))
+        if album_id > 0:
+            return albums[album_id - 1]
 
     @staticmethod
     def view_albums():

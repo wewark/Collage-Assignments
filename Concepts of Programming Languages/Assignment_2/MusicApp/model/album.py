@@ -31,7 +31,7 @@ class Album(Base):
         for i, album in enumerate(albums):
             print('%s: %s' % (i + 1, album.name))
         album_id = int(input('Select Album (0 back): '))
-        album[album_id - 1].play()
+        albums[album_id - 1].play()
 
     @staticmethod
     def get_all():

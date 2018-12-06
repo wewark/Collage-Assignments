@@ -27,6 +27,10 @@ class Playlist(Base):
             self.songs.remove(song)
             session.commit()
     
+    def delete(self):
+        session.delete(self)
+        session.commit()
+    
     def select_song(self):
         for i, song in enumerate(self.songs):
             print('%s: %s' % (i + 1, song))

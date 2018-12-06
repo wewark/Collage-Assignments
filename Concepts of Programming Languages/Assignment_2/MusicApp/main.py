@@ -14,6 +14,7 @@ def main():
 10: View Albums
 11: Play Genre
 12: Remove song from playlist
+13: Remove Playlist
 0: exit
 """
 
@@ -82,6 +83,10 @@ def main():
             playlist = Playlist.select_playlist()
             if playlist is not None:
                 playlist.remove_song()
+        elif res == 13:
+            playlist = Playlist.select_playlist()
+            if playlist is not None:
+                playlist.delete()
         elif res == 0:
             break
 

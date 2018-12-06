@@ -18,6 +18,7 @@ class Song(Base):
     artist = relationship('Artist', back_populates='songs')
     album_id = Column(Integer, ForeignKey('albums.id'))
     album = relationship('Album', back_populates='songs')
+    genre = Column(String)
 
     def play(self):
         mixer.init()
@@ -26,7 +27,17 @@ class Song(Base):
         print('Playing %s' % self.name)
         input('Press any key to stop')
         mixer.music.stop()
-    
+
+    @staticmethod
+    def play_genre():
+        genres = session.query(Song.genre).distinct().all()
+        for i, genre in enumerate(genres):
+            print('%s: %s' % (i + 1, genre[0]))
+        genre_id = int(input('Select Genre(0 back)'))
+
+        for song in session.query(Song).filter(Song.genre == genres[genre_id - 1][0]):
+            song.play()
+
     @staticmethod
     def play_song():
         songs = Song.view_songs()
@@ -45,7 +56,7 @@ class Song(Base):
             print('%s: %s' % (i, song))
             i += 1
         return songs
-    
+
     @staticmethod
     def view_files():
         i = 1

@@ -12,6 +12,7 @@ def main():
 8: Play Artist Songs
 9: Play Album
 10: View Albums
+11: Play Genre
 0: exit
 """
 
@@ -24,6 +25,7 @@ def main():
             song_files = Song.view_files()
             file_id = int(input('Select song file: '))
             song.path = 'db/songs/%s' % song_files[file_id - 1]
+            song.genre = input('Genre: ')
 
             artist_list = session.query(Artist).order_by(Artist.name).all()
 
@@ -70,6 +72,8 @@ def main():
             Album.select_and_play()
         elif res == 10:
             Album.view_albums()
+        elif res == 11:
+            Song.play_genre()
         elif res == 0:
             break
 

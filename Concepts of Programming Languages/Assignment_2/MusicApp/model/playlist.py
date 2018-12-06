@@ -1,17 +1,25 @@
 from sqlalchemy import Column, Integer, String, Table
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
-from . import Base, Song, session, SongCollection
+from . import Base, Song, session
+
+playlist_song = Table('playlist_song', Base.metadata,
+                      Column('playlist_id', Integer,
+                             ForeignKey('playlists.id')),
+                      Column('song_id', Integer, ForeignKey('songs.id')))
 
 
-class Playlist(SongCollection):
+class Playlist(Base):
     __tablename__ = 'playlists'
 
-    id = Column(Integer, ForeignKey('song_collection.id'), primary_key=True)
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    desc = Column(String)
+    songs = relationship('Song', secondary=playlist_song)
 
-    __mapper_args__ = {
-        'polymorphic_identity':'playlist',
-    }
+    def play(self):
+        for song in self.songs:
+            song.play()
 
     @staticmethod
     def select_and_play():
@@ -49,7 +57,7 @@ class Playlist(SongCollection):
             if song_id == 0:
                 break
             playlist.songs.append(songs[song_id - 1])
-        
+
         session.add(playlist)
         session.commit()
 

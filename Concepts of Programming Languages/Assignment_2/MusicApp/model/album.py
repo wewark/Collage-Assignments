@@ -1,20 +1,22 @@
-from sqlalchemy import Column, Integer, String, Table
-from sqlalchemy import ForeignKey
+from sqlalchemy import Column, ForeignKey, Integer, String, Table
 from sqlalchemy.orm import relationship
-from . import Base, Song, session, SongCollection
+
+from . import Base, Song, session
 
 
-class Album(SongCollection):
+class Album(Base):
     __tablename__ = 'albums'
 
-    id = Column(Integer, ForeignKey('song_collection.id'), primary_key=True)
-
-    __mapper_args__ = {
-        'polymorphic_identity':'album',
-    }
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    songs = relationship('Song', back_populates='album')
 
     def __init__(self, name):
         self.name = name
+    
+    def play(self):
+        for song in self.songs:
+            song.play()
 
     @staticmethod
     def find_or_create(name):

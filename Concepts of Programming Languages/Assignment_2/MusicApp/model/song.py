@@ -1,9 +1,10 @@
-from sqlalchemy import Column, Integer, String
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import relationship
-from . import Artist, Base, session
-from pygame import mixer
 import os
+
+from pygame import mixer
+from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
+
+from . import Artist, Base, session
 
 
 class Song(Base):
@@ -15,6 +16,8 @@ class Song(Base):
 
     artist_id = Column(Integer, ForeignKey('artists.id'))
     artist = relationship('Artist', back_populates='songs')
+    album_id = Column(Integer, ForeignKey('albums.id'))
+    album = relationship('Album', back_populates='songs')
 
     def play(self):
         mixer.init()

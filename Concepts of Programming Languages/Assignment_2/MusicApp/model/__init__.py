@@ -11,7 +11,6 @@ Base = declarative_base()
 
 from model.artist import Artist
 from model.song import Song
-from model.song_collection import SongCollection
 from model.playlist import Playlist
 from model.album import Album
 

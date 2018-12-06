@@ -11,6 +11,7 @@ def main():
 7: Play Playlist
 8: Play Artist Songs
 9: Play Album
+10: View Albums
 0: exit
 """
 
@@ -67,6 +68,8 @@ def main():
                 artists[artist_id - 1].play_all()
         elif res == 9:
             Album.select_and_play()
+        elif res == 10:
+            Album.view_albums()
         elif res == 0:
             break
 

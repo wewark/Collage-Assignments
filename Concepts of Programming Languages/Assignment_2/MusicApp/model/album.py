@@ -68,7 +68,6 @@ class Album(Base):
     def __repr__(self):
         ret = 'Album:\n'
         ret += 'Name: %s\n' % self.name
-        ret += 'Desc: %s\n' % self.desc
         ret += 'Songs:'
         for song in self.songs:
             ret += '\n\t%s' % song

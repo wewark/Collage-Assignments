@@ -40,7 +40,7 @@ def main():
                 print('%s: %s' % (i + 1, artist.name))
 
             res = int(input())
-            if (res == 0):
+            if res == 0:
                 artist = Artist()
                 artist.name = input('Artist Name: ')
                 artist.songs = [song]
@@ -56,26 +56,24 @@ def main():
 
             session.commit()
         elif res == 2:
-            Song.select_song()
+            Song.print_all_songs()
+            input("Press any key to return")
         elif res == 3:
             Playlist.create_playlist()
         elif res == 4:
             playlist = Playlist.select_playlist()
             if playlist is not None:
                 print(playlist)
-                input()
+                input("Press any key to return")
         elif res == 5:
             Artist.view_artists()
-            input()
+            input("Press any key to return")
         elif res == 6:
             Song.play_song()
         elif res == 7:
             Playlist.select_and_play()
         elif res == 8:
-            artists = Artist.view_artists()
-            artist_id = int(input('Select Artist(0 back): '))
-            if artist_id > 0:
-                artists[artist_id - 1].play_all()
+            Artist.select_artist().play_all()
         elif res == 9:
             Album.select_and_play()
         elif res == 10:

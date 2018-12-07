@@ -44,13 +44,19 @@ class Song(Base):
 
     @staticmethod
     def play_song():
-        songs = Song.select_song()
-        song_id = int(input('Select song (0 back): '))
-        songs[song_id - 1].play()
+        song = Song.select_song()
+        if song is not None:
+            song.play()
 
     @staticmethod
     def get_all():
         return session.query(Song).order_by(Song.name).all()
+
+    @staticmethod
+    def print_all_songs():
+        songs = Song.get_all()
+        for i, song in enumerate(songs):
+            print('%s: %s' % (i + 1, song))
 
     @staticmethod
     def select_song():

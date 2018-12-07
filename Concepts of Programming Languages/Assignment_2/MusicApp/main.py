@@ -13,11 +13,12 @@ def main():
 9: Play Album
 10: View Albums
 11: Play Genre
-12: Remove song from playlist
-13: Delete Playlist
-14: Delete Song
-15: Delete Album
-16: Delete Artist
+12: Add Song to Playlist
+13: Remove song from playlist
+14: Delete Playlist
+15: Delete Song
+16: Delete Album
+17: Delete Artist
 0: exit
 """
 
@@ -31,6 +32,7 @@ def main():
             file_id = int(input('Select song file: '))
             song.path = 'db/songs/%s' % song_files[file_id - 1]
             song.genre = input('Genre: ')
+            song.date = input('Date: ')
 
             artist_list = session.query(Artist).order_by(Artist.name).all()
 
@@ -83,20 +85,24 @@ def main():
         elif res == 12:
             playlist = Playlist.select_playlist()
             if playlist is not None:
-                playlist.remove_song()
+                playlist.add_song()
         elif res == 13:
             playlist = Playlist.select_playlist()
             if playlist is not None:
-                playlist.delete()
+                playlist.remove_song()
         elif res == 14:
+            playlist = Playlist.select_playlist()
+            if playlist is not None:
+                playlist.delete()
+        elif res == 15:
             song = Song.select_song()
             if song is not None:
                 song.delete()
-        elif res == 15:
+        elif res == 16:
             album = Album.select_album()
             if album is not None:
                 album.delete()
-        elif res == 16:
+        elif res == 17:
             artist = Artist.select_artist()
             if artist is not None:
                 artist.delete()

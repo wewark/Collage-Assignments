@@ -14,12 +14,12 @@ class Song(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     path = Column(String)
-
     artist_id = Column(Integer, ForeignKey('artists.id'))
     artist = relationship('Artist', back_populates='songs')
     album_id = Column(Integer, ForeignKey('albums.id'))
     album = relationship('Album', back_populates='songs')
     genre = Column(String)
+    date = Column(String)
 
     def play(self):
         mixer.init()
@@ -70,10 +70,6 @@ class Song(Base):
         for i, song in enumerate(songs):
             print('%s: \t %s' % (i, song))
 
-    def song_string(self, i):
-        return ('%s: Title: %s \t Album: %s \t Artist: %s \t Genre: %s' % (
-            i + 1, self.name, self.album.name, self.artist.name, self.genre))
-
     @staticmethod
     def select_song():
         songs = Song.get_all()
@@ -92,5 +88,5 @@ class Song(Base):
         return files
 
     def __repr__(self):
-        return ('Title: %s \t Album: %s \t Artist: %s \t Genre: %s' % (
-             self.name, self.album.name, self.artist.name, self.genre))
+        return ('Title: %s \t Album: %s \t Artist: %s \t Genre: %s \t Date: %s' % (
+             self.name, self.album.name, self.artist.name, self.genre, self.date))

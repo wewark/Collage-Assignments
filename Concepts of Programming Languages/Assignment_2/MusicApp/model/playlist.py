@@ -30,6 +30,11 @@ class Playlist(Base):
         for song in songs:
             song.play()
 
+    def add_song(self):
+        selectedSong = Song.select_song()
+        self.songs.append(selectedSong)
+        session.commit()
+
     def remove_song(self):
         song = self.select_song()
         if song is not None:

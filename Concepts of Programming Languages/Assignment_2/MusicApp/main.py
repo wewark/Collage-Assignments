@@ -50,7 +50,27 @@ def main():
             else:
                 artist_list[res - 1].songs.append(song)
                 session.add(artist_list[res - 1])
-            
+
+            #############
+
+            print('Add feature ?')
+            res = int(input("0: Yes 1: NO"))
+
+            if res == 0:
+                while True:
+                    for i, artist in enumerate(artist_list):
+                        print('%s: %s' % (i + 1, artist.name))
+
+                    res = int(input())
+                    song.features.append(artist_list[res - 1])
+                    print('Add feature ?')
+                    res = int(input("0: Yes 1: NO"))
+                    if res == 1:
+                        break
+            session.add(song)
+
+            ############
+
             album_name = input('Album Name: ')
             album = Album.find_or_create(album_name)
             album.songs.append(song)

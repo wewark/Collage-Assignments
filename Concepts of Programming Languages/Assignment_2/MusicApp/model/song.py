@@ -1,11 +1,16 @@
 import os
 
 from pygame import mixer
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import *
 from sqlalchemy.orm import relationship
 from random import shuffle
 
 from . import Artist, Base, session
+
+song_features = Table('song_features', Base.metadata,
+                      Column('song_id', Integer,
+                             ForeignKey('songs.id')),
+                      Column('artist_id', Integer, ForeignKey('artists.id')))
 
 
 class Song(Base):
@@ -20,6 +25,7 @@ class Song(Base):
     album = relationship('Album', back_populates='songs')
     genre = Column(String)
     date = Column(String)
+    features = relationship('Artist', secondary=song_features)
 
     def play(self):
         mixer.init()
@@ -88,5 +94,13 @@ class Song(Base):
         return files
 
     def __repr__(self):
-        return ('Title: %s \t Album: %s \t Artist: %s \t Genre: %s \t Date: %s' % (
-             self.name, self.album.name, self.artist.name, self.genre, self.date))
+        ft = ""
+
+        if len(self.features) > 0:
+            ft = "(ft. "
+            for arist in self.features:
+                ft += arist.name + ", "
+            ft = ft[0:len(ft)-2] + ")"
+
+        return ('Title: %s \t| Album: %s \t|\t Artist: %s %s \t| Genre: %s \t| Date: %s' % (
+             self.name, self.album.name, self.artist.name, ft, self.genre, self.date))

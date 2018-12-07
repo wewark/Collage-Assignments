@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from . import Base, session
+from random import shuffle
 
 
 class Artist(Base):
@@ -11,7 +12,15 @@ class Artist(Base):
     songs = relationship('Song', back_populates='artist')
 
     def play_all(self):
+        shuffleFlag = int(input('Play mode: (0: normal, 1: shuffle)'))
+        songs = []
+
         for song in self.songs:
+            songs.append(song)
+
+        if shuffleFlag is 1:
+            shuffle(songs)
+        for song in songs:
             song.play()
     
     def delete(self):

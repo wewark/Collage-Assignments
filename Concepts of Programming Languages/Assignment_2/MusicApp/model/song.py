@@ -3,6 +3,7 @@ import os
 from pygame import mixer
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+from random import shuffle
 
 from . import Artist, Base, session
 
@@ -39,8 +40,19 @@ class Song(Base):
             print('%s: %s' % (i + 1, genre[0]))
         genre_id = int(input('Select Genre(0 back)'))
 
+        shuffleFlag = int(input('Play mode: (0: normal, 1: shuffle)'))
+        songs = []
+
         for song in session.query(Song).filter(Song.genre == genres[genre_id - 1][0]):
+            songs.append(song)
+
+        if shuffleFlag is 1:
+            shuffle(songs)
+
+        for song in songs:
             song.play()
+
+
 
     @staticmethod
     def play_song():
@@ -56,7 +68,11 @@ class Song(Base):
     def print_all_songs():
         songs = Song.get_all()
         for i, song in enumerate(songs):
-            print('%s: %s' % (i + 1, song))
+            print('%s: \t %s' % (i, song))
+
+    def song_string(self, i):
+        return ('%s: Title: %s \t Album: %s \t Artist: %s \t Genre: %s' % (
+            i + 1, self.name, self.album.name, self.artist.name, self.genre))
 
     @staticmethod
     def select_song():
@@ -76,4 +92,5 @@ class Song(Base):
         return files
 
     def __repr__(self):
-        return "%s - %s" % (self.name, self.artist.name)
+        return ('Title: %s \t Album: %s \t Artist: %s \t Genre: %s' % (
+             self.name, self.album.name, self.artist.name, self.genre))

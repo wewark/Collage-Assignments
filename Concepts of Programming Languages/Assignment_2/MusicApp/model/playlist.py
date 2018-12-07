@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Table
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from . import Base, Song, session
+from random import shuffle
 
 playlist_song = Table('playlist_song', Base.metadata,
                       Column('playlist_id', Integer,
@@ -18,9 +19,17 @@ class Playlist(Base):
     songs = relationship('Song', secondary=playlist_song)
 
     def play(self):
+        shuffleFlag = int(input('Play mode: (0: normal, 1: shuffle)'))
+        songs = []
+
         for song in self.songs:
+            songs.append(song)
+
+        if shuffleFlag is 1:
+            shuffle(songs)
+        for song in songs:
             song.play()
-    
+
     def remove_song(self):
         song = self.select_song()
         if song is not None:
@@ -54,7 +63,7 @@ class Playlist(Base):
     def select_playlist():
         playlists = Playlist.get_all()
         for i, playlist in enumerate(playlists):
-            print('%s: %s' % (i + 1, playlist.name))
+            print('%s: %s [%s Tracks]' % (i + 1, playlist.name, len(playlist.songs)))
 
         playlist_id = int(input('Select Playlist (0 back): '))
         if playlist_id > 0:
@@ -82,7 +91,9 @@ class Playlist(Base):
         ret = 'Playlist:\n'
         ret += 'Name: %s\n' % self.name
         ret += 'Desc: %s\n' % self.desc
-        ret += 'Songs:'
+        ret += 'Songs: (%s Track)' % len(self.songs)
+        i = 0
         for song in self.songs:
             ret += '\n\t%s' % song
+            i = i+1
         return ret

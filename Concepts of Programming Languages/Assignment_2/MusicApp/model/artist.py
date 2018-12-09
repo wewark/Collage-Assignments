@@ -1,7 +1,15 @@
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import relationship
+from sqlalchemy import *
+from sqlalchemy.orm import relationship, backref
 from . import Base, session
 from random import shuffle
+
+band_artists = Table(
+    'band_artists',
+    Base.metadata,
+    Column('band_artist_id', INTEGER, primary_key=True),
+    Column('band_id', INTEGER, ForeignKey('artists.id')),
+    Column('artist_id', INTEGER, ForeignKey('artists.id')),
+)
 
 
 class Artist(Base):
@@ -10,6 +18,14 @@ class Artist(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     songs = relationship('Song', back_populates='artist')
+
+    artists = relationship(
+        'Artist',
+        secondary=band_artists,
+        primaryjoin=id == band_artists.c.band_id,
+        secondaryjoin=id == band_artists.c.artist_id,
+        backref=backref('bands')
+    )
 
     def play_all(self):
         shuffleFlag = int(input('Play mode: (0: normal, 1: shuffle)'))
@@ -22,7 +38,7 @@ class Artist(Base):
             shuffle(songs)
         for song in songs:
             song.play()
-    
+
     def delete(self):
         for song in self.songs:
             song.delete()
@@ -32,7 +48,7 @@ class Artist(Base):
     @staticmethod
     def get_all():
         return session.query(Artist).order_by(Artist.name).all()
-    
+
     @staticmethod
     def select_artist():
         artists = Artist.get_all()
@@ -48,8 +64,29 @@ class Artist(Base):
         artists = Artist.get_all()
         print('Artists:')
         for i, artist in enumerate(artists):
-            print('\t%s: %s' % (i + 1, artist))
+            artists = ("" if len(artist.artists) == 0 else "[ " + ", ".join([str(x.name) for x in artist.artists])   + " ]")
+            print('\t%s: %s %s' % (i + 1, artist, artists))
         return artists
+
+
+    @staticmethod
+    def Create(artist_list, song = None):
+        artist = Artist()
+        artist.name = input('Artist/Band Name: ')
+        res = int(input('Artist or A Band? \n (0: Artist, 1: Band)'))
+        if song is not None:
+            artist.songs = [song]
+        if res == 1:
+            while True:
+                print("Select Band Artists: (0: To Skip)")
+                for i, artistx in enumerate(artist_list):
+                    print('%s: %s' % (i + 1, artistx.name))
+
+                res = int(input())
+                if res == 0:
+                    break
+                artist.artists.append(artist_list[res - 1])
+        session.add(artist)
 
     def __repr__(self):
         return self.name

@@ -14,11 +14,12 @@ def main():
 10: View Albums
 11: Play Genre
 12: Add Song to Playlist
-13: Remove song from playlist
-14: Delete Playlist
-15: Delete Song
-16: Delete Album
-17: Delete Artist
+13: Add Artist / Band
+14: Remove song from playlist
+15: Delete Playlist
+16: Delete Song
+17: Delete Album
+18: Delete Artist
 0: exit
 """
 
@@ -37,35 +38,31 @@ def main():
             artist_list = session.query(Artist).order_by(Artist.name).all()
 
             print('Select an artist:')
-            print('0: Add new artist')
+            print('0: Add new Artist/Band')
             for i, artist in enumerate(artist_list):
                 print('%s: %s' % (i + 1, artist.name))
 
             res = int(input())
             if res == 0:
-                artist = Artist()
-                artist.name = input('Artist Name: ')
-                artist.songs = [song]
-                session.add(artist)
+                Artist.Create(artist_list, song)
             else:
                 artist_list[res - 1].songs.append(song)
                 session.add(artist_list[res - 1])
 
             #############
 
-            print('Add feature ?')
-            res = int(input("0: Yes 1: NO"))
-
-            if res == 0:
+            print('Add an artist feature to this song ?')
+            res = int(input("0: NO 1: YES"))
+            if res == 1:
                 while True:
                     for i, artist in enumerate(artist_list):
                         print('%s: %s' % (i + 1, artist.name))
 
                     res = int(input())
                     song.features.append(artist_list[res - 1])
-                    print('Add feature ?')
-                    res = int(input("0: Yes 1: NO"))
-                    if res == 1:
+                    print('Add another feature ?')
+                    res = int(input("0: NO 1: YES"))
+                    if res == 0:
                         break
             session.add(song)
 
@@ -107,22 +104,26 @@ def main():
             if playlist is not None:
                 playlist.add_song()
         elif res == 13:
-            playlist = Playlist.select_playlist()
-            if playlist is not None:
-                playlist.remove_song()
+            artist_list = session.query(Artist).order_by(Artist.name).all()
+            Artist.Create(artist_list)
+            session.commit()
         elif res == 14:
             playlist = Playlist.select_playlist()
             if playlist is not None:
-                playlist.delete()
+                playlist.remove_song()
         elif res == 15:
+            playlist = Playlist.select_playlist()
+            if playlist is not None:
+                playlist.delete()
+        elif res == 16:
             song = Song.select_song()
             if song is not None:
                 song.delete()
-        elif res == 16:
+        elif res == 17:
             album = Album.select_album()
             if album is not None:
                 album.delete()
-        elif res == 17:
+        elif res == 18:
             artist = Artist.select_artist()
             if artist is not None:
                 artist.delete()

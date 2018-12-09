@@ -44,7 +44,7 @@ def main():
 
             res = int(input())
             if res == 0:
-                Artist.Create(artist_list, song)
+                Artist.create(artist_list, song)
             else:
                 artist_list[res - 1].songs.append(song)
                 session.add(artist_list[res - 1])
@@ -105,7 +105,7 @@ def main():
                 playlist.add_song()
         elif res == 13:
             artist_list = session.query(Artist).order_by(Artist.name).all()
-            Artist.Create(artist_list)
+            Artist.create(artist_list)
             session.commit()
         elif res == 14:
             playlist = Playlist.select_playlist()

@@ -5,7 +5,7 @@ from sqlalchemy import *
 from sqlalchemy.orm import relationship
 from random import shuffle
 
-from . import Artist, Base, session
+from . import Base, session
 
 song_features = Table('song_features', Base.metadata,
                       Column('song_id', Integer,
@@ -46,18 +46,13 @@ class Song(Base):
             print('%s: %s' % (i + 1, genre[0]))
         genre_id = int(input('Select Genre(0 back)'))
 
-        shuffleFlag = int(input('Play mode: (0: normal, 1: shuffle)'))
+
         songs = []
 
         for song in session.query(Song).filter(Song.genre == genres[genre_id - 1][0]):
             songs.append(song)
 
-        if shuffleFlag is 1:
-            shuffle(songs)
-
-        for song in songs:
-            song.play()
-
+        Song.play_song_list(songs)
 
 
     @staticmethod
@@ -92,6 +87,18 @@ class Song(Base):
         for i, f in enumerate(files):
             print('%s: %s' % (i + 1, f))
         return files
+
+    @staticmethod
+    def play_song_list(songs):
+        shuffleFlag = int(input('Play mode: (0: normal, 1: shuffle)'))
+        if shuffleFlag is 1:
+            shuffle(songs)
+        print("Playing...\nQueue:")
+        for i, song in enumerate(songs):
+            print('\t%s - %s\tby: %s' % (i, song.name, song.artist.name))
+        for song in songs:
+            print('Starting... \n%s - %s \tby %s' % (i, song.name, song.artist.name))
+            song.play()
 
     def __repr__(self):
         ft = ""

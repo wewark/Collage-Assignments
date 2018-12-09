@@ -19,16 +19,12 @@ class Playlist(Base):
     songs = relationship('Song', secondary=playlist_song)
 
     def play(self):
-        shuffleFlag = int(input('Play mode: (0: normal, 1: shuffle)'))
         songs = []
 
         for song in self.songs:
             songs.append(song)
 
-        if shuffleFlag is 1:
-            shuffle(songs)
-        for song in songs:
-            song.play()
+        Song.play_song_list(songs)
 
     def add_song(self):
         selectedSong = Song.select_song()

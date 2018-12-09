@@ -1,7 +1,6 @@
 from sqlalchemy import *
 from sqlalchemy.orm import relationship, backref
 from . import Base, session
-from random import shuffle
 
 band_artists = Table(
     'band_artists',
@@ -28,16 +27,19 @@ class Artist(Base):
     )
 
     def play_all(self):
-        shuffleFlag = int(input('Play mode: (0: normal, 1: shuffle)'))
         songs = []
 
         for song in self.songs:
             songs.append(song)
 
-        if shuffleFlag is 1:
-            shuffle(songs)
-        for song in songs:
-            song.play()
+        for band in self.bands:
+            for song in band.songs:
+                songs.append(song)
+
+        from model import Song
+        Song.play_song_list(songs)
+
+
 
     def delete(self):
         for song in self.songs:
@@ -64,13 +66,13 @@ class Artist(Base):
         artists = Artist.get_all()
         print('Artists:')
         for i, artist in enumerate(artists):
-            artists = ("" if len(artist.artists) == 0 else "[ " + ", ".join([str(x.name) for x in artist.artists])   + " ]")
+            artists = (
+                "" if len(artist.artists) == 0 else "[ " + ", ".join([str(x.name) for x in artist.artists]) + " ]")
             print('\t%s: %s %s' % (i + 1, artist, artists))
         return artists
 
-
     @staticmethod
-    def Create(artist_list, song = None):
+    def create(artist_list, song=None):
         artist = Artist()
         artist.name = input('Artist/Band Name: ')
         res = int(input('Artist or A Band? \n (0: Artist, 1: Band)'))

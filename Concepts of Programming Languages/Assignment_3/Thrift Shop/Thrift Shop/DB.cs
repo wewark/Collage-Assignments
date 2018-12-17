@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data.SQLite;
+using System.IO;
 
 namespace Thrift_Shop
 {
@@ -14,8 +15,11 @@ namespace Thrift_Shop
 
         DB()
         {
-            SQLiteConnection.CreateFile("db/my_db.db");
-            con = new SQLiteConnection("Data Source=db/my_db.db;Version=3");
+            string path = "../../db/my_db.db";
+            Directory.CreateDirectory("../../db");
+            if (!File.Exists(path))
+                SQLiteConnection.CreateFile(path);
+            con = new SQLiteConnection($"Data Source={path};Version=3");
             con.Open();
             CreateTables();
         }

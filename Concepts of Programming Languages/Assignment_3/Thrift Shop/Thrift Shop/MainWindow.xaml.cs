@@ -24,13 +24,9 @@ namespace Thrift_Shop
         {
             InitializeComponent();
 
-            SQLiteConnection.CreateFile("my_db.sqlite");
-            SQLiteConnection con = new SQLiteConnection("Data Source=my_db.sqlite;Version=3");
-            con.Open();
+            DB db = DB.Instance;
 
-            string sql = "CREATE TABLE highscores (name VARCHAR(20), score INT)";
-            SQLiteCommand command = new SQLiteCommand(sql, con);
-            command.ExecuteNonQuery();
+
 
 
             label1.Content = "hi";

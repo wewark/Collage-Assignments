@@ -25,11 +25,12 @@ namespace Thrift_Shop
             InitializeComponent();
 
             DB db = DB.Instance;
+        }
 
-
-
-
-            label1.Content = "hi";
+        private void addProductButton_Click(object sender, RoutedEventArgs e)
+        {
+            AddProductWindow addProductWindow = new AddProductWindow();
+            addProductWindow.Show();
         }
     }
 }

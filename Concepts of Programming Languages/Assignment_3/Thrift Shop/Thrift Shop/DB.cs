@@ -14,10 +14,10 @@ namespace Thrift_Shop
 
         DB()
         {
-            //SQLiteConnection.CreateFile("db/my_db.db");
+            SQLiteConnection.CreateFile("db/my_db.db");
             con = new SQLiteConnection("Data Source=db/my_db.db;Version=3");
             con.Open();
-            //CreateTables();
+            CreateTables();
         }
 
         public static DB Instance
@@ -33,20 +33,36 @@ namespace Thrift_Shop
 
         private SQLiteConnection con;
 
+        public void AddProduct(Product product)
+        {
+            AddBrand(product.Brand);
+            string sql = $@"
+INSERT INTO product (name, price, category, brand_id)
+VALUES ('{product.Name}', {product.Price}, '{product.Category}',
+(SELECT id FROM brand WHERE name = '{product.Brand}'));
+";
+            ExecuteNonQuery(sql);
+        }
+
+        private void AddBrand(string brand)
+        {
+            ExecuteNonQuery($"INSERT INTO brand (name) VALUES ('{brand}');");
+        }
+
         public void CreateTables()
         {
             string sql = @"
-CREATE TABLE product (
-`id` INT NOT NULL PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS product (
+id INTEGER PRIMARY KEY,
 name VARCHAR NOT NULL,
 price FLOAT ,
 category VARCHAR ,
-brand_id INT ,
+brand_id INTEGER ,
 FOREIGN KEY (brand_id) REFERENCES brand(id)
 );
 
-CREATE TABLE brand (
-`id` INT NOT NULL PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS brand (
+id INTEGER PRIMARY KEY,
 name VARCHAR NOT NULL
 );
 ";

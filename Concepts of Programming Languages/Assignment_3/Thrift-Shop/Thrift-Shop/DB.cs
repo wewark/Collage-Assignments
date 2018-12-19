@@ -14,13 +14,7 @@ namespace Thrift_Shop
 
         DB()
         {
-            //string path = "../../db/my_db.db";
-            //Directory.CreateDirectory("../../db");
-            //if (!File.Exists(path))
-            //    SQLiteConnection.CreateFile(path);
-            //con = new SQLiteConnection($"Data Source={path};Version=3");
-            //con.Open();
-            //CreateTables();
+
         }
 
         public static DB Instance
@@ -34,48 +28,37 @@ namespace Thrift_Shop
             }
         }
 
-        //private SQLiteConnection con;
+        private Model.thrift_shopEntities2 entities = new Model.thrift_shopEntities2();
 
         public void AddProduct(Product product)
         {
-            AddBrand(product.Brand);
-            string sql = $@"
-INSERT INTO product (name, price, category, brand_id)
-VALUES ('{product.Name}', {product.Price}, '{product.Category}',
-(SELECT id FROM brand WHERE name = '{product.Brand}'));
-";
-            ExecuteNonQuery(sql);
+            var br = AddBrand(product.Brand);
+            //entities.Database.Log = Console.Write;
+
+            Model.product pr = new Model.product()
+            {
+                name = product.Name,
+                category = product.Category,
+                price = (float)product.Price,
+                brand = br
+            };
+
+            entities.products.Add(pr);
+            entities.SaveChanges();
         }
 
-        private void AddBrand(string brand)
+        private Model.brand AddBrand(string brand)
         {
-            ExecuteNonQuery($"INSERT INTO brand (name) VALUES ('{brand}');");
-        }
-
-        public void CreateTables()
-        {
-            string sql = @"
-CREATE TABLE IF NOT EXISTS product (
-id INTEGER PRIMARY KEY,
-name VARCHAR NOT NULL,
-price FLOAT ,
-category VARCHAR ,
-brand_id INTEGER ,
-FOREIGN KEY (brand_id) REFERENCES brand(id)
-);
-
-CREATE TABLE IF NOT EXISTS brand (
-id INTEGER PRIMARY KEY,
-name VARCHAR NOT NULL
-);
-";
-            ExecuteNonQuery(sql);
-        }
-
-        private void ExecuteNonQuery(string sql)
-        {
-            //SQLiteCommand command = new SQLiteCommand(sql, con);
-            //command.ExecuteNonQuery();
+            var q = from b in entities.brands
+                    where b.name == brand
+                    select b;
+            if (q.Any())
+                return q.First();
+            Model.brand br = new Model.brand();
+            br.name = brand;
+            entities.brands.Add(br);
+            entities.SaveChanges();
+            return br;
         }
     }
 }

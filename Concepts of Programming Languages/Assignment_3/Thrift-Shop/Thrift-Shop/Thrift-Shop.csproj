@@ -183,6 +183,9 @@
       <DependentUpon>DataModel.edmx</DependentUpon>
     </None>
     <None Include="packages.config" />
+    <None Include="Properties\DataSources\Thrift_Shop.Model.brand.datasource" />
+    <None Include="Properties\DataSources\Thrift_Shop.Model.product.datasource" />
+    <None Include="Properties\DataSources\Thrift_Shop.Model.thrift_shopEntities2.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

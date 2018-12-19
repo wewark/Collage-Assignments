@@ -31,5 +31,11 @@ namespace Thrift_Shop
             AddProductWindow addProductWindow = new AddProductWindow();
             addProductWindow.Show();
         }
+
+        private void ShowAllProductsButton_Click(object sender, RoutedEventArgs e)
+        {
+            AllProductsWindow allProductsWindow = new AllProductsWindow();
+            allProductsWindow.Show();
+        }
     }
 }

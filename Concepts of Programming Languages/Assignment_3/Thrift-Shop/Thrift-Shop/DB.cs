@@ -60,5 +60,13 @@ namespace Thrift_Shop
             entities.SaveChanges();
             return br;
         }
+
+        public List<Model.product> GetAllProducts()
+        {
+            var query = from p in entities.products
+                        join b in entities.brands on p.brand_id equals b.id
+                        select p;
+            return query.ToList();
+        }
     }
 }

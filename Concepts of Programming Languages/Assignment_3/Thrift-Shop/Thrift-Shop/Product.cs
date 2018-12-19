@@ -21,14 +21,21 @@ namespace Thrift_Shop
             Brand = brand;
         }
 
+        static DB db = DB.Instance;
+
         public void AddToDB()
         {
-            DB.Instance.AddProduct(this);
+            db.AddProduct(this);
         }
 
         public static bool ValidPrice(string price)
         {
             return double.TryParse(price, out double n);
+        }
+
+        public static List<Model.product> GetAll()
+        {
+            return db.GetAllProducts();
         }
     }
 }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Data.SQLite;
 using System.IO;
 
 namespace Thrift_Shop
@@ -15,13 +14,13 @@ namespace Thrift_Shop
 
         DB()
         {
-            string path = "../../db/my_db.db";
-            Directory.CreateDirectory("../../db");
-            if (!File.Exists(path))
-                SQLiteConnection.CreateFile(path);
-            con = new SQLiteConnection($"Data Source={path};Version=3");
-            con.Open();
-            CreateTables();
+            //string path = "../../db/my_db.db";
+            //Directory.CreateDirectory("../../db");
+            //if (!File.Exists(path))
+            //    SQLiteConnection.CreateFile(path);
+            //con = new SQLiteConnection($"Data Source={path};Version=3");
+            //con.Open();
+            //CreateTables();
         }
 
         public static DB Instance
@@ -35,7 +34,7 @@ namespace Thrift_Shop
             }
         }
 
-        private SQLiteConnection con;
+        //private SQLiteConnection con;
 
         public void AddProduct(Product product)
         {
@@ -75,8 +74,8 @@ name VARCHAR NOT NULL
 
         private void ExecuteNonQuery(string sql)
         {
-            SQLiteCommand command = new SQLiteCommand(sql, con);
-            command.ExecuteNonQuery();
+            //SQLiteCommand command = new SQLiteCommand(sql, con);
+            //command.ExecuteNonQuery();
         }
     }
 }

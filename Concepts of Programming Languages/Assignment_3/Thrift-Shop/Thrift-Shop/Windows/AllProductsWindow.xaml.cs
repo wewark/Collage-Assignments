@@ -33,5 +33,18 @@ namespace Thrift_Shop
             // productViewSource.Source = [generic data source]
             productViewSource.Source = Product.GetAll();
         }
+
+        private void PriceButton_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Data.CollectionViewSource productViewSource = ((System.Windows.Data.CollectionViewSource)(this.FindResource("productViewSource")));
+            try
+            {
+                productViewSource.Source = Product.GetAll(double.Parse(PriceTextBox.Text));
+            }
+            catch (Exception)
+            {
+                productViewSource.Source = Product.GetAll();
+            }
+        }
     }
 }

@@ -11,7 +11,7 @@
         <CollectionViewSource x:Key="productViewSource" d:DesignSource="{d:DesignInstance {x:Type Model:product}, CreateList=True}"/>
     </Window.Resources>
     <Grid DataContext="{StaticResource productViewSource}">
-        <DataGrid x:Name="productDataGrid" AutoGenerateColumns="False" EnableRowVirtualization="True" ItemsSource="{Binding}" Margin="10" RowDetailsVisibilityMode="VisibleWhenSelected" FontSize="14">
+        <DataGrid x:Name="productDataGrid" AutoGenerateColumns="False" ItemsSource="{Binding}" Margin="10,43,10,10" RowDetailsVisibilityMode="VisibleWhenSelected" FontSize="14" IsReadOnly="True">
             <DataGrid.Columns>
                 <DataGridTextColumn x:Name="nameColumn" Binding="{Binding name}" Header="name" Width="115"/>
                 <DataGridTextColumn x:Name="priceColumn" Binding="{Binding price}" Header="price" Width="115"/>
@@ -19,5 +19,8 @@
                 <DataGridTextColumn x:Name="categoryColumn" Binding="{Binding category}" Header="category" Width="115"/>
             </DataGrid.Columns>
         </DataGrid>
+        <TextBox x:Name="PriceTextBox" HorizontalAlignment="Left" Height="23" Margin="70,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="80"/>
+        <Label Content="Price &lt;=" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="PriceButton" Content="Button" HorizontalAlignment="Left" Margin="155,13,0,0" VerticalAlignment="Top" Width="75" Click="PriceButton_Click"/>
     </Grid>
 </Window>

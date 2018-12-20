@@ -54,17 +54,22 @@ namespace Thrift_Shop
                     select b;
             if (q.Any())
                 return q.First();
-            Model.brand br = new Model.brand();
-            br.name = brand;
+
+            Model.brand br = new Model.brand
+            {
+                name = brand
+            };
+
             entities.brands.Add(br);
             entities.SaveChanges();
             return br;
         }
 
-        public List<Model.product> GetAllProducts()
+        public List<Model.product> GetAllProducts(double price = 1e9)
         {
             var query = from p in entities.products
                         join b in entities.brands on p.brand_id equals b.id
+                        where p.price <= price
                         select p;
             return query.ToList();
         }

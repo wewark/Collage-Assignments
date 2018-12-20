@@ -33,9 +33,9 @@ namespace Thrift_Shop
             return double.TryParse(price, out double n);
         }
 
-        public static List<Model.product> GetAll()
+        public static List<Model.product> GetAll(double price = 1e9)
         {
-            return db.GetAllProducts();
+            return db.GetAllProducts(price);
         }
     }
 }

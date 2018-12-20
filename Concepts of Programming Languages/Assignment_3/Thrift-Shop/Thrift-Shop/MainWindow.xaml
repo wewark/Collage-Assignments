@@ -10,6 +10,7 @@
         <Label x:Name="label1" Content="Thrift Shop" Margin="10,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Center" FontSize="48" FontFamily="Microsoft YaHei Light"/>
         <Button x:Name="addProductButton" Content="Add Product" Margin="91,88,91,0" VerticalAlignment="Top" HorizontalContentAlignment="Center" Height="59" Click="addProductButton_Click"/>
         <Button x:Name="ShowAllProductsButton" Content="Show All Products" Margin="91,152,91,0" VerticalAlignment="Top" HorizontalContentAlignment="Center" Height="59" Click="ShowAllProductsButton_Click"/>
+        <Button x:Name="ShowBrandsButton" Content="Show Brands" Margin="91,216,91,0" VerticalAlignment="Top" HorizontalContentAlignment="Center" Height="59" Click="ShowBrandsButton_Click"/>
 
     </Grid>
 </Window>

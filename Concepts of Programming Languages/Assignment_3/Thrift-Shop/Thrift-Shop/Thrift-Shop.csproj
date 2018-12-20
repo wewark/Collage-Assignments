@@ -114,6 +114,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Brand.cs" />
+    <Compile Include="Windows\ShowBrandsWindow.xaml.cs">
+      <DependentUpon>ShowBrandsWindow.xaml</DependentUpon>
+    </Compile>
+    <Page Include="Windows\ShowBrandsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Windows\AddProductWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -190,6 +198,7 @@
       <DependentUpon>DataModel.edmx</DependentUpon>
     </None>
     <None Include="packages.config" />
+    <None Include="Properties\DataSources\Brand.datasource" />
     <None Include="Properties\DataSources\Thrift_Shop.Model.brand.datasource" />
     <None Include="Properties\DataSources\Thrift_Shop.Model.product.datasource" />
     <None Include="Properties\DataSources\Thrift_Shop.Model.thrift_shopEntities2.datasource" />

@@ -73,5 +73,22 @@ namespace Thrift_Shop
                         select p;
             return query.ToList();
         }
+
+        public List<Brand> GetAllBrands()
+        {
+            var query = from b in entities.brands
+                        let productCount = (
+                            from p in entities.products
+                            where p.brand_id == b.id
+                            select p.id
+                        ).Count()
+                        orderby productCount descending
+                        select new Brand()
+                        {
+                            Name = b.name,
+                            ProductCount = productCount
+                        };
+            return query.ToList();
+        }
     }
 }

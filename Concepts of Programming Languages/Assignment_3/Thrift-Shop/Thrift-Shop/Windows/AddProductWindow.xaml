@@ -1,0 +1,21 @@
+﻿<Window x:Class="Thrift_Shop.AddProductWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Thrift_Shop"
+        mc:Ignorable="d"
+        Title="AddProductWindow" Height="251.695" Width="345.233">
+    <Grid>
+        <TextBox x:Name="NameTextBox" Height="23" Margin="89,14,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" Width="222"/>
+        <Label Content="Name" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="70" HorizontalContentAlignment="Right"/>
+        <TextBox x:Name="PriceTextBox" Height="23" Margin="89,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" Width="222"/>
+        <Label Content="Price" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" Width="70" HorizontalContentAlignment="Right"/>
+        <TextBox x:Name="CategoryTextBox" Height="23" Margin="89,76,0,0" TextWrapping="Wrap" VerticalAlignment="Top" MaxLines="1" HorizontalAlignment="Left" Width="222"/>
+        <Label Content="Category" HorizontalAlignment="Left" Margin="10,72,0,0" VerticalAlignment="Top" Width="70" HorizontalContentAlignment="Right"/>
+        <TextBox x:Name="BrandTextBox" Height="23" Margin="89,107,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" Width="222"/>
+        <Label Content="Brand" HorizontalAlignment="Left" Margin="10,103,0,0" VerticalAlignment="Top" Width="70" HorizontalContentAlignment="Right"/>
+        <Button x:Name="submitButton" Content="Submit" Margin="10,150,10,10" Click="SubmitButton_Click"/>
+
+    </Grid>
+</Window>

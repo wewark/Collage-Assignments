@@ -1,0 +1,16 @@
+﻿<Window x:Class="Thrift_Shop.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Thrift_Shop"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="416.737">
+    <Grid>
+        <Label x:Name="label1" Content="Thrift Shop" Margin="10,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Center" FontSize="48" FontFamily="Microsoft YaHei Light"/>
+        <Button x:Name="addProductButton" Content="Add Product" Margin="91,88,91,0" VerticalAlignment="Top" HorizontalContentAlignment="Center" Height="59" Click="addProductButton_Click"/>
+        <Button x:Name="ShowAllProductsButton" Content="Show All Products" Margin="91,152,91,0" VerticalAlignment="Top" HorizontalContentAlignment="Center" Height="59" Click="ShowAllProductsButton_Click"/>
+        <Button x:Name="ShowBrandsButton" Content="Show Brands" Margin="91,216,91,0" VerticalAlignment="Top" HorizontalContentAlignment="Center" Height="59" Click="ShowBrandsButton_Click"/>
+
+    </Grid>
+</Window>
